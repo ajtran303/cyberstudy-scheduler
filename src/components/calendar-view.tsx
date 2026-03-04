@@ -1,8 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface CalendarEvent {
   id: string;
@@ -24,6 +30,11 @@ interface CalendarData {
 
 const typeLabels = { topic: "Topic", assignment: "Assignment", exam: "Exam" };
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function eventHref(event: CalendarEvent): string {
+  if (event.type === "topic") return `/dashboard/topics/${event.id}`;
+  return `/dashboard/courses/${event.course.id}`;
+}
 const MAX_VISIBLE_EVENTS = 3;
 
 function toISODate(d: Date) {
@@ -117,9 +128,10 @@ function MonthGrid({
             </span>
             <div className="mt-0.5 space-y-0.5">
               {visible.map((event) => (
-                <div
+                <Link
                   key={`${event.type}-${event.id}`}
-                  className="flex items-center gap-1 truncate"
+                  href={eventHref(event)}
+                  className="flex items-center gap-1 truncate rounded px-0.5 hover:bg-accent transition-colors"
                 >
                   <div
                     className="h-1.5 w-1.5 rounded-full shrink-0"
@@ -128,12 +140,36 @@ function MonthGrid({
                   <span className="text-[10px] leading-tight truncate">
                     {event.name}
                   </span>
-                </div>
+                </Link>
               ))}
               {overflow > 0 && (
-                <span className="text-[10px] text-muted-foreground">
-                  +{overflow} more
-                </span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                      +{overflow} more
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 p-2" align="start">
+                    <div className="space-y-1">
+                      {dayEvents.map((event) => (
+                        <Link
+                          key={`${event.type}-${event.id}`}
+                          href={eventHref(event)}
+                          className="flex items-center gap-2 rounded px-2 py-1 hover:bg-accent transition-colors"
+                        >
+                          <div
+                            className="h-2 w-2 rounded-full shrink-0"
+                            style={{ backgroundColor: event.course.color }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs truncate">{event.name}</p>
+                            <p className="text-[10px] text-muted-foreground">{typeLabels[event.type]}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
           </div>
@@ -171,8 +207,9 @@ function EventList({
           </h3>
           <div className="space-y-1">
             {events.map((event) => (
-              <div
+              <Link
                 key={`${event.type}-${event.id}`}
+                href={eventHref(event)}
                 className="flex flex-col gap-1 rounded-md px-3 py-2 hover:bg-accent transition-colors sm:flex-row sm:items-center sm:gap-3"
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -197,7 +234,7 @@ function EventList({
                     </span>
                   )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
