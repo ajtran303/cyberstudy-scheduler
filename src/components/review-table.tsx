@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import Link from "next/link";
-import { MasteryBadge } from "@/components/mastery-badge";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -48,21 +47,54 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
     load();
   }, [sort, courseId]);
 
-  async function updateMastery(topicId: string, mastery: string) {
-    setUpdating(topicId);
-    await fetch(`/api/v1/topics/${topicId}/mastery`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mastery }),
+  function confirmMasteryUpdate(topicId: string, mastery: string) {
+    const topic = topics.find((t) => t.id === topicId);
+    if (!topic) return;
+    const oldMastery = topic.mastery;
+    const label = MASTERY_LABELS[mastery as keyof typeof MASTERY_LABELS];
+
+    toast(`Change mastery to ${label}?`, {
+      action: {
+        label: "Confirm",
+        onClick: () => doUpdateMastery(topicId, mastery, oldMastery),
+      },
+      duration: 5000,
     });
-    setUpdating(null);
-    // Refresh the list
-    const params = new URLSearchParams({ sort });
-    if (courseId) params.set("courseId", courseId);
-    const res = await fetch(`/api/v1/review?${params}`);
-    const json = await res.json();
-    setTopics(json.data || []);
-    router.refresh();
+  }
+
+  async function doUpdateMastery(topicId: string, mastery: string, oldMastery: string) {
+    setUpdating(topicId);
+    try {
+      const res = await fetch(`/api/v1/topics/${topicId}/mastery`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mastery }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to update mastery");
+        return;
+      }
+
+      toast.success("Mastery updated", {
+        action: {
+          label: "Undo",
+          onClick: () => doUpdateMastery(topicId, oldMastery, mastery),
+        },
+      });
+      // Refresh the list
+      const params = new URLSearchParams({ sort });
+      if (courseId) params.set("courseId", courseId);
+      const listRes = await fetch(`/api/v1/review?${params}`);
+      const json = await listRes.json();
+      setTopics(json.data || []);
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setUpdating(null);
+    }
   }
 
   return (
@@ -86,7 +118,12 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       {loading ? (
         <p className="py-8 text-center text-sm text-muted-foreground">Loading...</p>
       ) : topics.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">No topics to review</p>
+        <div className="py-12 text-center">
+          <p className="text-sm font-medium text-muted-foreground">No topics to review</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Add topics to your courses and they&apos;ll appear here sorted by mastery priority.
+          </p>
+        </div>
       ) : (
         <div className="space-y-1">
           {topics.map((topic) => (
@@ -112,24 +149,29 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                   </p>
                 </Link>
               </div>
-              <div className="flex items-center gap-2 pl-5 sm:pl-0">
-                <MasteryBadge mastery={topic.mastery} size="sm" />
-                <div className="flex gap-1 shrink-0">
-                  {MASTERY_LEVELS.map((level) => (
-                    <Button
+              <div className="flex items-center gap-1.5 pl-5 sm:pl-0 flex-wrap">
+                {MASTERY_LEVELS.map((level) => {
+                  const isActive = topic.mastery === level;
+                  return (
+                    <button
                       key={level}
-                      variant="ghost"
-                      size="sm"
-                      disabled={updating === topic.id || topic.mastery === level}
-                      onClick={() => updateMastery(topic.id, level)}
-                      className="h-6 w-6 p-0 text-xs"
-                      style={{ color: MASTERY_COLORS[level] }}
-                      title={MASTERY_LABELS[level]}
+                      disabled={updating === topic.id || isActive}
+                      onClick={() => confirmMasteryUpdate(topic.id, level)}
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
+                        isActive
+                          ? "text-white"
+                          : "opacity-40 hover:opacity-100"
+                      } disabled:cursor-default`}
+                      style={{
+                        backgroundColor: isActive ? MASTERY_COLORS[level] : "transparent",
+                        color: isActive ? "white" : MASTERY_COLORS[level],
+                        border: `1px solid ${MASTERY_COLORS[level]}`,
+                      }}
                     >
-                      {level[0]}
-                    </Button>
-                  ))}
-                </div>
+                      {MASTERY_LABELS[level]}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}

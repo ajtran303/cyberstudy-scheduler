@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,19 +40,31 @@ export function TopicList({ courseId, topics }: TopicListProps) {
     setLoading(true);
     const formData = new FormData(e.currentTarget);
 
-    await fetch(`/api/v1/courses/${courseId}/topics`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        date: formData.get("date") || undefined,
-        details: formData.get("details") || undefined,
-      }),
-    });
+    try {
+      const res = await fetch(`/api/v1/courses/${courseId}/topics`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          date: formData.get("date") || undefined,
+          details: formData.get("details") || undefined,
+        }),
+      });
 
-    setLoading(false);
-    setOpen(false);
-    router.refresh();
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to create topic");
+        return;
+      }
+
+      toast.success("Topic created");
+      setOpen(false);
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

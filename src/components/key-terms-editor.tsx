@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface KeyTerm {
   term: string;
@@ -25,7 +27,21 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
   }
 
   function removeTerm(index: number) {
-    setTerms(terms.filter((_, i) => i !== index));
+    const removed = terms[index];
+    const updated = terms.filter((_, i) => i !== index);
+    setTerms(updated);
+    toast("Term removed", {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          setTerms((current) => {
+            const restored = [...current];
+            restored.splice(index, 0, removed);
+            return restored;
+          });
+        },
+      },
+    });
   }
 
   function updateTerm(index: number, field: "term" | "definition", value: string) {
@@ -37,13 +53,27 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
   async function save() {
     setSaving(true);
     const validTerms = terms.filter((t) => t.term.trim() && t.definition.trim());
-    await fetch(`/api/v1/topics/${topicId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ keyTerms: validTerms.length > 0 ? validTerms : null }),
-    });
-    setSaving(false);
-    router.refresh();
+
+    try {
+      const res = await fetch(`/api/v1/topics/${topicId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyTerms: validTerms.length > 0 ? validTerms : null }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to save terms");
+        return;
+      }
+
+      toast.success("Terms saved");
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -56,11 +86,12 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
             onChange={(e) => updateTerm(i, "term", e.target.value)}
             className="font-mono flex-1"
           />
-          <Input
+          <Textarea
             placeholder="Definition"
             value={term.definition}
             onChange={(e) => updateTerm(i, "definition", e.target.value)}
-            className="flex-[2]"
+            className="flex-[2] min-h-9 resize-none"
+            rows={1}
           />
           <Button
             variant="ghost"

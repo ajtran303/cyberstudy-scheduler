@@ -7,6 +7,9 @@ import { TopicList } from "@/components/topic-list";
 import { ReviewTable } from "@/components/review-table";
 import { AssignmentList } from "@/components/assignment-list";
 import { ExamList } from "@/components/exam-list";
+import { EditCourseDialog } from "@/components/edit-course-dialog";
+import { DeleteCourseDialog } from "@/components/delete-course-dialog";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default async function CourseDetailPage({
@@ -37,15 +40,15 @@ export default async function CourseDetailPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0">
       <div className="flex items-start gap-4">
         <Link
           href="/dashboard"
-          className="mt-1 text-muted-foreground hover:text-foreground transition-colors"
+          className="mt-1 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0"
         >
-          &larr;
+          <ArrowLeft className="h-4 w-4" />
         </Link>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div
               className="h-4 w-4 rounded-full shrink-0"
@@ -53,6 +56,19 @@ export default async function CourseDetailPage({
             />
             <h1 className="text-2xl font-bold">{course.name}</h1>
             <Badge variant="secondary">{statusLabels[course.status]}</Badge>
+            <EditCourseDialog
+              course={{
+                id: course.id,
+                name: course.name,
+                courseCode: course.courseCode,
+                color: course.color,
+                professorName: course.professorName,
+                professorEmail: course.professorEmail,
+                website: course.website,
+                status: course.status,
+              }}
+            />
+            <DeleteCourseDialog courseId={course.id} courseName={course.name} />
           </div>
           <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
             {course.courseCode && (
@@ -73,16 +89,20 @@ export default async function CourseDetailPage({
         </div>
       </div>
 
-      <Tabs defaultValue="topics" className="w-full">
-        <TabsList>
-          <TabsTrigger value="topics">
+      <Tabs defaultValue="topics" className="w-full min-w-0">
+        <TabsList className="w-full">
+          <TabsTrigger value="topics" className="flex-1">
             Topics ({course.topics.length})
           </TabsTrigger>
-          <TabsTrigger value="review">Review</TabsTrigger>
-          <TabsTrigger value="assignments">
-            Assignments ({course.assignments.length})
+          <TabsTrigger value="review" className="flex-1">
+            Review
           </TabsTrigger>
-          <TabsTrigger value="exams">
+          <TabsTrigger value="assignments" className="flex-1">
+            <span className="sm:hidden">Assign.</span>
+            <span className="hidden sm:inline">Assignments</span>
+            {" "}({course.assignments.length})
+          </TabsTrigger>
+          <TabsTrigger value="exams" className="flex-1">
             Exams ({course.exams.length})
           </TabsTrigger>
         </TabsList>

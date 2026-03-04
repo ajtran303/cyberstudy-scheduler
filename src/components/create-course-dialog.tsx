@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,24 +31,33 @@ export function CreateCourseDialog({ children }: { children: React.ReactNode }) 
 
     const formData = new FormData(e.currentTarget);
 
-    const res = await fetch("/api/v1/courses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        courseCode: formData.get("courseCode") || undefined,
-        professorName: formData.get("professorName") || undefined,
-        professorEmail: formData.get("professorEmail") || undefined,
-        website: formData.get("website") || undefined,
-        color: selectedColor,
-      }),
-    });
+    try {
+      const res = await fetch("/api/v1/courses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          courseCode: formData.get("courseCode") || undefined,
+          professorName: formData.get("professorName") || undefined,
+          professorEmail: formData.get("professorEmail") || undefined,
+          website: formData.get("website") || undefined,
+          color: selectedColor,
+        }),
+      });
 
-    setLoading(false);
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to create course");
+        return;
+      }
 
-    if (res.ok) {
+      toast.success("Course created");
       setOpen(false);
       router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setLoading(false);
     }
   }
 

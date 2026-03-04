@@ -22,9 +22,42 @@ export default async function DashboardPage() {
     orderBy: { sortOrder: "asc" },
   });
 
+  // Gather stats for the welcome banner
+  const now = new Date();
+  const threeDaysFromNow = new Date(now);
+  threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+
+  const [reviewCount, upcomingAssignments, upcomingExams] = await Promise.all([
+    prisma.topic.count({
+      where: {
+        course: { userId: session.user.id },
+        mastery: { in: ["EXPOSED", "SCANNING"] },
+      },
+    }),
+    prisma.assignment.count({
+      where: {
+        course: { userId: session.user.id },
+        status: "PENDING",
+        dueDate: { lte: threeDaysFromNow },
+      },
+    }),
+    prisma.exam.count({
+      where: {
+        course: { userId: session.user.id },
+        status: "UPCOMING",
+        date: { lte: threeDaysFromNow },
+      },
+    }),
+  ]);
+
   return (
     <div className="space-y-6">
-      <WelcomeBanner name={session.user.name || "Student"} />
+      <WelcomeBanner
+        name={session.user.name || "Student"}
+        reviewCount={reviewCount}
+        upcomingAssignments={upcomingAssignments}
+        upcomingExams={upcomingExams}
+      />
 
       <Tabs defaultValue="courses" className="w-full">
         <TabsList>
