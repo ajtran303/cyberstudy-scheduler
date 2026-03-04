@@ -10,6 +10,7 @@ import { CalendarView } from "@/components/calendar-view";
 import { AnalyticsChart } from "@/components/analytics-chart";
 import { StudySessionPanel } from "@/components/study-session-panel";
 import { StudyStatsChart } from "@/components/study-stats-chart";
+import { ReviewForecastChart } from "@/components/review-forecast-chart";
 import { WelcomeBanner } from "@/components/welcome-banner";
 
 export default async function DashboardPage() {
@@ -29,7 +30,7 @@ export default async function DashboardPage() {
   const threeDaysFromNow = new Date(now);
   threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
 
-  const [reviewCount, upcomingAssignments, upcomingExams] = await Promise.all([
+  const [reviewCount, upcomingAssignments, upcomingExams, srsDueCount] = await Promise.all([
     prisma.topic.count({
       where: {
         course: { userId: session.user.id },
@@ -50,6 +51,12 @@ export default async function DashboardPage() {
         date: { lte: threeDaysFromNow },
       },
     }),
+    prisma.topic.count({
+      where: {
+        course: { userId: session.user.id },
+        OR: [{ nextReviewAt: { lte: now } }, { nextReviewAt: null }],
+      },
+    }),
   ]);
 
   return (
@@ -59,6 +66,7 @@ export default async function DashboardPage() {
         reviewCount={reviewCount}
         upcomingAssignments={upcomingAssignments}
         upcomingExams={upcomingExams}
+        srsDueCount={srsDueCount}
       />
 
       <Tabs defaultValue="courses" className="w-full">
@@ -112,8 +120,9 @@ export default async function DashboardPage() {
           <CalendarView />
         </TabsContent>
 
-        <TabsContent value="analytics" className="mt-4">
+        <TabsContent value="analytics" className="mt-4 space-y-6">
           <AnalyticsChart />
+          <ReviewForecastChart />
         </TabsContent>
 
         <TabsContent value="study" className="mt-4 space-y-6">

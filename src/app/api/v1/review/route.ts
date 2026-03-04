@@ -69,6 +69,20 @@ export async function GET(req: NextRequest) {
       include: { course: { select: { id: true, name: true, color: true } } },
     });
     topics = [...topics, ...nullTopics];
+  } else if (sort === "srs") {
+    const now = new Date();
+    const [nullTopics, dueTopics] = await Promise.all([
+      prisma.topic.findMany({
+        where: { ...where, nextReviewAt: null },
+        include: { course: { select: { id: true, name: true, color: true } } },
+      }),
+      prisma.topic.findMany({
+        where: { ...where, nextReviewAt: { lte: now } },
+        include: { course: { select: { id: true, name: true, color: true } } },
+        orderBy: { nextReviewAt: "asc" },
+      }),
+    ]);
+    topics = [...nullTopics, ...dueTopics];
   } else {
     topics = await prisma.topic.findMany({
       where,

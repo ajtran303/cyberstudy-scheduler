@@ -61,6 +61,9 @@ model Topic {
   keyTerms       Json?
   mastery        Mastery       @default(EXPOSED)
   lastReviewedAt DateTime?
+  nextReviewAt   DateTime?
+  reviewInterval Float         @default(0)
+  easeFactor     Float         @default(2.5)
   sortOrder      Int           @default(0)
   teachItBacks   TeachItBack[]
   quizAttempts   QuizAttempt[]

@@ -12,12 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MASTERY_COLORS, MASTERY_LABELS } from "@/lib/utils";
+import { SrsDueBadge } from "@/components/srs-due-badge";
 
 interface ReviewTopic {
   id: string;
   name: string;
   mastery: keyof typeof MASTERY_COLORS;
   lastReviewedAt: string | null;
+  nextReviewAt: string | null;
   course: { id: string; name: string; color: string };
 }
 
@@ -111,6 +113,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
             <SelectItem value="mastery_priority">Mastery Priority</SelectItem>
             <SelectItem value="lastReviewedAt:asc">Oldest Reviewed</SelectItem>
             <SelectItem value="lastReviewedAt:desc">Recently Reviewed</SelectItem>
+            <SelectItem value="srs">SRS Due</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -148,6 +151,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                     )}
                   </p>
                 </Link>
+                <SrsDueBadge nextReviewAt={topic.nextReviewAt} />
               </div>
               <div className="flex items-center gap-1.5 pl-5 sm:pl-0 flex-wrap">
                 {MASTERY_LEVELS.map((level) => {

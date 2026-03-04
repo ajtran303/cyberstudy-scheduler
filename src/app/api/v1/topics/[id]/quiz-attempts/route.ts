@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { CreateQuizAttemptSchema } from "@/lib/schemas/quiz-attempt";
+import { computeSrs, quizAttemptQuality } from "@/lib/srs";
 
 export async function POST(
   req: NextRequest,
@@ -29,6 +30,22 @@ export async function POST(
         correct: parsed.data.correct,
         questionText: parsed.data.questionText,
         sessionId: parsed.data.sessionId,
+      },
+    });
+
+    const quality = quizAttemptQuality(parsed.data.correct);
+    const srs = computeSrs({
+      quality,
+      currentInterval: topic.reviewInterval,
+      currentEaseFactor: topic.easeFactor,
+    });
+    await prisma.topic.update({
+      where: { id: topicId },
+      data: {
+        lastReviewedAt: new Date(),
+        nextReviewAt: srs.nextReviewAt,
+        reviewInterval: srs.nextInterval,
+        easeFactor: srs.nextEaseFactor,
       },
     });
 
