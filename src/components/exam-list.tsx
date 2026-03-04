@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { DaysLeftBadge } from "@/components/days-left-badge";
@@ -123,7 +124,7 @@ export function ExamList({ courseId }: { courseId: string }) {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="e-desc">Description</Label>
-                <Input id="e-desc" name="description" />
+                <Textarea id="e-desc" name="description" rows={3} />
               </div>
               <Button type="submit" className="w-full" disabled={creating}>
                 {creating ? "Creating..." : "Create Exam"}
