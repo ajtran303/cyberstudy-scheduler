@@ -168,26 +168,30 @@ function EventList({
             {events.map((event) => (
               <div
                 key={`${event.type}-${event.id}`}
-                className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-accent transition-colors"
+                className="flex flex-col gap-1 rounded-md px-3 py-2 hover:bg-accent transition-colors sm:flex-row sm:items-center sm:gap-3"
               >
-                <div
-                  className="h-2 w-2 rounded-full shrink-0"
-                  style={{ backgroundColor: event.course.color }}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm truncate">{event.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {event.course.name}
-                  </p>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div
+                    className="h-2 w-2 rounded-full shrink-0"
+                    style={{ backgroundColor: event.course.color }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm truncate">{event.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {event.course.name}
+                    </p>
+                  </div>
                 </div>
-                <Badge variant="outline" className="text-xs shrink-0">
-                  {typeLabels[event.type]}
-                </Badge>
-                {event.daysLeft && (
-                  <span className="text-xs text-muted-foreground">
-                    {event.daysLeft}
-                  </span>
-                )}
+                <div className="flex items-center gap-2 pl-5 sm:pl-0">
+                  <Badge variant="outline" className="text-xs shrink-0">
+                    {typeLabels[event.type]}
+                  </Badge>
+                  {event.daysLeft && (
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {event.daysLeft}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -248,7 +252,7 @@ export function CalendarView() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-2">
           <Button
             variant={view === "week" ? "default" : "outline"}
@@ -269,7 +273,7 @@ export function CalendarView() {
           <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
             &larr;
           </Button>
-          <span className="text-sm font-medium min-w-32 text-center">
+          <span className="text-sm font-medium min-w-0 flex-1 text-center sm:min-w-32 sm:flex-none">
             {headerLabel}
           </span>
           <Button variant="outline" size="sm" onClick={() => navigate(1)}>

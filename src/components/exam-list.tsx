@@ -111,35 +111,39 @@ export function ExamList({ courseId }: { courseId: string }) {
         {exams.map((e) => (
           <div
             key={e.id}
-            className={`flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors ${
+            className={`flex flex-col gap-1 rounded-md px-3 py-2.5 transition-colors sm:flex-row sm:items-center sm:gap-3 ${
               e.status === "COMPLETED" ? "opacity-50" : "hover:bg-accent"
             }`}
           >
-            <button
-              onClick={() => toggleStatus(e.id, e.status)}
-              className={`h-4 w-4 rounded border shrink-0 transition-colors ${
-                e.status === "COMPLETED"
-                  ? "bg-primary border-primary"
-                  : "border-muted-foreground hover:border-primary"
-              }`}
-            />
-            <div className="flex-1 min-w-0">
-              <p className={`text-sm font-medium ${e.status === "COMPLETED" ? "line-through" : ""}`}>
-                {e.name}
-              </p>
-              {e.description && (
-                <p className="text-xs text-muted-foreground truncate">{e.description}</p>
-              )}
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <button
+                onClick={() => toggleStatus(e.id, e.status)}
+                className={`h-4 w-4 rounded border shrink-0 transition-colors ${
+                  e.status === "COMPLETED"
+                    ? "bg-primary border-primary"
+                    : "border-muted-foreground hover:border-primary"
+                }`}
+              />
+              <div className="min-w-0 flex-1">
+                <p className={`text-sm font-medium ${e.status === "COMPLETED" ? "line-through" : ""}`}>
+                  {e.name}
+                </p>
+                {e.description && (
+                  <p className="text-xs text-muted-foreground truncate">{e.description}</p>
+                )}
+              </div>
             </div>
-            {e.date && (
-              <span className="text-xs text-muted-foreground shrink-0">
-                {new Date(e.date).toLocaleDateString()}
-              </span>
-            )}
-            <DaysLeftBadge daysLeft={e.daysLeft} />
-            <Badge variant="secondary" className="text-xs">
-              {e.status === "COMPLETED" ? "Completed" : "Upcoming"}
-            </Badge>
+            <div className="flex items-center gap-2 pl-7 sm:pl-0">
+              {e.date && (
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(e.date).toLocaleDateString()}
+                </span>
+              )}
+              <DaysLeftBadge daysLeft={e.daysLeft} />
+              <Badge variant="secondary" className="text-xs">
+                {e.status === "COMPLETED" ? "Completed" : "Upcoming"}
+              </Badge>
+            </div>
           </div>
         ))}
         {exams.length === 0 && (

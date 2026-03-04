@@ -46,21 +46,21 @@ export default async function CourseDetailPage({
           &larr;
         </Link>
         <div className="flex-1">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div
-              className="h-4 w-4 rounded-full"
+              className="h-4 w-4 rounded-full shrink-0"
               style={{ backgroundColor: course.color }}
             />
             <h1 className="text-2xl font-bold">{course.name}</h1>
             <Badge variant="secondary">{statusLabels[course.status]}</Badge>
           </div>
-          <div className="mt-1 flex gap-4 text-sm text-muted-foreground">
+          <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
             {course.courseCode && (
               <span className="font-mono">{course.courseCode}</span>
             )}
             {course.professorName && <span>{course.professorName}</span>}
             {course.professorEmail && (
-              <a href={`mailto:${course.professorEmail}`} className="hover:underline">
+              <a href={`mailto:${course.professorEmail}`} className="hover:underline truncate max-w-full">
                 {course.professorEmail}
               </a>
             )}
