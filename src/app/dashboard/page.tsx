@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReviewTable } from "@/components/review-table";
 import { CalendarView } from "@/components/calendar-view";
 import { AnalyticsChart } from "@/components/analytics-chart";
+import { WelcomeBanner } from "@/components/welcome-banner";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -23,14 +24,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold font-mono">Home Base</h1>
-          <p className="text-sm text-muted-foreground">
-            Welcome back, {session.user.name}
-          </p>
-        </div>
-      </div>
+      <WelcomeBanner name={session.user.name || "Student"} />
 
       <Tabs defaultValue="courses" className="w-full">
         <TabsList>
