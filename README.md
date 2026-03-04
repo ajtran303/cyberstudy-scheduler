@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CyberStudy Scheduler
 
-## Getting Started
+A personal dashboard for tracking cybersecurity coursework, topic mastery, assignments, exams, and study sessions. Features a REST API designed for agentic AI consumption and a dark-themed UI.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router) + TypeScript
+- **Prisma 7** + PostgreSQL
+- **NextAuth v5** (credentials + JWT)
+- **shadcn/ui** + Tailwind CSS v4
+- **Recharts** for analytics
+- **Swagger UI** for API docs
+
+## Data Model
+
+- **Courses** — track status, professor info, color-coded
+- **Topics** — per-course with mastery levels (Exposed → Scanning → Hardened → Classified)
+- **Assignments** — due dates with computed `daysLeft`, status tracking
+- **Exams** — date-based with status tracking
+- **TeachItBack** — append-only log of teach-back attempts (pass/partial/miss)
+- **QuizAttempts** — append-only log of quiz questions with session grouping
+
+## Setup
 
 ```bash
+# Install dependencies
+npm install
+
+# Create the database
+createdb cyberstudy
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your DATABASE_URL and NEXTAUTH_SECRET
+
+# Run migrations
+npx prisma migrate dev
+
+# Seed sample data (login: sev@example.com / password123)
+npx prisma db seed
+
+# Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app runs at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All endpoints live under `/api/v1/` and return a `{ data, error }` envelope.
 
-## Learn More
+### Authentication
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Get a Bearer token
+curl -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"sev@example.com","password":"password123"}'
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Use it
+curl http://localhost:3000/api/v1/courses \
+  -H "Authorization: Bearer <token>"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Key Endpoints
 
-## Deploy on Vercel
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/auth/login` | Get JWT token |
+| GET/POST | `/courses` | List / create courses |
+| GET/PATCH/DELETE | `/courses/:id` | Course CRUD |
+| POST | `/courses/:id/batch` | Batch import topics + assignments + exams |
+| GET/POST | `/courses/:id/topics` | List / create topics (filterable by mastery, date) |
+| GET/PATCH/DELETE | `/topics/:id` | Topic CRUD |
+| PATCH | `/topics/:id/mastery` | Update mastery level |
+| PATCH | `/topics/bulk-mastery` | Bulk mastery update |
+| GET/POST | `/topics/:id/teach-it-back` | Teach-back log |
+| GET/POST | `/topics/:id/quiz-attempts` | Quiz attempt log |
+| GET | `/review` | Mastery-priority review queue |
+| GET | `/calendar` | Week/month calendar events |
+| GET | `/analytics` | Mastery distribution stats |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Full interactive docs at [/api/docs](http://localhost:3000/api/docs) (Swagger UI).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Features
+
+- **Mastery tracking** — four-tier system that never auto-promotes; only explicit updates
+- **Review queue** — surfaces least-mastered and least-recently-reviewed topics first
+- **Batch import** — populate a course in one call with 207 partial-success support
+- **Calendar** — week and month views aggregating topics, assignments, and exams
+- **Analytics** — mastery distribution pie chart per course or across all courses
+- **Study logs** — append-only TeachItBack and QuizAttempt history per topic
+- **Days left** — computed countdown on assignments and exams
