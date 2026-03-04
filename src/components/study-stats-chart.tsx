@@ -7,6 +7,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Label,
   ResponsiveContainer,
 } from "recharts";
 
@@ -110,12 +111,27 @@ export function StudyStatsChart() {
               }}
               interval="preserveStartEnd"
               minTickGap={30}
-            />
+            >
+              <Label
+                value="Date"
+                position="insideBottom"
+                offset={-2}
+                style={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              />
+            </XAxis>
             <YAxis
               tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-              width={32}
+              width={42}
               tickFormatter={(v: number) => `${v}m`}
-            />
+            >
+              <Label
+                value="Minutes"
+                angle={-90}
+                position="insideLeft"
+                offset={4}
+                style={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" }}
+              />
+            </YAxis>
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(var(--popover))",
