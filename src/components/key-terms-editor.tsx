@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface KeyTerm {
   term: string;
@@ -85,11 +86,12 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
             onChange={(e) => updateTerm(i, "term", e.target.value)}
             className="font-mono flex-1"
           />
-          <Input
+          <Textarea
             placeholder="Definition"
             value={term.definition}
             onChange={(e) => updateTerm(i, "definition", e.target.value)}
-            className="flex-[2]"
+            className="flex-[2] min-h-9 resize-none"
+            rows={1}
           />
           <Button
             variant="ghost"
