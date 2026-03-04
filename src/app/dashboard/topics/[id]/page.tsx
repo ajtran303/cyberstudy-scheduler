@@ -5,6 +5,7 @@ import Link from "next/link";
 import { MasteryBadge } from "@/components/mastery-badge";
 import { MasterySelector } from "@/components/mastery-selector";
 import { KeyTermsEditor } from "@/components/key-terms-editor";
+import { TopicDetailsEditor } from "@/components/topic-details-editor";
 import { Separator } from "@/components/ui/separator";
 
 interface KeyTerm {
@@ -82,23 +83,11 @@ export default async function TopicDetailPage({
 
       <Separator />
 
-      {/* Details */}
-      {topic.details && (
-        <div>
-          <h2 className="text-sm font-semibold mb-2">Details</h2>
-          <p className="text-sm text-muted-foreground">{topic.details}</p>
-        </div>
-      )}
-
-      {/* Notes */}
-      {topic.notes && (
-        <div>
-          <h2 className="text-sm font-semibold mb-2">Notes</h2>
-          <div className="rounded-md bg-muted p-4 text-sm whitespace-pre-wrap font-mono">
-            {topic.notes}
-          </div>
-        </div>
-      )}
+      <TopicDetailsEditor
+        topicId={topic.id}
+        initialDetails={topic.details}
+        initialNotes={topic.notes}
+      />
 
       {/* Key Terms */}
       <div>
