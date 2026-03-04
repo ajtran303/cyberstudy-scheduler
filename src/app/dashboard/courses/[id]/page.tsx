@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { TopicList } from "@/components/topic-list";
+import { ReviewTable } from "@/components/review-table";
 import Link from "next/link";
 
 export default async function CourseDetailPage({
@@ -99,7 +100,7 @@ export default async function CourseDetailPage({
         </TabsContent>
 
         <TabsContent value="review" className="mt-4">
-          <div id="course-review-section" data-course-id={course.id} />
+          <ReviewTable courseId={course.id} />
         </TabsContent>
 
         <TabsContent value="assignments" className="mt-4">

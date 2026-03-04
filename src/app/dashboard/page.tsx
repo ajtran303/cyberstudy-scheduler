@@ -5,6 +5,7 @@ import { CourseCard } from "@/components/course-card";
 import { CreateCourseDialog } from "@/components/create-course-dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ReviewTable } from "@/components/review-table";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -72,7 +73,7 @@ export default async function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="review" className="mt-4">
-          <div id="review-section" />
+          <ReviewTable />
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-4">
