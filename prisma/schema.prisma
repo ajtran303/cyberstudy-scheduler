@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Users ───────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  courses   Course[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Courses ─────────────────────────────────────────
+
+model Course {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  professorName  String?
+  professorEmail String?
+  website        String?
+  courseCode     String?
+  status         CourseStatus @default(NOT_STARTED)
+  color          String       @default("#6366f1")
+  sortOrder      Int          @default(0)
+  topics         Topic[]
+  assignments    Assignment[]
+  exams          Exam[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum CourseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ─── Topics ──────────────────────────────────────────
+
+model Topic {
+  id             String        @id @default(cuid())
+  courseId        String
+  course         Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name           String
+  date           DateTime?
+  details        String?
+  notes          String?
+  keyTerms       Json?
+  mastery        Mastery       @default(EXPOSED)
+  lastReviewedAt DateTime?
+  sortOrder      Int           @default(0)
+  teachItBacks   TeachItBack[]
+  quizAttempts   QuizAttempt[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum Mastery {
+  EXPOSED
+  SCANNING
+  HARDENED
+  CLASSIFIED
+}
+
+// ─── Assignments ─────────────────────────────────────
+
+model Assignment {
+  id          String           @id @default(cuid())
+  courseId     String
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name        String
+  dueDate     DateTime?
+  status      AssignmentStatus @default(PENDING)
+  description String?
+  sortOrder   Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+enum AssignmentStatus {
+  PENDING
+  DONE
+}
+
+// ─── Exams ───────────────────────────────────────────
+
+model Exam {
+  id          String     @id @default(cuid())
+  courseId     String
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  name        String
+  date        DateTime?
+  description String?
+  status      ExamStatus @default(UPCOMING)
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum ExamStatus {
+  UPCOMING
+  COMPLETED
+}
+
+// ─── Study Event Logs ────────────────────────────────
+
+model TeachItBack {
+  id          String         @id @default(cuid())
+  topicId     String
+  topic       Topic          @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  attemptedAt DateTime       @default(now())
+  outcome     TeachItOutcome
+  notes       String?
+  createdAt   DateTime       @default(now())
+}
+
+enum TeachItOutcome {
+  PASS
+  PARTIAL
+  MISS
+}
+
+model QuizAttempt {
+  id           String   @id @default(cuid())
+  topicId      String
+  topic        Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  correct      Boolean
+  questionText String?
+  sessionId    String?
+  createdAt    DateTime @default(now())
+
+  @@index([sessionId])
+}
