@@ -23,8 +23,16 @@ export function DaysLeftBadge({ daysLeft }: DaysLeftBadgeProps) {
     ? "#f59e0b"
     : undefined;
 
+  const tooltip = daysLeft === "late"
+    ? "Past the due date"
+    : daysLeft === "due"
+    ? "Due today"
+    : daysLeft === "tomorrow"
+    ? "Due tomorrow"
+    : `Due in ${daysLeft}`;
+
   return (
-    <Badge variant={variant} className="text-xs" style={color ? { backgroundColor: `${color}20`, color } : {}}>
+    <Badge variant={variant} className="text-xs" title={tooltip} style={color ? { backgroundColor: `${color}20`, color } : {}}>
       {daysLeft}
     </Badge>
   );
