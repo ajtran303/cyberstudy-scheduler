@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import { MasteryBadge } from "@/components/mastery-badge";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -146,24 +144,29 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                   </p>
                 </Link>
               </div>
-              <div className="flex items-center gap-2 pl-5 sm:pl-0">
-                <MasteryBadge mastery={topic.mastery} size="sm" />
-                <div className="flex gap-1 shrink-0">
-                  {MASTERY_LEVELS.map((level) => (
-                    <Button
+              <div className="flex items-center gap-1.5 pl-5 sm:pl-0 flex-wrap">
+                {MASTERY_LEVELS.map((level) => {
+                  const isActive = topic.mastery === level;
+                  return (
+                    <button
                       key={level}
-                      variant="ghost"
-                      size="sm"
-                      disabled={updating === topic.id || topic.mastery === level}
+                      disabled={updating === topic.id || isActive}
                       onClick={() => confirmMasteryUpdate(topic.id, level)}
-                      className="h-6 w-6 p-0 text-xs"
-                      style={{ color: MASTERY_COLORS[level] }}
-                      title={MASTERY_LABELS[level]}
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
+                        isActive
+                          ? "text-white"
+                          : "opacity-40 hover:opacity-100"
+                      } disabled:cursor-default`}
+                      style={{
+                        backgroundColor: isActive ? MASTERY_COLORS[level] : "transparent",
+                        color: isActive ? "white" : MASTERY_COLORS[level],
+                        border: `1px solid ${MASTERY_COLORS[level]}`,
+                      }}
                     >
-                      {level[0]}
-                    </Button>
-                  ))}
-                </div>
+                      {MASTERY_LABELS[level]}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}
