@@ -109,15 +109,6 @@ const spec = {
   },
   security: [{ bearerAuth: [] }],
   paths: {
-    "/auth/register": {
-      post: {
-        tags: ["Auth"],
-        summary: "Register a new user",
-        security: [],
-        requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["email", "name", "password"], properties: { email: { type: "string", format: "email" }, name: { type: "string" }, password: { type: "string", minLength: 8 } } } } } },
-        responses: { 201: { description: "User created" }, 409: { description: "Email already registered" } },
-      },
-    },
     "/auth/login": {
       post: {
         tags: ["Auth"],
