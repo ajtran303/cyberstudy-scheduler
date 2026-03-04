@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { TopicList } from "@/components/topic-list";
 import Link from "next/link";
 
 export default async function CourseDetailPage({
@@ -84,7 +85,17 @@ export default async function CourseDetailPage({
         </TabsList>
 
         <TabsContent value="topics" className="mt-4">
-          <div id="topics-section" data-course-id={course.id} />
+          <TopicList
+            courseId={course.id}
+            topics={course.topics.map((t) => ({
+              id: t.id,
+              name: t.name,
+              date: t.date?.toISOString() ?? null,
+              details: t.details,
+              mastery: t.mastery as "EXPOSED" | "SCANNING" | "HARDENED" | "CLASSIFIED",
+              lastReviewedAt: t.lastReviewedAt?.toISOString() ?? null,
+            }))}
+          />
         </TabsContent>
 
         <TabsContent value="review" className="mt-4">
