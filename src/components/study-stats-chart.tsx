@@ -104,7 +104,7 @@ export function StudyStatsChart() {
           <BarChart data={data.byDay}>
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 10, fill: "hsl(var(--foreground))" }}
               tickFormatter={(v: string) => {
                 const d = new Date(v + "T00:00:00");
                 return `${d.getMonth() + 1}/${d.getDate()}`;
@@ -116,11 +116,11 @@ export function StudyStatsChart() {
                 value="Date"
                 position="insideBottom"
                 offset={-2}
-                style={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                style={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
               />
             </XAxis>
             <YAxis
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 10, fill: "hsl(var(--foreground))" }}
               width={42}
               tickFormatter={(v: number) => `${v}m`}
             >
@@ -129,7 +129,7 @@ export function StudyStatsChart() {
                 angle={-90}
                 position="insideLeft"
                 offset={4}
-                style={{ fontSize: 11, fill: "hsl(var(--muted-foreground))", textAnchor: "middle" }}
+                style={{ fontSize: 11, fill: "hsl(var(--foreground))", textAnchor: "middle" }}
               />
             </YAxis>
             <Tooltip
