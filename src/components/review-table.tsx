@@ -118,7 +118,12 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       {loading ? (
         <p className="py-8 text-center text-sm text-muted-foreground">Loading...</p>
       ) : topics.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">No topics to review</p>
+        <div className="py-12 text-center">
+          <p className="text-sm font-medium text-muted-foreground">No topics to review</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Add topics to your courses and they&apos;ll appear here sorted by mastery priority.
+          </p>
+        </div>
       ) : (
         <div className="space-y-1">
           {topics.map((topic) => (

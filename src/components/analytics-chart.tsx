@@ -33,7 +33,14 @@ export function AnalyticsChart({ courseId }: { courseId?: string }) {
   }
 
   if (!data || data.total === 0) {
-    return <p className="py-8 text-center text-sm text-muted-foreground">No topics to analyze</p>;
+    return (
+      <div className="py-12 text-center">
+        <p className="text-sm font-medium text-muted-foreground">No topics to analyze</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Create a course and add topics to see your mastery distribution here.
+        </p>
+      </div>
+    );
   }
 
   const chartData = LEVELS.map((level) => ({

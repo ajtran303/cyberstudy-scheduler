@@ -152,9 +152,14 @@ function EventList({
 }) {
   if (Object.keys(grouped).length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        No events for this {view}
-      </p>
+      <div className="py-12 text-center">
+        <p className="text-sm font-medium text-muted-foreground">
+          No events for this {view}
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Topics with dates, assignments, and exams will show up on the calendar.
+        </p>
+      </div>
     );
   }
   return (
