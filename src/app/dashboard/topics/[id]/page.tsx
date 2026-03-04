@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { MasteryBadge } from "@/components/mastery-badge";
 import { MasterySelector } from "@/components/mastery-selector";
@@ -41,9 +42,9 @@ export default async function TopicDetailPage({
       <div className="flex items-start gap-4">
         <Link
           href={`/dashboard/courses/${topic.courseId}`}
-          className="mt-1 text-muted-foreground hover:text-foreground transition-colors"
+          className="mt-1 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0"
         >
-          &larr;
+          <ArrowLeft className="h-4 w-4" />
         </Link>
         <div className="flex-1">
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
