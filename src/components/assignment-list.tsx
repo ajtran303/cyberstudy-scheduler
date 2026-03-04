@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,32 +43,57 @@ export function AssignmentList({ courseId }: { courseId: string }) {
 
   async function toggleStatus(id: string, currentStatus: string) {
     const newStatus = currentStatus === "PENDING" ? "DONE" : "PENDING";
-    await fetch(`/api/v1/assignments/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    load();
-    router.refresh();
+    try {
+      const res = await fetch(`/api/v1/assignments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to update assignment");
+        return;
+      }
+
+      load();
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    }
   }
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setCreating(true);
     const formData = new FormData(e.currentTarget);
-    await fetch(`/api/v1/courses/${courseId}/assignments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.get("name"),
-        dueDate: formData.get("dueDate") || undefined,
-        description: formData.get("description") || undefined,
-      }),
-    });
-    setCreating(false);
-    setOpen(false);
-    load();
-    router.refresh();
+
+    try {
+      const res = await fetch(`/api/v1/courses/${courseId}/assignments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          dueDate: formData.get("dueDate") || undefined,
+          description: formData.get("description") || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to create assignment");
+        return;
+      }
+
+      toast.success("Assignment created");
+      setOpen(false);
+      load();
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setCreating(false);
+    }
   }
 
   if (loading) return <p className="text-sm text-muted-foreground">Loading...</p>;

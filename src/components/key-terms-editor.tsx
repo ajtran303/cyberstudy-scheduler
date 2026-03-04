@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -37,13 +38,27 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
   async function save() {
     setSaving(true);
     const validTerms = terms.filter((t) => t.term.trim() && t.definition.trim());
-    await fetch(`/api/v1/topics/${topicId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ keyTerms: validTerms.length > 0 ? validTerms : null }),
-    });
-    setSaving(false);
-    router.refresh();
+
+    try {
+      const res = await fetch(`/api/v1/topics/${topicId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyTerms: validTerms.length > 0 ? validTerms : null }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to save terms");
+        return;
+      }
+
+      toast.success("Terms saved");
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (

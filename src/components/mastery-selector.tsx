@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { MASTERY_COLORS, MASTERY_LABELS } from "@/lib/utils";
 
@@ -20,13 +21,26 @@ export function MasterySelector({ topicId, currentMastery }: MasterySelectorProp
     if (mastery === currentMastery) return;
 
     setLoading(mastery);
-    await fetch(`/api/v1/topics/${topicId}/mastery`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mastery }),
-    });
-    setLoading(null);
-    router.refresh();
+    try {
+      const res = await fetch(`/api/v1/topics/${topicId}/mastery`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mastery }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to update mastery");
+        return;
+      }
+
+      toast.success("Mastery updated");
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setLoading(null);
+    }
   }
 
   return (

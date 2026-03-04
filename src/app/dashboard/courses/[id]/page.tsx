@@ -7,6 +7,8 @@ import { TopicList } from "@/components/topic-list";
 import { ReviewTable } from "@/components/review-table";
 import { AssignmentList } from "@/components/assignment-list";
 import { ExamList } from "@/components/exam-list";
+import { EditCourseDialog } from "@/components/edit-course-dialog";
+import { DeleteCourseDialog } from "@/components/delete-course-dialog";
 import Link from "next/link";
 
 export default async function CourseDetailPage({
@@ -53,6 +55,19 @@ export default async function CourseDetailPage({
             />
             <h1 className="text-2xl font-bold">{course.name}</h1>
             <Badge variant="secondary">{statusLabels[course.status]}</Badge>
+            <EditCourseDialog
+              course={{
+                id: course.id,
+                name: course.name,
+                courseCode: course.courseCode,
+                color: course.color,
+                professorName: course.professorName,
+                professorEmail: course.professorEmail,
+                website: course.website,
+                status: course.status,
+              }}
+            />
+            <DeleteCourseDialog courseId={course.id} courseName={course.name} />
           </div>
           <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
             {course.courseCode && (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import Link from "next/link";
 import { MasteryBadge } from "@/components/mastery-badge";
 import { Button } from "@/components/ui/button";
@@ -50,19 +51,32 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
 
   async function updateMastery(topicId: string, mastery: string) {
     setUpdating(topicId);
-    await fetch(`/api/v1/topics/${topicId}/mastery`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mastery }),
-    });
-    setUpdating(null);
-    // Refresh the list
-    const params = new URLSearchParams({ sort });
-    if (courseId) params.set("courseId", courseId);
-    const res = await fetch(`/api/v1/review?${params}`);
-    const json = await res.json();
-    setTopics(json.data || []);
-    router.refresh();
+    try {
+      const res = await fetch(`/api/v1/topics/${topicId}/mastery`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mastery }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to update mastery");
+        return;
+      }
+
+      toast.success("Mastery updated");
+      // Refresh the list
+      const params = new URLSearchParams({ sort });
+      if (courseId) params.set("courseId", courseId);
+      const listRes = await fetch(`/api/v1/review?${params}`);
+      const json = await listRes.json();
+      setTopics(json.data || []);
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setUpdating(null);
+    }
   }
 
   return (
