@@ -39,7 +39,7 @@ export default async function CourseDetailPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0">
       <div className="flex items-start gap-4">
         <Link
           href="/dashboard"
@@ -47,7 +47,7 @@ export default async function CourseDetailPage({
         >
           &larr;
         </Link>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div
               className="h-4 w-4 rounded-full shrink-0"
@@ -88,16 +88,20 @@ export default async function CourseDetailPage({
         </div>
       </div>
 
-      <Tabs defaultValue="topics" className="w-full">
-        <TabsList>
-          <TabsTrigger value="topics">
+      <Tabs defaultValue="topics" className="w-full min-w-0">
+        <TabsList className="w-full">
+          <TabsTrigger value="topics" className="flex-1">
             Topics ({course.topics.length})
           </TabsTrigger>
-          <TabsTrigger value="review">Review</TabsTrigger>
-          <TabsTrigger value="assignments">
-            Assignments ({course.assignments.length})
+          <TabsTrigger value="review" className="flex-1">
+            Review
           </TabsTrigger>
-          <TabsTrigger value="exams">
+          <TabsTrigger value="assignments" className="flex-1">
+            <span className="sm:hidden">Assign.</span>
+            <span className="hidden sm:inline">Assignments</span>
+            {" "}({course.assignments.length})
+          </TabsTrigger>
+          <TabsTrigger value="exams" className="flex-1">
             Exams ({course.exams.length})
           </TabsTrigger>
         </TabsList>
