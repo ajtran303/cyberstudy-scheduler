@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReviewTable } from "@/components/review-table";
 import { CalendarView } from "@/components/calendar-view";
 import { AnalyticsChart } from "@/components/analytics-chart";
+import { StudySessionPanel } from "@/components/study-session-panel";
+import { StudyStatsChart } from "@/components/study-stats-chart";
 import { WelcomeBanner } from "@/components/welcome-banner";
 
 export default async function DashboardPage() {
@@ -65,6 +67,7 @@ export default async function DashboardPage() {
           <TabsTrigger value="review">Review</TabsTrigger>
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="study">Study</TabsTrigger>
         </TabsList>
 
         <TabsContent value="courses" className="mt-4">
@@ -111,6 +114,11 @@ export default async function DashboardPage() {
 
         <TabsContent value="analytics" className="mt-4">
           <AnalyticsChart />
+        </TabsContent>
+
+        <TabsContent value="study" className="mt-4 space-y-6">
+          <StudyStatsChart />
+          <StudySessionPanel />
         </TabsContent>
       </Tabs>
     </div>

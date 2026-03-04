@@ -10,13 +10,14 @@ datasource db {
 // ─── Users ───────────────────────────────────────────
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  courses   Course[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  password      String
+  courses       Course[]
+  studySessions StudySession[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 // ─── Courses ─────────────────────────────────────────
@@ -36,6 +37,7 @@ model Course {
   topics         Topic[]
   assignments    Assignment[]
   exams          Exam[]
+  studySessions  StudySession[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 }
@@ -141,4 +143,20 @@ model QuizAttempt {
   createdAt    DateTime @default(now())
 
   @@index([sessionId])
+}
+
+// ─── Study Sessions ────────────────────────────────
+
+model StudySession {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId         String?
+  course          Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  startedAt       DateTime
+  endedAt         DateTime?
+  durationMinutes Int?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
