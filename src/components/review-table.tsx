@@ -72,7 +72,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
           {topics.length} topics to review
         </h3>
         <Select value={sort} onValueChange={setSort}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-40 sm:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -92,40 +92,44 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
           {topics.map((topic) => (
             <div
               key={topic.id}
-              className="flex items-center gap-3 rounded-md px-3 py-2.5 hover:bg-accent transition-colors"
+              className="flex flex-col gap-1 rounded-md px-3 py-2.5 hover:bg-accent transition-colors sm:flex-row sm:items-center sm:gap-3"
             >
-              <div
-                className="h-2 w-2 rounded-full shrink-0"
-                style={{ backgroundColor: topic.course.color }}
-              />
-              <Link
-                href={`/dashboard/topics/${topic.id}`}
-                className="flex-1 min-w-0"
-              >
-                <p className="text-sm font-medium truncate">{topic.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {topic.course.name}
-                  {topic.lastReviewedAt && (
-                    <> &middot; Reviewed {new Date(topic.lastReviewedAt).toLocaleDateString()}</>
-                  )}
-                </p>
-              </Link>
-              <MasteryBadge mastery={topic.mastery} size="sm" />
-              <div className="flex gap-1 shrink-0">
-                {MASTERY_LEVELS.map((level) => (
-                  <Button
-                    key={level}
-                    variant="ghost"
-                    size="sm"
-                    disabled={updating === topic.id || topic.mastery === level}
-                    onClick={() => updateMastery(topic.id, level)}
-                    className="h-6 w-6 p-0 text-xs"
-                    style={{ color: MASTERY_COLORS[level] }}
-                    title={MASTERY_LABELS[level]}
-                  >
-                    {level[0]}
-                  </Button>
-                ))}
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div
+                  className="h-2 w-2 rounded-full shrink-0"
+                  style={{ backgroundColor: topic.course.color }}
+                />
+                <Link
+                  href={`/dashboard/topics/${topic.id}`}
+                  className="min-w-0 flex-1"
+                >
+                  <p className="text-sm font-medium truncate">{topic.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {topic.course.name}
+                    {topic.lastReviewedAt && (
+                      <> &middot; Reviewed {new Date(topic.lastReviewedAt).toLocaleDateString()}</>
+                    )}
+                  </p>
+                </Link>
+              </div>
+              <div className="flex items-center gap-2 pl-5 sm:pl-0">
+                <MasteryBadge mastery={topic.mastery} size="sm" />
+                <div className="flex gap-1 shrink-0">
+                  {MASTERY_LEVELS.map((level) => (
+                    <Button
+                      key={level}
+                      variant="ghost"
+                      size="sm"
+                      disabled={updating === topic.id || topic.mastery === level}
+                      onClick={() => updateMastery(topic.id, level)}
+                      className="h-6 w-6 p-0 text-xs"
+                      style={{ color: MASTERY_COLORS[level] }}
+                      title={MASTERY_LABELS[level]}
+                    >
+                      {level[0]}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
