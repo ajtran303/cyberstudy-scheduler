@@ -26,7 +26,21 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
   }
 
   function removeTerm(index: number) {
-    setTerms(terms.filter((_, i) => i !== index));
+    const removed = terms[index];
+    const updated = terms.filter((_, i) => i !== index);
+    setTerms(updated);
+    toast("Term removed", {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          setTerms((current) => {
+            const restored = [...current];
+            restored.splice(index, 0, removed);
+            return restored;
+          });
+        },
+      },
+    });
   }
 
   function updateTerm(index: number, field: "term" | "definition", value: string) {

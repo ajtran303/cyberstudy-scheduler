@@ -49,7 +49,22 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
     load();
   }, [sort, courseId]);
 
-  async function updateMastery(topicId: string, mastery: string) {
+  function confirmMasteryUpdate(topicId: string, mastery: string) {
+    const topic = topics.find((t) => t.id === topicId);
+    if (!topic) return;
+    const oldMastery = topic.mastery;
+    const label = MASTERY_LABELS[mastery as keyof typeof MASTERY_LABELS];
+
+    toast(`Change mastery to ${label}?`, {
+      action: {
+        label: "Confirm",
+        onClick: () => doUpdateMastery(topicId, mastery, oldMastery),
+      },
+      duration: 5000,
+    });
+  }
+
+  async function doUpdateMastery(topicId: string, mastery: string, oldMastery: string) {
     setUpdating(topicId);
     try {
       const res = await fetch(`/api/v1/topics/${topicId}/mastery`, {
@@ -64,7 +79,12 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
         return;
       }
 
-      toast.success("Mastery updated");
+      toast.success("Mastery updated", {
+        action: {
+          label: "Undo",
+          onClick: () => doUpdateMastery(topicId, oldMastery, mastery),
+        },
+      });
       // Refresh the list
       const params = new URLSearchParams({ sort });
       if (courseId) params.set("courseId", courseId);
@@ -135,7 +155,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                       variant="ghost"
                       size="sm"
                       disabled={updating === topic.id || topic.mastery === level}
-                      onClick={() => updateMastery(topic.id, level)}
+                      onClick={() => confirmMasteryUpdate(topic.id, level)}
                       className="h-6 w-6 p-0 text-xs"
                       style={{ color: MASTERY_COLORS[level] }}
                       title={MASTERY_LABELS[level]}
