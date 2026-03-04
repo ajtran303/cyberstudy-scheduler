@@ -63,7 +63,11 @@ export function ReviewForecastChart() {
           <BarChart data={data}>
             <XAxis
               dataKey="date"
+<<<<<<< Updated upstream
               tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+=======
+              tick={{ fontSize: 10, fill: "currentColor" }}
+>>>>>>> Stashed changes
               tickFormatter={(v: string) => {
                 const d = new Date(v + "T00:00:00");
                 return `${d.getMonth() + 1}/${d.getDate()}`;
@@ -72,7 +76,11 @@ export function ReviewForecastChart() {
               minTickGap={30}
             />
             <YAxis
+<<<<<<< Updated upstream
               tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+=======
+              tick={{ fontSize: 10, fill: "currentColor" }}
+>>>>>>> Stashed changes
               width={28}
               allowDecimals={false}
             />
