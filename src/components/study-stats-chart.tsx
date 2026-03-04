@@ -99,37 +99,39 @@ export function StudyStatsChart() {
         </div>
       )}
 
-      <div className="h-48 sm:h-64">
+      <div className="h-48 sm:h-64 text-foreground">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data.byDay}>
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 10, fill: "hsl(var(--foreground))" }}
+              tick={{ fontSize: 10, fill: "currentColor" }}
               tickFormatter={(v: string) => {
                 const d = new Date(v + "T00:00:00");
                 return `${d.getMonth() + 1}/${d.getDate()}`;
               }}
               interval="preserveStartEnd"
               minTickGap={30}
+              stroke="currentColor"
             >
               <Label
                 value="Date"
                 position="insideBottom"
                 offset={-2}
-                style={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
+                style={{ fontSize: 11, fill: "currentColor" }}
               />
             </XAxis>
             <YAxis
-              tick={{ fontSize: 10, fill: "hsl(var(--foreground))" }}
+              tick={{ fontSize: 10, fill: "currentColor" }}
               width={42}
               tickFormatter={(v: number) => `${v}m`}
+              stroke="currentColor"
             >
               <Label
                 value="Minutes"
                 angle={-90}
                 position="insideLeft"
                 offset={4}
-                style={{ fontSize: 11, fill: "hsl(var(--foreground))", textAnchor: "middle" }}
+                style={{ fontSize: 11, fill: "currentColor", textAnchor: "middle" }}
               />
             </YAxis>
             <Tooltip
