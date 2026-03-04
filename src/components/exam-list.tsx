@@ -1,0 +1,151 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { DaysLeftBadge } from "@/components/days-left-badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+interface Exam {
+  id: string;
+  name: string;
+  date: string | null;
+  status: "UPCOMING" | "COMPLETED";
+  description: string | null;
+  daysLeft: string;
+}
+
+export function ExamList({ courseId }: { courseId: string }) {
+  const router = useRouter();
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+
+  async function load() {
+    const res = await fetch(`/api/v1/courses/${courseId}/exams`);
+    const json = await res.json();
+    setExams(json.data || []);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, [courseId]);
+
+  async function toggleStatus(id: string, currentStatus: string) {
+    const newStatus = currentStatus === "UPCOMING" ? "COMPLETED" : "UPCOMING";
+    await fetch(`/api/v1/exams/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    load();
+    router.refresh();
+  }
+
+  async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setCreating(true);
+    const formData = new FormData(e.currentTarget);
+    await fetch(`/api/v1/courses/${courseId}/exams`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        date: formData.get("date") || undefined,
+        description: formData.get("description") || undefined,
+      }),
+    });
+    setCreating(false);
+    setOpen(false);
+    load();
+    router.refresh();
+  }
+
+  if (loading) return <p className="text-sm text-muted-foreground">Loading...</p>;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-medium text-muted-foreground">
+          {exams.length} exams
+        </h3>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">+ New Exam</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>New Exam</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="e-name">Name *</Label>
+                <Input id="e-name" name="name" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="e-date">Date</Label>
+                <Input id="e-date" name="date" type="date" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="e-desc">Description</Label>
+                <Input id="e-desc" name="description" />
+              </div>
+              <Button type="submit" className="w-full" disabled={creating}>
+                {creating ? "Creating..." : "Create Exam"}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="space-y-1">
+        {exams.map((e) => (
+          <div
+            key={e.id}
+            className={`flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors ${
+              e.status === "COMPLETED" ? "opacity-50" : "hover:bg-accent"
+            }`}
+          >
+            <button
+              onClick={() => toggleStatus(e.id, e.status)}
+              className={`h-4 w-4 rounded border shrink-0 transition-colors ${
+                e.status === "COMPLETED"
+                  ? "bg-primary border-primary"
+                  : "border-muted-foreground hover:border-primary"
+              }`}
+            />
+            <div className="flex-1 min-w-0">
+              <p className={`text-sm font-medium ${e.status === "COMPLETED" ? "line-through" : ""}`}>
+                {e.name}
+              </p>
+              {e.description && (
+                <p className="text-xs text-muted-foreground truncate">{e.description}</p>
+              )}
+            </div>
+            {e.date && (
+              <span className="text-xs text-muted-foreground shrink-0">
+                {new Date(e.date).toLocaleDateString()}
+              </span>
+            )}
+            <DaysLeftBadge daysLeft={e.daysLeft} />
+            <Badge variant="secondary" className="text-xs">
+              {e.status === "COMPLETED" ? "Completed" : "Upcoming"}
+            </Badge>
+          </div>
+        ))}
+        {exams.length === 0 && (
+          <p className="py-8 text-center text-sm text-muted-foreground">No exams yet</p>
+        )}
+      </div>
+    </div>
+  );
+}

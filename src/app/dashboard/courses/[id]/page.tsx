@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { TopicList } from "@/components/topic-list";
 import { ReviewTable } from "@/components/review-table";
+import { AssignmentList } from "@/components/assignment-list";
+import { ExamList } from "@/components/exam-list";
 import Link from "next/link";
 
 export default async function CourseDetailPage({
@@ -104,11 +106,11 @@ export default async function CourseDetailPage({
         </TabsContent>
 
         <TabsContent value="assignments" className="mt-4">
-          <div id="assignments-section" data-course-id={course.id} />
+          <AssignmentList courseId={course.id} />
         </TabsContent>
 
         <TabsContent value="exams" className="mt-4">
-          <div id="exams-section" data-course-id={course.id} />
+          <ExamList courseId={course.id} />
         </TabsContent>
       </Tabs>
     </div>
