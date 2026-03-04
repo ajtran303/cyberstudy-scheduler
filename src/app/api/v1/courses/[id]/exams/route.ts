@@ -48,7 +48,7 @@ export async function POST(
     const body = await req.json();
     const parsed = CreateExamSchema.safeParse(body);
     if (!parsed.success) {
-      return errorResponse("VALIDATION_ERROR", parsed.error.errors.map((e) => e.message).join(", "), 422);
+      return errorResponse("VALIDATION_ERROR", parsed.error.issues.map((e) => e.message).join(", "), 422);
     }
 
     const { date, ...rest } = parsed.data;

@@ -48,7 +48,7 @@ export async function POST(
     const body = await req.json();
     const parsed = CreateAssignmentSchema.safeParse(body);
     if (!parsed.success) {
-      return errorResponse("VALIDATION_ERROR", parsed.error.errors.map((e) => e.message).join(", "), 422);
+      return errorResponse("VALIDATION_ERROR", parsed.error.issues.map((e) => e.message).join(", "), 422);
     }
 
     const { dueDate, ...rest } = parsed.data;

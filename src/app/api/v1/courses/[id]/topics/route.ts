@@ -68,16 +68,16 @@ export async function POST(
     const body = await req.json();
     const parsed = CreateTopicSchema.safeParse(body);
     if (!parsed.success) {
-      return errorResponse("VALIDATION_ERROR", parsed.error.errors.map((e) => e.message).join(", "), 422);
+      return errorResponse("VALIDATION_ERROR", parsed.error.issues.map((e) => e.message).join(", "), 422);
     }
 
-    const { date, ...rest } = parsed.data;
+    const { date, keyTerms, ...rest } = parsed.data;
     const topic = await prisma.topic.create({
       data: {
         ...rest,
         courseId,
         date: date ? new Date(date) : null,
-        keyTerms: rest.keyTerms || null,
+        ...(keyTerms ? { keyTerms: keyTerms as unknown as Prisma.InputJsonValue } : {}),
       },
     });
 

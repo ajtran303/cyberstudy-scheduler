@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return errorResponse(
         "VALIDATION_ERROR",
-        parsed.error.errors.map((e) => e.message).join(", "),
+        parsed.error.issues.map((e) => e.message).join(", "),
         422
       );
     }

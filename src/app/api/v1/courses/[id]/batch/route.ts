@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { BatchImportSchema } from "@/lib/schemas/course";
+import { Prisma } from "@/generated/prisma/client";
 
 type BatchResult = {
   index: number;
@@ -31,7 +32,7 @@ export async function POST(
     if (!parsed.success) {
       return errorResponse(
         "VALIDATION_ERROR",
-        parsed.error.errors.map((e) => e.message).join(", "),
+        parsed.error.issues.map((e) => e.message).join(", "),
         422
       );
     }
@@ -55,7 +56,7 @@ export async function POST(
               date: t.date ? new Date(t.date) : null,
               details: t.details,
               notes: t.notes,
-              keyTerms: t.keyTerms || null,
+              keyTerms: t.keyTerms ? (t.keyTerms as unknown as Prisma.InputJsonValue) : undefined,
               sortOrder: i,
             },
           });
