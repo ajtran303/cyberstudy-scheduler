@@ -12,6 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
@@ -59,6 +66,7 @@ export function StudySessionPanel() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerStart, setTimerStart] = useState<Date | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [timerNotes, setTimerNotes] = useState("");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Manual entry state
@@ -68,6 +76,14 @@ export function StudySessionPanel() {
   );
   const [manualDuration, setManualDuration] = useState("");
   const [manualNotes, setManualNotes] = useState("");
+
+  // Edit dialog state
+  const [editSession, setEditSession] = useState<StudySession | null>(null);
+  const [editCourseId, setEditCourseId] = useState<string>(NO_COURSE);
+  const [editDate, setEditDate] = useState("");
+  const [editDuration, setEditDuration] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -124,6 +140,7 @@ export function StudySessionPanel() {
       endedAt: endedAt.toISOString(),
     };
     if (timerCourseId !== NO_COURSE) body.courseId = timerCourseId;
+    if (timerNotes.trim()) body.notes = timerNotes.trim();
 
     const res = await fetch("/api/v1/study-sessions", {
       method: "POST",
@@ -135,6 +152,7 @@ export function StudySessionPanel() {
       toast.success("Study session saved");
       setTimerStart(null);
       setElapsed(0);
+      setTimerNotes("");
       loadData();
     } else {
       toast.error("Failed to save session");
@@ -181,6 +199,52 @@ export function StudySessionPanel() {
       loadData();
     } else {
       toast.error("Failed to delete session");
+    }
+  }
+
+  function openEditDialog(session: StudySession) {
+    setEditSession(session);
+    setEditCourseId(session.courseId ?? NO_COURSE);
+    setEditDate(new Date(session.startedAt).toISOString().slice(0, 10));
+    setEditDuration(String(session.durationMinutes ?? ""));
+    setEditNotes(session.notes ?? "");
+  }
+
+  async function submitEdit() {
+    if (!editSession) return;
+    setEditSaving(true);
+
+    const body: Record<string, unknown> = {};
+    const newCourseId = editCourseId === NO_COURSE ? null : editCourseId;
+    if (newCourseId !== (editSession.courseId ?? null)) body.courseId = newCourseId;
+
+    const newDuration = parseInt(editDuration, 10);
+    if (newDuration && newDuration !== editSession.durationMinutes) {
+      body.durationMinutes = newDuration;
+    }
+
+    const newNotes = editNotes.trim() || null;
+    if (newNotes !== (editSession.notes ?? null)) body.notes = newNotes;
+
+    if (Object.keys(body).length === 0) {
+      setEditSession(null);
+      setEditSaving(false);
+      return;
+    }
+
+    const res = await fetch(`/api/v1/study-sessions/${editSession.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    setEditSaving(false);
+    if (res.ok) {
+      toast.success("Session updated");
+      setEditSession(null);
+      loadData();
+    } else {
+      toast.error("Failed to update session");
     }
   }
 
@@ -256,6 +320,20 @@ export function StudySessionPanel() {
               </Button>
             )}
           </div>
+
+          {timerRunning && (
+            <div>
+              <Label htmlFor="timer-notes">Notes (optional)</Label>
+              <Textarea
+                id="timer-notes"
+                placeholder="What are you studying?"
+                value={timerNotes}
+                onChange={(e) => setTimerNotes(e.target.value)}
+                className="mt-1"
+                rows={2}
+              />
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="manual" className="mt-4">
@@ -342,9 +420,11 @@ export function StudySessionPanel() {
         ) : (
           <div className="space-y-2">
             {sessions.map((s) => (
-              <div
+              <button
                 key={s.id}
-                className="flex items-center gap-3 rounded-lg border p-3 text-sm"
+                type="button"
+                className="flex w-full items-center gap-3 rounded-lg border p-3 text-sm text-left transition-colors hover:bg-muted/50 cursor-pointer"
+                onClick={() => openEditDialog(s)}
               >
                 {s.course ? (
                   <span
@@ -375,19 +455,97 @@ export function StudySessionPanel() {
                 <span className="text-xs font-mono shrink-0">
                   {s.durationMinutes ? formatDuration(s.durationMinutes) : "—"}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 w-7 p-0 shrink-0 text-muted-foreground hover:text-destructive"
-                  onClick={() => deleteSession(s.id)}
-                >
-                  &times;
-                </Button>
-              </div>
+              </button>
             ))}
           </div>
         )}
       </div>
+
+      {/* Edit Session Dialog */}
+      <Dialog open={!!editSession} onOpenChange={(open) => !open && setEditSession(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Session</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-course">Course</Label>
+              <Select value={editCourseId} onValueChange={setEditCourseId}>
+                <SelectTrigger id="edit-course" className="mt-1">
+                  <SelectValue placeholder="No course" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_COURSE}>No course</SelectItem>
+                  {courses.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: c.color }}
+                        />
+                        {c.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-date">Date</Label>
+              <Input
+                id="edit-date"
+                type="date"
+                value={editDate}
+                onChange={(e) => setEditDate(e.target.value)}
+                className="mt-1"
+                disabled
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-duration">Duration (minutes)</Label>
+              <Input
+                id="edit-duration"
+                type="number"
+                min={1}
+                max={1440}
+                value={editDuration}
+                onChange={(e) => setEditDuration(e.target.value)}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-notes">Notes</Label>
+              <Textarea
+                id="edit-notes"
+                placeholder="What did you study?"
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+                className="mt-1"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (editSession) {
+                  deleteSession(editSession.id);
+                  setEditSession(null);
+                }
+              }}
+            >
+              Delete
+            </Button>
+            <Button onClick={submitEdit} disabled={editSaving}>
+              {editSaving ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
