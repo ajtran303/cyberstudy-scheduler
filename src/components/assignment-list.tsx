@@ -111,35 +111,39 @@ export function AssignmentList({ courseId }: { courseId: string }) {
         {assignments.map((a) => (
           <div
             key={a.id}
-            className={`flex items-center gap-3 rounded-md px-3 py-2.5 transition-colors ${
+            className={`flex flex-col gap-1 rounded-md px-3 py-2.5 transition-colors sm:flex-row sm:items-center sm:gap-3 ${
               a.status === "DONE" ? "opacity-50" : "hover:bg-accent"
             }`}
           >
-            <button
-              onClick={() => toggleStatus(a.id, a.status)}
-              className={`h-4 w-4 rounded border shrink-0 transition-colors ${
-                a.status === "DONE"
-                  ? "bg-primary border-primary"
-                  : "border-muted-foreground hover:border-primary"
-              }`}
-            />
-            <div className="flex-1 min-w-0">
-              <p className={`text-sm font-medium ${a.status === "DONE" ? "line-through" : ""}`}>
-                {a.name}
-              </p>
-              {a.description && (
-                <p className="text-xs text-muted-foreground truncate">{a.description}</p>
-              )}
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <button
+                onClick={() => toggleStatus(a.id, a.status)}
+                className={`h-4 w-4 rounded border shrink-0 transition-colors ${
+                  a.status === "DONE"
+                    ? "bg-primary border-primary"
+                    : "border-muted-foreground hover:border-primary"
+                }`}
+              />
+              <div className="min-w-0 flex-1">
+                <p className={`text-sm font-medium ${a.status === "DONE" ? "line-through" : ""}`}>
+                  {a.name}
+                </p>
+                {a.description && (
+                  <p className="text-xs text-muted-foreground truncate">{a.description}</p>
+                )}
+              </div>
             </div>
-            {a.dueDate && (
-              <span className="text-xs text-muted-foreground shrink-0">
-                {new Date(a.dueDate).toLocaleDateString()}
-              </span>
-            )}
-            <DaysLeftBadge daysLeft={a.daysLeft} />
-            <Badge variant="secondary" className="text-xs">
-              {a.status === "DONE" ? "Done" : "Pending"}
-            </Badge>
+            <div className="flex items-center gap-2 pl-7 sm:pl-0">
+              {a.dueDate && (
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(a.dueDate).toLocaleDateString()}
+                </span>
+              )}
+              <DaysLeftBadge daysLeft={a.daysLeft} />
+              <Badge variant="secondary" className="text-xs">
+                {a.status === "DONE" ? "Done" : "Pending"}
+              </Badge>
+            </div>
           </div>
         ))}
         {assignments.length === 0 && (
