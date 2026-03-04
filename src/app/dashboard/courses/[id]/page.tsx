@@ -9,8 +9,15 @@ import { AssignmentList } from "@/components/assignment-list";
 import { ExamList } from "@/components/exam-list";
 import { EditCourseDialog } from "@/components/edit-course-dialog";
 import { DeleteCourseDialog } from "@/components/delete-course-dialog";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 
 export default async function CourseDetailPage({
   params,
@@ -41,13 +48,21 @@ export default async function CourseDetailPage({
 
   return (
     <div className="space-y-6 min-w-0">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard">Dashboard</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{course.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="flex items-start gap-4">
-        <Link
-          href="/dashboard"
-          className="mt-1 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <div

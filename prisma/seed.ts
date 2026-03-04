@@ -147,9 +147,46 @@ async function main() {
     });
   }
 
+  // Add sample study sessions spread over the past 2 weeks
+  const now = new Date();
+  const daysAgo = (d: number) => {
+    const date = new Date(now);
+    date.setDate(date.getDate() - d);
+    date.setHours(10, 0, 0, 0);
+    return date;
+  };
+  const endAfter = (start: Date, minutes: number) => {
+    return new Date(start.getTime() + minutes * 60000);
+  };
+
+  const sessionData = [
+    { courseId: netSec.id, startedAt: daysAgo(13), durationMinutes: 45, notes: "Reviewed TCP/IP layers and handshake process" },
+    { courseId: ethHack.id, startedAt: daysAgo(12), durationMinutes: 60, notes: "OSINT practice with theHarvester and Maltego" },
+    { courseId: netSec.id, startedAt: daysAgo(10), durationMinutes: 30, notes: "Firewall rule ordering lab prep" },
+    { courseId: ethHack.id, startedAt: daysAgo(8), durationMinutes: 90, notes: "Nmap scanning techniques and service enumeration" },
+    { courseId: netSec.id, startedAt: daysAgo(6), durationMinutes: 55, notes: "VPN technologies comparison: IPSec vs WireGuard" },
+    { courseId: netSec.id, startedAt: daysAgo(4), durationMinutes: 40, notes: "DNS security and DNSSEC" },
+    { courseId: ethHack.id, startedAt: daysAgo(2), durationMinutes: 75, notes: "CTF challenge practice" },
+    { courseId: netSec.id, startedAt: daysAgo(1), durationMinutes: 35, notes: "Wireshark packet capture lab" },
+  ];
+
+  for (const s of sessionData) {
+    await prisma.studySession.create({
+      data: {
+        userId: user.id,
+        courseId: s.courseId,
+        startedAt: s.startedAt,
+        endedAt: endAfter(s.startedAt, s.durationMinutes),
+        durationMinutes: s.durationMinutes,
+        notes: s.notes,
+      },
+    });
+  }
+
   console.log("Seed data created successfully!");
   console.log(`  User: ${user.email} / password123`);
   console.log(`  Courses: ${netSec.name}, ${ethHack.name}, Applied Cryptography`);
+  console.log(`  Study sessions: ${sessionData.length}`);
 }
 
 main()

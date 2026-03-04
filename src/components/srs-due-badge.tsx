@@ -1,0 +1,64 @@
+"use client";
+
+import { Badge } from "@/components/ui/badge";
+
+interface SrsDueBadgeProps {
+  nextReviewAt: string | null;
+}
+
+export function SrsDueBadge({ nextReviewAt }: SrsDueBadgeProps) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  if (!nextReviewAt) {
+    return (
+      <Badge
+        variant="destructive"
+        className="shrink-0 text-xs"
+        style={{ backgroundColor: "#ef444420", color: "#ef4444" }}
+      >
+        due now
+      </Badge>
+    );
+  }
+
+  const reviewDate = new Date(nextReviewAt);
+  const reviewDay = new Date(
+    reviewDate.getFullYear(),
+    reviewDate.getMonth(),
+    reviewDate.getDate(),
+  );
+  const diffMs = reviewDay.getTime() - today.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    const ago = Math.abs(diffDays);
+    return (
+      <Badge
+        variant="destructive"
+        className="shrink-0 text-xs"
+        style={{ backgroundColor: "#ef444420", color: "#ef4444" }}
+      >
+        due {ago}d ago
+      </Badge>
+    );
+  }
+
+  if (diffDays === 0) {
+    return (
+      <Badge
+        variant="default"
+        className="shrink-0 text-xs"
+        style={{ backgroundColor: "#f59e0b20", color: "#f59e0b" }}
+      >
+        due today
+      </Badge>
+    );
+  }
+
+  return (
+    <Badge variant="secondary" className="shrink-0 text-xs">
+      in {diffDays}d
+    </Badge>
+  );
+}

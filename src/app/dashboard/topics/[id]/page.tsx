@@ -1,8 +1,15 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { MasteryBadge } from "@/components/mastery-badge";
 import { MasterySelector } from "@/components/mastery-selector";
 import { KeyTermsEditor } from "@/components/key-terms-editor";
@@ -39,23 +46,28 @@ export default async function TopicDetailPage({
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div className="flex items-start gap-4">
-        <Link
-          href={`/dashboard/courses/${topic.courseId}`}
-          className="mt-1 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors shrink-0"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/dashboard">Dashboard</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href={`/dashboard/courses/${topic.courseId}`}>{topic.course.name}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{topic.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div>
         <div className="flex-1">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-            <div
-              className="h-2 w-2 rounded-full"
-              style={{ backgroundColor: topic.course.color }}
-            />
-            <Link href={`/dashboard/courses/${topic.courseId}`} className="hover:underline">
-              {topic.course.name}
-            </Link>
-          </div>
           <h1 className="text-2xl font-bold">{topic.name}</h1>
           <div className="mt-2 flex items-center gap-3">
             <MasteryBadge mastery={topic.mastery as "EXPOSED" | "SCANNING" | "HARDENED" | "CLASSIFIED"} />

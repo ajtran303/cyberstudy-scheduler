@@ -5,6 +5,7 @@ interface WelcomeBannerProps {
   reviewCount?: number;
   upcomingAssignments?: number;
   upcomingExams?: number;
+  srsDueCount?: number;
 }
 
 export function WelcomeBanner({
@@ -12,12 +13,18 @@ export function WelcomeBanner({
   reviewCount = 0,
   upcomingAssignments = 0,
   upcomingExams = 0,
+  srsDueCount = 0,
 }: WelcomeBannerProps) {
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const hints: string[] = [];
+  if (srsDueCount > 0) {
+    hints.push(
+      `${srsDueCount} topic${srsDueCount === 1 ? "" : "s"} due for SRS review`
+    );
+  }
   if (reviewCount > 0) {
     hints.push(`${reviewCount} topic${reviewCount === 1 ? "" : "s"} due for review`);
   }
