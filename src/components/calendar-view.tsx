@@ -29,7 +29,7 @@ interface CalendarData {
 }
 
 const typeLabels = { topic: "Topic", assignment: "Assignment", exam: "Exam" };
-const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function eventHref(event: CalendarEvent): string {
   if (event.type === "topic") return `/dashboard/topics/${event.id}`;
@@ -38,7 +38,10 @@ function eventHref(event: CalendarEvent): string {
 const MAX_VISIBLE_EVENTS = 3;
 
 function toISODate(d: Date) {
-  return d.toISOString().split("T")[0];
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 interface GridDay {
@@ -55,8 +58,7 @@ function buildMonthGrid(refDate: string): GridDay[] {
   const today = toISODate(new Date());
 
   const firstOfMonth = new Date(year, month, 1);
-  // getDay() returns 0=Sun, we want Mon=0
-  const startOffset = (firstOfMonth.getDay() + 6) % 7;
+  const startOffset = firstOfMonth.getDay();
   const startDate = new Date(year, month, 1 - startOffset);
 
   const days: GridDay[] = [];
