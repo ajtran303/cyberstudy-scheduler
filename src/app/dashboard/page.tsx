@@ -6,6 +6,8 @@ import { CreateCourseDialog } from "@/components/create-course-dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReviewTable } from "@/components/review-table";
+import { CalendarView } from "@/components/calendar-view";
+import { AnalyticsChart } from "@/components/analytics-chart";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -77,11 +79,11 @@ export default async function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-4">
-          <div id="calendar-section" />
+          <CalendarView />
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-4">
-          <div id="analytics-section" />
+          <AnalyticsChart />
         </TabsContent>
       </Tabs>
     </div>
