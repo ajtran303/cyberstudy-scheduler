@@ -55,21 +55,3 @@ export function computeSrs({
   return { nextInterval, nextEaseFactor, nextReviewAt };
 }
 
-/** Map TeachItBack outcome to SM-2 quality (0-5) */
-export function teachItBackQuality(outcome: string): number {
-  switch (outcome) {
-    case "PASS":
-      return 5;
-    case "PARTIAL":
-      return 3;
-    case "MISS":
-      return 1;
-    default:
-      return 1;
-  }
-}
-
-/** Map QuizAttempt correctness to SM-2 quality (0-5) */
-export function quizAttemptQuality(correct: boolean): number {
-  return correct ? 4 : 1;
-}

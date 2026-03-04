@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { CreateTeachItBackSchema } from "@/lib/schemas/teach-it-back";
-import { computeSrs, teachItBackQuality } from "@/lib/srs";
 
 export async function POST(
   req: NextRequest,
@@ -29,22 +28,6 @@ export async function POST(
         topicId,
         outcome: parsed.data.outcome,
         notes: parsed.data.notes,
-      },
-    });
-
-    const quality = teachItBackQuality(parsed.data.outcome);
-    const srs = computeSrs({
-      quality,
-      currentInterval: topic.reviewInterval,
-      currentEaseFactor: topic.easeFactor,
-    });
-    await prisma.topic.update({
-      where: { id: topicId },
-      data: {
-        lastReviewedAt: new Date(),
-        nextReviewAt: srs.nextReviewAt,
-        reviewInterval: srs.nextInterval,
-        easeFactor: srs.nextEaseFactor,
       },
     });
 

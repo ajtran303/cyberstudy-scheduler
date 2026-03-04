@@ -29,6 +29,18 @@ interface ReviewTableProps {
 
 const MASTERY_LEVELS = ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] as const;
 
+const RATING_BUTTONS = [
+  { label: "Forgot", quality: 1, color: "#ef4444" },
+  { label: "Hard", quality: 3, color: "#f97316" },
+  { label: "Good", quality: 4, color: "#22c55e" },
+  { label: "Easy", quality: 5, color: "#3b82f6" },
+] as const;
+
+function isDue(nextReviewAt: string | null): boolean {
+  if (!nextReviewAt) return true;
+  return new Date(nextReviewAt) <= new Date();
+}
+
 export function ReviewTable({ courseId }: ReviewTableProps) {
   const router = useRouter();
   const [topics, setTopics] = useState<ReviewTopic[]>([]);
@@ -48,6 +60,41 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
     }
     load();
   }, [sort, courseId]);
+
+  async function doReview(topicId: string, quality: number) {
+    setUpdating(topicId);
+    try {
+      const res = await fetch(`/api/v1/topics/${topicId}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quality }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error?.message ?? "Failed to record review");
+        return;
+      }
+
+      const json = await res.json();
+      const nextDate = json.data?.nextReviewAt
+        ? new Date(json.data.nextReviewAt).toLocaleDateString()
+        : "unknown";
+      toast.success(`Next review: ${nextDate}`);
+
+      // Refresh the list
+      const params = new URLSearchParams({ sort });
+      if (courseId) params.set("courseId", courseId);
+      const listRes = await fetch(`/api/v1/review?${params}`);
+      const listJson = await listRes.json();
+      setTopics(listJson.data || []);
+      router.refresh();
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setUpdating(null);
+    }
+  }
 
   function confirmMasteryUpdate(topicId: string, mastery: string) {
     const topic = topics.find((t) => t.id === topicId);
@@ -153,6 +200,24 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                 </Link>
                 <SrsDueBadge nextReviewAt={topic.nextReviewAt} />
               </div>
+              {isDue(topic.nextReviewAt) && (
+                <div className="flex items-center gap-1 pl-5 sm:pl-0">
+                  {RATING_BUTTONS.map((btn) => (
+                    <button
+                      key={btn.label}
+                      disabled={updating === topic.id}
+                      onClick={() => doReview(topic.id, btn.quality)}
+                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium transition-all opacity-60 hover:opacity-100 disabled:cursor-default disabled:opacity-30"
+                      style={{
+                        color: btn.color,
+                        border: `1px solid ${btn.color}`,
+                      }}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="flex items-center gap-1.5 pl-5 sm:pl-0 flex-wrap">
                 {MASTERY_LEVELS.map((level) => {
                   const isActive = topic.mastery === level;
