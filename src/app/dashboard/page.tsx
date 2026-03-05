@@ -13,6 +13,7 @@ import { FlashcardDeck } from "@/components/flashcard-deck";
 import { StudyStatsChart } from "@/components/study-stats-chart";
 import { ReviewForecastChart } from "@/components/review-forecast-chart";
 import { WelcomeBanner } from "@/components/welcome-banner";
+import { TodayPlan } from "@/components/today-plan";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -69,9 +70,10 @@ export default async function DashboardPage() {
         srsDueCount={srsDueCount}
       />
 
-      <Tabs defaultValue="courses" className="w-full">
+      <Tabs defaultValue="today" className="w-full">
         <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
           <TabsList>
+            <TabsTrigger value="today">Today</TabsTrigger>
             <TabsTrigger value="courses">Courses</TabsTrigger>
             <TabsTrigger value="review">Review</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
@@ -82,6 +84,10 @@ export default async function DashboardPage() {
             <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
           </TabsList>
         </div>
+
+        <TabsContent value="today" className="mt-4">
+          <TodayPlan />
+        </TabsContent>
 
         <TabsContent value="courses" className="mt-4">
           <div className="flex items-center justify-between mb-4">
