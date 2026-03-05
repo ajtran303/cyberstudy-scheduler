@@ -38,12 +38,35 @@ export function EditCourseDialog({ course }: EditCourseDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedColor, setSelectedColor] = useState(course.color);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function validate(formData: FormData): Record<string, string> {
+    const errs: Record<string, string> = {};
+    const name = (formData.get("name") as string)?.trim();
+    if (!name) errs.name = "Course name is required";
+    else if (name.length > 200) errs.name = "Max 200 characters";
+
+    const email = formData.get("professorEmail") as string;
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errs.professorEmail = "Invalid email address";
+    }
+
+    const website = formData.get("website") as string;
+    if (website && !/^https?:\/\/.+/.test(website)) {
+      errs.website = "Must start with http:// or https://";
+    }
+
+    return errs;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
-
     const formData = new FormData(e.currentTarget);
+    const fieldErrors = validate(formData);
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) return;
+
+    setLoading(true);
 
     try {
       const res = await fetch(`/api/v1/courses/${course.id}`, {
@@ -90,7 +113,8 @@ export function EditCourseDialog({ course }: EditCourseDialogProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="edit-name">Course Name *</Label>
-            <Input id="edit-name" name="name" required defaultValue={course.name} />
+            <Input id="edit-name" name="name" required defaultValue={course.name} aria-invalid={!!errors.name} />
+            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -149,7 +173,9 @@ export function EditCourseDialog({ course }: EditCourseDialogProps) {
                 name="professorEmail"
                 type="email"
                 defaultValue={course.professorEmail ?? ""}
+                aria-invalid={!!errors.professorEmail}
               />
+              {errors.professorEmail && <p className="text-xs text-destructive">{errors.professorEmail}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-website">Website</Label>
@@ -158,7 +184,9 @@ export function EditCourseDialog({ course }: EditCourseDialogProps) {
                 name="website"
                 type="url"
                 defaultValue={course.website ?? ""}
+                aria-invalid={!!errors.website}
               />
+              {errors.website && <p className="text-xs text-destructive">{errors.website}</p>}
             </div>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>

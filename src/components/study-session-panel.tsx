@@ -78,6 +78,9 @@ export function StudySessionPanel() {
   const [manualDuration, setManualDuration] = useState("");
   const [manualNotes, setManualNotes] = useState("");
 
+  // Form errors
+  const [manualErrors, setManualErrors] = useState<Record<string, string>>({});
+
   // Edit dialog state
   const [editSession, setEditSession] = useState<StudySession | null>(null);
   const [editCourseId, setEditCourseId] = useState<string>(NO_COURSE);
@@ -163,10 +166,11 @@ export function StudySessionPanel() {
   async function submitManual(e: React.FormEvent) {
     e.preventDefault();
     const duration = parseInt(manualDuration, 10);
-    if (!duration || duration < 1) {
-      toast.error("Enter a valid duration (1-1440 minutes)");
+    if (!duration || duration < 1 || duration > 1440) {
+      setManualErrors({ duration: "Enter a valid duration (1-1440 minutes)" });
       return;
     }
+    setManualErrors({});
 
     const body: Record<string, unknown> = {
       startedAt: new Date(manualDate + "T12:00:00").toISOString(),
@@ -405,9 +409,11 @@ export function StudySessionPanel() {
                 max={1440}
                 placeholder="e.g. 45"
                 value={manualDuration}
-                onChange={(e) => setManualDuration(e.target.value)}
+                onChange={(e) => { setManualDuration(e.target.value); setManualErrors({}); }}
                 className="mt-1"
+                aria-invalid={!!manualErrors.duration}
               />
+              {manualErrors.duration && <p className="text-xs text-destructive mt-1">{manualErrors.duration}</p>}
             </div>
 
             <div>
