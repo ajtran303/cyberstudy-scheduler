@@ -39,10 +39,10 @@ function eventHref(event: CalendarEvent): string {
 }
 const MAX_VISIBLE_EVENTS = 3;
 
-function toISODate(d: Date) {
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(d.getUTCDate()).padStart(2, "0");
+function toLocalISODate(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
@@ -57,7 +57,7 @@ function buildMonthGrid(refDate: string): GridDay[] {
   const ref = new Date(refDate);
   const year = ref.getFullYear();
   const month = ref.getMonth();
-  const today = toISODate(new Date());
+  const today = toLocalISODate(new Date());
 
   const firstOfMonth = new Date(year, month, 1);
   const startOffset = firstOfMonth.getDay();
@@ -68,7 +68,7 @@ function buildMonthGrid(refDate: string): GridDay[] {
   for (let i = 0; i < 42; i++) {
     const d = new Date(startDate);
     d.setDate(startDate.getDate() + i);
-    const key = toISODate(d);
+    const key = toLocalISODate(d);
     days.push({
       date: d,
       key,
@@ -92,7 +92,7 @@ function MonthGrid({
   const eventsByDate: Record<string, CalendarEvent[]> = {};
   for (const event of events) {
     if (!event.date) continue;
-    const key = toISODate(new Date(event.date));
+    const key = toLocalISODate(new Date(event.date));
     if (!eventsByDate[key]) eventsByDate[key] = [];
     eventsByDate[key].push(event);
   }
@@ -249,7 +249,7 @@ function EventList({
 
 export function CalendarView() {
   const [view, setView] = useState<"week" | "month">("week");
-  const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(() => toLocalISODate(new Date()));
   const [data, setData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -268,7 +268,7 @@ export function CalendarView() {
     const d = new Date(date);
     if (view === "week") d.setDate(d.getDate() + dir * 7);
     else d.setMonth(d.getMonth() + dir);
-    setDate(d.toISOString().split("T")[0]);
+    setDate(toLocalISODate(d));
   }
 
   // Group events by display date for the list view
@@ -328,7 +328,7 @@ export function CalendarView() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setDate(new Date().toISOString().split("T")[0])}
+            onClick={() => setDate(toLocalISODate(new Date()))}
           >
             Today
           </Button>
