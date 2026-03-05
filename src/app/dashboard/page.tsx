@@ -137,11 +137,11 @@ export default async function DashboardPage() {
         <TabsContent value="analytics" className="mt-4 space-y-6">
           <StudyStats />
           <AnalyticsChart />
+          <StudyStatsChart />
           <ReviewForecastChart />
         </TabsContent>
 
         <TabsContent value="study" className="mt-4 space-y-6">
-          <StudyStatsChart />
           <StudySessionPanel />
         </TabsContent>
 

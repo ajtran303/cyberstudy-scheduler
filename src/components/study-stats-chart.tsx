@@ -107,10 +107,11 @@ export function StudyStatsChart() {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                innerRadius="45%"
-                outerRadius="85%"
+                innerRadius={35}
+                outerRadius={75}
                 paddingAngle={2}
                 strokeWidth={0}
+                isAnimationActive={false}
               >
                 {data.byCourse.map((c) => (
                   <Cell key={c.courseId} fill={c.color} />

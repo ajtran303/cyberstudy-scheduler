@@ -87,6 +87,7 @@ export function AnalyticsChart({ courseId }: { courseId?: string }) {
                 outerRadius={100}
                 dataKey="value"
                 stroke="none"
+                isAnimationActive={false}
               >
                 {chartData.map((entry, i) => (
                   <Cell key={i} fill={entry.color} />
