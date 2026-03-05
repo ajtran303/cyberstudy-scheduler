@@ -43,8 +43,26 @@ export function AssignmentList({ courseId }: { courseId: string }) {
 
   useEffect(() => { load(); }, [courseId]);
 
-  async function toggleStatus(id: string, currentStatus: string) {
+  function confirmToggleStatus(id: string, currentStatus: string) {
+    const newStatus = currentStatus === "PENDING" ? "Done" : "Pending";
+    toast(`Mark assignment as ${newStatus}?`, {
+      action: {
+        label: "Confirm",
+        onClick: () => doToggleStatus(id, currentStatus),
+      },
+      duration: 5000,
+    });
+  }
+
+  async function doToggleStatus(id: string, currentStatus: string) {
     const newStatus = currentStatus === "PENDING" ? "DONE" : "PENDING";
+    const oldAssignments = [...assignments];
+
+    // Optimistic update
+    setAssignments((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a))
+    );
+
     try {
       const res = await fetch(`/api/v1/assignments/${id}`, {
         method: "PATCH",
@@ -53,14 +71,21 @@ export function AssignmentList({ courseId }: { courseId: string }) {
       });
 
       if (!res.ok) {
+        setAssignments(oldAssignments);
         const body = await res.json().catch(() => null);
         toast.error(body?.error?.message ?? "Failed to update assignment");
         return;
       }
 
-      load();
       router.refresh();
+      toast.success(`Marked as ${newStatus === "DONE" ? "done" : "pending"}`, {
+        action: {
+          label: "Undo",
+          onClick: () => doToggleStatus(id, newStatus),
+        },
+      });
     } catch {
+      setAssignments(oldAssignments);
       toast.error("Network error");
     }
   }
@@ -164,7 +189,7 @@ export function AssignmentList({ courseId }: { courseId: string }) {
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
-                onClick={() => toggleStatus(a.id, a.status)}
+                onClick={() => confirmToggleStatus(a.id, a.status)}
                 className={`h-4 w-4 rounded border shrink-0 transition-colors ${
                   a.status === "DONE"
                     ? "bg-primary border-primary"

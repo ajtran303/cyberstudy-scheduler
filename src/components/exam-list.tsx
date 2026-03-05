@@ -43,8 +43,26 @@ export function ExamList({ courseId }: { courseId: string }) {
 
   useEffect(() => { load(); }, [courseId]);
 
-  async function toggleStatus(id: string, currentStatus: string) {
+  function confirmToggleStatus(id: string, currentStatus: string) {
+    const newStatus = currentStatus === "UPCOMING" ? "Completed" : "Upcoming";
+    toast(`Mark exam as ${newStatus}?`, {
+      action: {
+        label: "Confirm",
+        onClick: () => doToggleStatus(id, currentStatus),
+      },
+      duration: 5000,
+    });
+  }
+
+  async function doToggleStatus(id: string, currentStatus: string) {
     const newStatus = currentStatus === "UPCOMING" ? "COMPLETED" : "UPCOMING";
+    const oldExams = [...exams];
+
+    // Optimistic update
+    setExams((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, status: newStatus } : e))
+    );
+
     try {
       const res = await fetch(`/api/v1/exams/${id}`, {
         method: "PATCH",
@@ -53,14 +71,21 @@ export function ExamList({ courseId }: { courseId: string }) {
       });
 
       if (!res.ok) {
+        setExams(oldExams);
         const body = await res.json().catch(() => null);
         toast.error(body?.error?.message ?? "Failed to update exam");
         return;
       }
 
-      load();
       router.refresh();
+      toast.success(`Marked as ${newStatus === "COMPLETED" ? "completed" : "upcoming"}`, {
+        action: {
+          label: "Undo",
+          onClick: () => doToggleStatus(id, newStatus),
+        },
+      });
     } catch {
+      setExams(oldExams);
       toast.error("Network error");
     }
   }
@@ -164,7 +189,7 @@ export function ExamList({ courseId }: { courseId: string }) {
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
-                onClick={() => toggleStatus(e.id, e.status)}
+                onClick={() => confirmToggleStatus(e.id, e.status)}
                 className={`h-4 w-4 rounded border shrink-0 transition-colors ${
                   e.status === "COMPLETED"
                     ? "bg-primary border-primary"
