@@ -18,6 +18,7 @@ import { EditTopicDialog } from "@/components/edit-topic-dialog";
 import { DeleteTopicDialog } from "@/components/delete-topic-dialog";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
 interface KeyTerm {
@@ -78,12 +79,12 @@ export default async function TopicDetailPage({
               <MasteryBadge mastery={topic.mastery as "EXPOSED" | "SCANNING" | "HARDENED" | "CLASSIFIED"} />
               {topic.lastReviewedAt && (
                 <span className="text-xs text-muted-foreground">
-                  Last reviewed: {new Date(topic.lastReviewedAt).toLocaleDateString()}
+                  Last reviewed: {formatDate(topic.lastReviewedAt)}
                 </span>
               )}
               {topic.date && (
                 <span className="text-xs text-muted-foreground">
-                  Scheduled: {new Date(topic.date).toLocaleDateString()}
+                  Scheduled: {formatDate(topic.date)}
                 </span>
               )}
             </div>
@@ -149,7 +150,7 @@ export default async function TopicDetailPage({
                     {tib.outcome}
                   </span>
                   <span className="text-muted-foreground">
-                    {new Date(tib.attemptedAt).toLocaleDateString()}
+                    {formatDate(tib.attemptedAt)}
                   </span>
                 </div>
                 {tib.notes && (
@@ -179,7 +180,7 @@ export default async function TopicDetailPage({
                     {qa.correct ? "Correct" : "Incorrect"}
                   </span>
                   <span className="text-muted-foreground">
-                    {new Date(qa.createdAt).toLocaleDateString()}
+                    {formatDate(qa.createdAt)}
                   </span>
                   {qa.sessionId && (
                     <span className="font-mono text-muted-foreground">

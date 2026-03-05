@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDate } from "@/lib/utils";
 
 interface CalendarEvent {
   id: string;
@@ -39,9 +40,9 @@ function eventHref(event: CalendarEvent): string {
 const MAX_VISIBLE_EVENTS = 3;
 
 function toISODate(d: Date) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
@@ -275,7 +276,7 @@ export function CalendarView() {
   if (data) {
     for (const event of data.events) {
       if (!event.date) continue;
-      const key = new Date(event.date).toLocaleDateString("en-US", {
+      const key = formatDate(event.date, {
         weekday: "short",
         month: "short",
         day: "numeric",
@@ -292,7 +293,7 @@ export function CalendarView() {
           month: "long",
           year: "numeric",
         })
-      : `${new Date(data.start).toLocaleDateString()} - ${new Date(data.end).toLocaleDateString()}`
+      : `${formatDate(data.start)} - ${formatDate(data.end)}`
     : "Loading...";
 
   return (

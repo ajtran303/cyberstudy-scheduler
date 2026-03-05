@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { DaysLeftBadge } from "@/components/days-left-badge";
+import { formatDate } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -325,7 +326,7 @@ export function AssignmentList({ courseId }: { courseId: string }) {
             <div className="flex items-center gap-2 pl-7 sm:pl-0">
               {a.dueDate && (
                 <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {new Date(a.dueDate).toLocaleDateString()}
+                  {formatDate(a.dueDate)}
                 </span>
               )}
               <DaysLeftBadge daysLeft={a.daysLeft} />

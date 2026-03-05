@@ -44,12 +44,10 @@ export function computeSrs({
     }
   }
 
-  // nextReviewAt = start of day + interval days
+  // nextReviewAt = noon UTC + interval days (timezone-safe)
   const now = new Date();
   const nextReviewAt = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() + nextInterval,
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + nextInterval, 12),
   );
 
   return { nextInterval, nextEaseFactor, nextReviewAt };

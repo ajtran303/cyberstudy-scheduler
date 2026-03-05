@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MASTERY_COLORS, MASTERY_LABELS } from "@/lib/utils";
+import { MASTERY_COLORS, MASTERY_LABELS, formatDate } from "@/lib/utils";
 import { SrsDueBadge } from "@/components/srs-due-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -92,7 +92,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
 
       const json = await res.json();
       const nextDate = json.data?.nextReviewAt
-        ? new Date(json.data.nextReviewAt).toLocaleDateString()
+        ? formatDate(json.data.nextReviewAt)
         : "unknown";
       toast.success(`Next review: ${nextDate}`);
 
@@ -229,7 +229,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                   <p className="text-xs text-muted-foreground">
                     {topic.course.name}
                     {topic.lastReviewedAt && (
-                      <> &middot; Reviewed {new Date(topic.lastReviewedAt).toLocaleDateString()}</>
+                      <> &middot; Reviewed {formatDate(topic.lastReviewedAt)}</>
                     )}
                   </p>
                 </Link>

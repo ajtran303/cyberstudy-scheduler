@@ -22,6 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDate } from "@/lib/utils";
 
 interface Course {
   id: string;
@@ -219,7 +220,8 @@ export function StudySessionPanel() {
   function openEditDialog(session: StudySession) {
     setEditSession(session);
     setEditCourseId(session.courseId ?? NO_COURSE);
-    setEditDate(new Date(session.startedAt).toISOString().slice(0, 10));
+    const d = new Date(session.startedAt);
+    setEditDate(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`);
     setEditDuration(String(session.durationMinutes ?? ""));
     setEditNotes(session.notes ?? "");
   }
@@ -476,7 +478,7 @@ export function StudySessionPanel() {
                       {s.course?.name ?? "General"}
                     </span>
                     <span className="text-xs text-muted-foreground shrink-0">
-                      {new Date(s.startedAt).toLocaleDateString(undefined, {
+                      {formatDate(s.startedAt, {
                         month: "short",
                         day: "numeric",
                       })}

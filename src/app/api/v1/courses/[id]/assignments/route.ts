@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { CreateAssignmentSchema } from "@/lib/schemas/assignment";
-import { addDaysLeft } from "@/lib/utils";
+import { addDaysLeft, toNoonUTC } from "@/lib/utils";
 import { AssignmentStatus, Prisma } from "@/generated/prisma/client";
 
 export async function GET(
@@ -56,7 +56,7 @@ export async function POST(
       data: {
         ...rest,
         courseId,
-        dueDate: dueDate ? new Date(dueDate) : null,
+        dueDate: dueDate ? toNoonUTC(dueDate) : null,
       },
     });
 

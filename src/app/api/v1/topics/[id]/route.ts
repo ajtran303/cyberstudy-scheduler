@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { UpdateTopicSchema } from "@/lib/schemas/topic";
+import { toNoonUTC } from "@/lib/utils";
 
 export async function GET(
   req: NextRequest,
@@ -43,7 +44,7 @@ export async function PATCH(
     const { date, ...rest } = parsed.data;
     const updateData: Record<string, unknown> = { ...rest };
     if (date !== undefined) {
-      updateData.date = date ? new Date(date) : null;
+      updateData.date = date ? toNoonUTC(date) : null;
     }
 
     const topic = await prisma.topic.update({

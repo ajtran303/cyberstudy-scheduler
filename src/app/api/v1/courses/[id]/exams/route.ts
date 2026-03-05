@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { CreateExamSchema } from "@/lib/schemas/exam";
-import { addDaysLeft } from "@/lib/utils";
+import { addDaysLeft, toNoonUTC } from "@/lib/utils";
 import { ExamStatus, Prisma } from "@/generated/prisma/client";
 
 export async function GET(
@@ -56,7 +56,7 @@ export async function POST(
       data: {
         ...rest,
         courseId,
-        date: date ? new Date(date) : null,
+        date: date ? toNoonUTC(date) : null,
       },
     });
 

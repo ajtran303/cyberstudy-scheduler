@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { UpdateAssignmentSchema } from "@/lib/schemas/assignment";
-import { addDaysLeft } from "@/lib/utils";
+import { addDaysLeft, toNoonUTC } from "@/lib/utils";
 
 export async function PATCH(
   req: NextRequest,
@@ -27,7 +27,7 @@ export async function PATCH(
     const { dueDate, ...rest } = parsed.data;
     const updateData: Record<string, unknown> = { ...rest };
     if (dueDate !== undefined) {
-      updateData.dueDate = dueDate ? new Date(dueDate) : null;
+      updateData.dueDate = dueDate ? toNoonUTC(dueDate) : null;
     }
 
     const assignment = await prisma.assignment.update({

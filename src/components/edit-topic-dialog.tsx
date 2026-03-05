@@ -67,6 +67,7 @@ export function EditTopicDialog({ topicId, name, date, children }: EditTopicDial
     }
   }
 
+  // Extract YYYY-MM-DD from UTC components (safe for noon-UTC dates)
   const dateDefault = date ? new Date(date).toISOString().split("T")[0] : "";
 
   return (
