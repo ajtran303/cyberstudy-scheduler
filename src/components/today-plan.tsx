@@ -161,40 +161,6 @@ export function TodayPlan() {
 
   return (
     <div className="space-y-6">
-      {/* Daily Stats */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Study Today
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{data.stats.studyMinutesToday}m</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Weekly Avg
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{data.stats.weeklyAvgMinutes}m/day</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Reviews Today
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{data.stats.reviewsToday}</p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* SRS Reviews Due */}
       <Card>
         <CardHeader>
