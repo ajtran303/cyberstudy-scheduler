@@ -137,7 +137,7 @@ export function FlashcardDeck() {
   return (
     <div className="space-y-4">
       {/* Header row: course selector + shuffle */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="flex-1">
           <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
             <SelectTrigger>
@@ -159,7 +159,7 @@ export function FlashcardDeck() {
           </Select>
         </div>
         {cards.length > 1 && (
-          <Button variant="outline" size="sm" className="min-h-[44px]" onClick={handleShuffle}>
+          <Button variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto" onClick={handleShuffle}>
             Shuffle
           </Button>
         )}

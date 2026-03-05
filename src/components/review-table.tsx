@@ -236,7 +236,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                 <SrsDueBadge nextReviewAt={topic.nextReviewAt} mastery={topic.mastery} />
               </div>
               {isDue(topic.nextReviewAt, topic.mastery) && (
-                <div className="flex items-center gap-1 pl-5 sm:pl-0">
+                <div className="grid grid-cols-2 gap-1 pl-5 sm:pl-0 sm:flex sm:items-center">
                   {RATING_BUTTONS.map((btn) => (
                     <button
                       key={btn.label}
@@ -253,7 +253,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                   ))}
                 </div>
               )}
-              <div className="flex items-center gap-1.5 pl-5 sm:pl-0 flex-wrap">
+              <div className="grid grid-cols-2 gap-1 pl-5 sm:pl-0 sm:flex sm:items-center sm:gap-1.5">
                 {MASTERY_LEVELS.map((level) => {
                   const isActive = topic.mastery === level;
                   return (
