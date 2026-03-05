@@ -72,16 +72,18 @@ export default async function DashboardPage() {
 
       <Tabs defaultValue="today" className="w-full">
         <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-          <TabsList>
-            <TabsTrigger value="today">Today</TabsTrigger>
-            <TabsTrigger value="courses">Courses</TabsTrigger>
-            <TabsTrigger value="review">Review</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="today" className="flex-1 sm:flex-initial">Today</TabsTrigger>
+            <TabsTrigger value="review" className="flex-1 sm:flex-initial">Review</TabsTrigger>
+            <TabsTrigger value="courses" className="flex-1 sm:flex-initial">Courses</TabsTrigger>
           </TabsList>
-          <TabsList>
-            <TabsTrigger value="study">Study</TabsTrigger>
-            <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="flashcards" className="flex-1 sm:flex-initial">Flashcards</TabsTrigger>
+            <TabsTrigger value="study" className="flex-1 sm:flex-initial">Study</TabsTrigger>
+          </TabsList>
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="calendar" className="flex-1 sm:flex-initial">Calendar</TabsTrigger>
+            <TabsTrigger value="analytics" className="flex-1 sm:flex-initial">Analytics</TabsTrigger>
           </TabsList>
         </div>
 

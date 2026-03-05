@@ -106,19 +106,19 @@ export default async function CourseDetailPage({
 
       <Tabs defaultValue="topics" className="w-full min-w-0">
         <TabsList className="w-full">
+          <TabsTrigger value="review" className="flex-1">
+            Review
+          </TabsTrigger>
           <TabsTrigger value="topics" className="flex-1">
             Topics ({course.topics.length})
           </TabsTrigger>
-          <TabsTrigger value="review" className="flex-1">
-            Review
+          <TabsTrigger value="exams" className="flex-1">
+            Exams ({course.exams.length})
           </TabsTrigger>
           <TabsTrigger value="assignments" className="flex-1">
             <span className="sm:hidden">Assign.</span>
             <span className="hidden sm:inline">Assignments</span>
             {" "}({course.assignments.length})
-          </TabsTrigger>
-          <TabsTrigger value="exams" className="flex-1">
-            Exams ({course.exams.length})
           </TabsTrigger>
         </TabsList>
 
