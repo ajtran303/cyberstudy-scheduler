@@ -106,5 +106,6 @@ Full interactive docs at [/api/docs](http://localhost:3000/api/docs) (Swagger UI
 - **Calendar** — week and month views aggregating topics, assignments, and exams
 - **Analytics** — mastery distribution charts per course or across all courses
 - **Study sessions** — track timed study sessions with notes per course
+- **Flashcards** — study key terms as flippable cards with 3D CSS animations, shuffle, and keyboard navigation
 - **Study logs** — append-only TeachItBack and QuizAttempt history per topic
 - **Responsive** — mobile-optimized layout with stacked hints on small screens

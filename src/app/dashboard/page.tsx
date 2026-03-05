@@ -9,6 +9,7 @@ import { ReviewTable } from "@/components/review-table";
 import { CalendarView } from "@/components/calendar-view";
 import { AnalyticsChart } from "@/components/analytics-chart";
 import { StudySessionPanel } from "@/components/study-session-panel";
+import { FlashcardDeck } from "@/components/flashcard-deck";
 import { StudyStatsChart } from "@/components/study-stats-chart";
 import { ReviewForecastChart } from "@/components/review-forecast-chart";
 import { WelcomeBanner } from "@/components/welcome-banner";
@@ -67,13 +68,18 @@ export default async function DashboardPage() {
       />
 
       <Tabs defaultValue="courses" className="w-full">
-        <TabsList>
-          <TabsTrigger value="courses">Courses</TabsTrigger>
-          <TabsTrigger value="review">Review</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="study">Study</TabsTrigger>
-        </TabsList>
+        <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
+          <TabsList>
+            <TabsTrigger value="courses">Courses</TabsTrigger>
+            <TabsTrigger value="review">Review</TabsTrigger>
+            <TabsTrigger value="calendar">Calendar</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+          <TabsList>
+            <TabsTrigger value="study">Study</TabsTrigger>
+            <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="courses" className="mt-4">
           <div className="flex items-center justify-between mb-4">
@@ -125,6 +131,10 @@ export default async function DashboardPage() {
         <TabsContent value="study" className="mt-4 space-y-6">
           <StudyStatsChart />
           <StudySessionPanel />
+        </TabsContent>
+
+        <TabsContent value="flashcards" className="mt-4">
+          <FlashcardDeck />
         </TabsContent>
       </Tabs>
     </div>
