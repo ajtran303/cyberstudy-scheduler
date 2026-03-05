@@ -30,7 +30,7 @@ export default async function DashboardLayout({
         </div>
       </header>
 
-      <main className="p-4 md:p-6 overflow-x-hidden">
+      <main className="p-4 md:p-6">
         {children}
       </main>
     </div>

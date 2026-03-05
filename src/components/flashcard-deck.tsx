@@ -185,17 +185,26 @@ export function FlashcardDeck() {
         <>
           {/* Flashcard */}
           <div
-            className="flashcard-scene w-full max-w-md mx-auto cursor-pointer"
+            className="w-full max-w-md mx-auto cursor-pointer"
+            style={{ perspective: "800px" }}
             onClick={() => setFlipped((f) => !f)}
             role="button"
             tabIndex={0}
             aria-label={flipped ? "Showing definition. Click to show term." : "Showing term. Click to show definition."}
           >
             <div
-              className={`flashcard-inner relative aspect-[3/2] ${flipped ? "flipped" : ""}`}
+              className="relative aspect-[3/2]"
+              style={{
+                transformStyle: "preserve-3d",
+                transition: "transform 0.6s ease-out",
+                transform: flipped ? "rotateY(180deg)" : "none",
+              }}
             >
               {/* Front */}
-              <div className="flashcard-face flashcard-front absolute inset-0 flex flex-col items-center justify-center rounded-xl border bg-card p-6 cyber-glow">
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border bg-card p-6 cyber-glow"
+                style={{ backfaceVisibility: "hidden", transform: "rotateY(0deg)" }}
+              >
                 <Badge variant="secondary" className="absolute top-3 left-3 text-xs">
                   {card.topicName}
                 </Badge>
@@ -205,7 +214,10 @@ export function FlashcardDeck() {
                 </p>
               </div>
               {/* Back */}
-              <div className="flashcard-face flashcard-back absolute inset-0 flex flex-col items-center justify-center rounded-xl border bg-card p-6 cyber-glow">
+              <div
+                className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border bg-card p-6 cyber-glow"
+                style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+              >
                 <Badge variant="secondary" className="absolute top-3 left-3 text-xs">
                   {card.topicName}
                 </Badge>

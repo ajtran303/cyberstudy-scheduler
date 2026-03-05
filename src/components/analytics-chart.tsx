@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 import { MASTERY_COLORS, MASTERY_LABELS } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -92,15 +92,6 @@ export function AnalyticsChart({ courseId }: { courseId?: string }) {
                   <Cell key={i} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip
-                formatter={(value: number, name: string) => [`${value} topics`, name]}
-                contentStyle={{
-                  backgroundColor: "hsl(var(--popover))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "8px",
-                  color: "hsl(var(--foreground))",
-                }}
-              />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
