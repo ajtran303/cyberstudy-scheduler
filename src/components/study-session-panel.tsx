@@ -78,6 +78,8 @@ export function StudySessionPanel() {
   const [manualDuration, setManualDuration] = useState("");
   const [manualNotes, setManualNotes] = useState("");
 
+  // Manual entry submission state
+  const [submittingManual, setSubmittingManual] = useState(false);
   // Form errors
   const [manualErrors, setManualErrors] = useState<Record<string, string>>({});
 
@@ -171,6 +173,7 @@ export function StudySessionPanel() {
       return;
     }
     setManualErrors({});
+    setSubmittingManual(true);
 
     const body: Record<string, unknown> = {
       startedAt: new Date(manualDate + "T12:00:00").toISOString(),
@@ -179,19 +182,25 @@ export function StudySessionPanel() {
     if (manualCourseId !== NO_COURSE) body.courseId = manualCourseId;
     if (manualNotes.trim()) body.notes = manualNotes.trim();
 
-    const res = await fetch("/api/v1/study-sessions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    try {
+      const res = await fetch("/api/v1/study-sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
-    if (res.ok) {
-      toast.success("Study session logged");
-      setManualDuration("");
-      setManualNotes("");
-      loadData();
-    } else {
-      toast.error("Failed to log session");
+      if (res.ok) {
+        toast.success("Study session logged");
+        setManualDuration("");
+        setManualNotes("");
+        loadData();
+      } else {
+        toast.error("Failed to log session");
+      }
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setSubmittingManual(false);
     }
   }
 
@@ -428,8 +437,8 @@ export function StudySessionPanel() {
               />
             </div>
 
-            <Button type="submit" className="w-full min-h-[44px]">
-              Log Session
+            <Button type="submit" className="w-full min-h-[44px]" disabled={submittingManual}>
+              {submittingManual ? "Logging..." : "Log Session"}
             </Button>
           </form>
         </TabsContent>
