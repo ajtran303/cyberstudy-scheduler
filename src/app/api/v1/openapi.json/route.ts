@@ -206,6 +206,78 @@ const spec = {
     "/analytics": {
       get: { tags: ["Aggregate"], summary: "Mastery distribution", parameters: [{ name: "courseId", in: "query", schema: { type: "string" } }], responses: { 200: { description: "Distribution counts" } } },
     },
+    "/today-plan": {
+      get: {
+        tags: ["Aggregate"],
+        summary: "Today's study plan",
+        description: "Returns SRS reviews due, upcoming deadlines (assignments due within 7 days, exams within 14 days), exam prep topics, and daily study stats.",
+        responses: {
+          200: {
+            description: "Today plan data",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    data: {
+                      type: "object",
+                      properties: {
+                        stats: {
+                          type: "object",
+                          properties: {
+                            studyMinutesToday: { type: "integer" },
+                            weeklyAvgMinutes: { type: "integer" },
+                            reviewsToday: { type: "integer" },
+                          },
+                        },
+                        srsReviews: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              course: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, color: { type: "string" } } },
+                              topics: { type: "array", items: { $ref: "#/components/schemas/Topic" } },
+                            },
+                          },
+                        },
+                        srsTotal: { type: "integer" },
+                        deadlines: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              id: { type: "string" },
+                              type: { type: "string", enum: ["assignment", "exam"] },
+                              name: { type: "string" },
+                              date: { type: "string", format: "date-time", nullable: true },
+                              status: { type: "string" },
+                              course: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, color: { type: "string" } } },
+                            },
+                          },
+                        },
+                        examPrep: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              exam: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, date: { type: "string", format: "date-time", nullable: true }, course: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, color: { type: "string" } } } } },
+                              topics: { type: "array", items: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, mastery: { type: "string", enum: ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] }, nextReviewAt: { type: "string", format: "date-time", nullable: true } } } },
+                              topicsNeedingReview: { type: "integer" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    error: { $ref: "#/components/schemas/Error", nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          401: { description: "Unauthorized" },
+        },
+      },
+    },
   },
 };
 
