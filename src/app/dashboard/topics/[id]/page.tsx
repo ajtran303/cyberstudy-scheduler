@@ -14,6 +14,10 @@ import { MasteryBadge } from "@/components/mastery-badge";
 import { MasterySelector } from "@/components/mastery-selector";
 import { KeyTermsEditor } from "@/components/key-terms-editor";
 import { TopicDetailsEditor } from "@/components/topic-details-editor";
+import { EditTopicDialog } from "@/components/edit-topic-dialog";
+import { DeleteTopicDialog } from "@/components/delete-topic-dialog";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 interface KeyTerm {
@@ -67,20 +71,34 @@ export default async function TopicDetailPage({
       </Breadcrumb>
 
       <div>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">{topic.name}</h1>
-          <div className="mt-2 flex items-center gap-3">
-            <MasteryBadge mastery={topic.mastery as "EXPOSED" | "SCANNING" | "HARDENED" | "CLASSIFIED"} />
-            {topic.lastReviewedAt && (
-              <span className="text-xs text-muted-foreground">
-                Last reviewed: {new Date(topic.lastReviewedAt).toLocaleDateString()}
-              </span>
-            )}
-            {topic.date && (
-              <span className="text-xs text-muted-foreground">
-                Scheduled: {new Date(topic.date).toLocaleDateString()}
-              </span>
-            )}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold">{topic.name}</h1>
+            <div className="mt-2 flex items-center gap-3">
+              <MasteryBadge mastery={topic.mastery as "EXPOSED" | "SCANNING" | "HARDENED" | "CLASSIFIED"} />
+              {topic.lastReviewedAt && (
+                <span className="text-xs text-muted-foreground">
+                  Last reviewed: {new Date(topic.lastReviewedAt).toLocaleDateString()}
+                </span>
+              )}
+              {topic.date && (
+                <span className="text-xs text-muted-foreground">
+                  Scheduled: {new Date(topic.date).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <EditTopicDialog topicId={topic.id} name={topic.name} date={topic.date ? topic.date.toISOString() : null}>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </EditTopicDialog>
+            <DeleteTopicDialog topicId={topic.id} courseId={topic.courseId} name={topic.name}>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </DeleteTopicDialog>
           </div>
         </div>
       </div>
