@@ -92,12 +92,14 @@ curl http://localhost:3000/api/v1/courses \
 | GET | `/review/forecast` | SRS forecast for upcoming reviews |
 | GET/POST | `/study-sessions` | Study session tracking |
 | GET | `/calendar` | Week/month calendar events |
+| GET | `/today-plan` | Aggregated daily plan: SRS due, deadlines, exam prep |
 | GET | `/analytics` | Mastery distribution stats |
 
 Full interactive docs at [/api/docs](http://localhost:3000/api/docs) (Swagger UI).
 
 ## Features
 
+- **Today's Plan** — single dashboard tab answering "what should I study now?" with SRS reviews due, upcoming deadlines, and per-exam topic prep
 - **Spaced repetition** — SM-2 algorithm schedules reviews for SCANNING/HARDENED topics
 - **Mastery tracking** — four-tier system that never auto-promotes; only explicit updates
 - **Review queue** — sort by mastery priority, SRS due date, or last reviewed
