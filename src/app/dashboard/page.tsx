@@ -14,6 +14,7 @@ import { StudyStatsChart } from "@/components/study-stats-chart";
 import { ReviewForecastChart } from "@/components/review-forecast-chart";
 import { WelcomeBanner } from "@/components/welcome-banner";
 import { TodayPlan } from "@/components/today-plan";
+import { StudyStats } from "@/components/study-stats";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -134,6 +135,7 @@ export default async function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-4 space-y-6">
+          <StudyStats />
           <AnalyticsChart />
           <ReviewForecastChart />
         </TabsContent>
