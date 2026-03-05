@@ -17,12 +17,7 @@ export function formatDate(
 ): string {
   if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
-  const y = d.getUTCFullYear();
-  const m = d.getUTCMonth();
-  const day = d.getUTCDate();
-  // Build a date from UTC components in local time for locale formatting
-  const local = new Date(y, m, day);
-  return local.toLocaleDateString(undefined, options);
+  return d.toLocaleDateString(undefined, options);
 }
 
 export function daysLeft(date: Date | string | null | undefined): string {

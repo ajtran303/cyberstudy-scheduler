@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,12 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
   const router = useRouter();
   const [terms, setTerms] = useState<KeyTerm[]>(initialTerms);
   const [saving, setSaving] = useState(false);
+
+  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, []);
 
   function addTerm() {
     setTerms([...terms, { term: "", definition: "" }]);
@@ -79,25 +85,28 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
   return (
     <div className="space-y-3">
       {terms.map((term, i) => (
-        <div key={i} className="flex gap-2">
+        <div key={i} className="flex flex-col gap-1 relative">
           <Input
             placeholder="Term"
             value={term.term}
             onChange={(e) => updateTerm(i, "term", e.target.value)}
-            className="font-mono flex-1"
+            className="font-mono"
           />
           <Textarea
             placeholder="Definition"
             value={term.definition}
-            onChange={(e) => updateTerm(i, "definition", e.target.value)}
-            className="flex-[2] min-h-9 resize-none"
-            rows={1}
+            ref={autoResize}
+            onChange={(e) => {
+              updateTerm(i, "definition", e.target.value);
+              autoResize(e.target);
+            }}
+            className="min-h-[36px] overflow-hidden"
           />
           <Button
             variant="ghost"
             size="sm"
             onClick={() => removeTerm(i)}
-            className="text-destructive shrink-0 min-h-[44px] min-w-[44px]"
+            className="text-destructive absolute top-0 right-0 min-h-[44px] min-w-[44px]"
             aria-label={`Remove term: ${term.term || "empty"}`}
           >
             &times;

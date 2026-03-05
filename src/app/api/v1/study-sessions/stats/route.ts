@@ -78,6 +78,11 @@ export async function GET(req: NextRequest) {
   }
 
   // Fill in missing days so the chart has continuous x-axis
+  // Ensure every day has a 0 for each course so stacked areas render
+  const allCourseIds = Array.from(courseMap.keys());
+  const zeroFill: Record<string, number> = {};
+  for (const id of allCourseIds) zeroFill[id] = 0;
+
   const byDay: Array<Record<string, string | number>> = [];
   const cursor = new Date(since);
   const today = new Date();
@@ -85,8 +90,8 @@ export async function GET(req: NextRequest) {
 
   while (cursor <= today) {
     const dateKey = cursor.toISOString().slice(0, 10);
-    const entry = dayMap.get(dateKey) || { total: 0 };
-    byDay.push({ date: dateKey, ...entry });
+    const entry = dayMap.get(dateKey) || {};
+    byDay.push({ date: dateKey, ...zeroFill, total: 0, ...entry });
     cursor.setDate(cursor.getDate() + 1);
   }
 

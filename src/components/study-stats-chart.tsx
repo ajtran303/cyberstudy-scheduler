@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from "react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Label,
+  PieChart,
+  Pie,
+  Cell,
   ResponsiveContainer,
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,6 +23,12 @@ interface StatsData {
   averageMinutes: number;
   byCourse: CourseInfo[];
   byDay: Array<Record<string, string | number>>;
+}
+
+function formatMinutes(m: number): string {
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  return h > 0 ? `${h}h ${r}m` : `${r}m`;
 }
 
 export function StudyStatsChart() {
@@ -51,14 +54,8 @@ export function StudyStatsChart() {
             <Skeleton key={i} className="h-4 w-24" />
           ))}
         </div>
-        <div className="h-48 sm:h-64 flex items-end gap-1.5">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton
-              key={i}
-              className="flex-1 rounded-t-sm"
-              style={{ height: `${20 + Math.random() * 60}%` }}
-            />
-          ))}
+        <div className="flex justify-center">
+          <Skeleton className="size-40 rounded-full" />
         </div>
       </div>
     );
@@ -99,88 +96,48 @@ export function StudyStatsChart() {
         </div>
       </div>
 
-      {data.byCourse.length > 0 && (
-        <div className="flex flex-wrap gap-3 mb-4">
+      <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-8">
+        {/* Donut chart */}
+        <div className="h-44 w-44 sm:h-48 sm:w-48 shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data.byCourse}
+                dataKey="totalMinutes"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius="45%"
+                outerRadius="85%"
+                paddingAngle={2}
+                strokeWidth={0}
+              >
+                {data.byCourse.map((c) => (
+                  <Cell key={c.courseId} fill={c.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Legend with stats */}
+        <div className="space-y-2">
           {data.byCourse.map((c) => (
-            <div key={c.courseId} className="flex items-center gap-1.5 text-xs">
+            <div key={c.courseId} className="flex items-start gap-2">
               <div
-                className="h-2.5 w-2.5 rounded-full"
+                className="h-3 w-3 rounded-full shrink-0 mt-0.5"
                 style={{ backgroundColor: c.color }}
               />
-              <span>{c.name}</span>
+              <div className="text-sm">
+                <span className="font-medium">{c.name}</span>
+                <br className="sm:hidden" />
+                <span className="text-muted-foreground">
+                  {" "}&mdash; {formatMinutes(c.totalMinutes)} / {c.sessionCount} {c.sessionCount === 1 ? "session" : "sessions"}
+                </span>
+              </div>
             </div>
           ))}
         </div>
-      )}
-
-      <div className="h-48 sm:h-64 text-foreground">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data.byDay}>
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 10, fill: "currentColor" }}
-              tickFormatter={(v: string) => {
-                const d = new Date(v + "T12:00:00Z");
-                return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
-              }}
-              interval="preserveStartEnd"
-              minTickGap={30}
-              stroke="currentColor"
-            >
-              <Label
-                value="Date"
-                position="insideBottom"
-                offset={-2}
-                style={{ fontSize: 11, fill: "currentColor" }}
-              />
-            </XAxis>
-            <YAxis
-              tick={{ fontSize: 10, fill: "currentColor" }}
-              width={42}
-              tickFormatter={(v: number) => `${v}m`}
-              stroke="currentColor"
-            >
-              <Label
-                value="Minutes"
-                angle={-90}
-                position="insideLeft"
-                offset={4}
-                style={{ fontSize: 11, fill: "currentColor", textAnchor: "middle" }}
-              />
-            </YAxis>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(var(--popover))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "8px",
-                color: "hsl(var(--foreground))",
-                fontSize: 12,
-              }}
-              labelFormatter={(label: string) => {
-                const d = new Date(label + "T12:00:00Z");
-                const local = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-                return local.toLocaleDateString(undefined, {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                });
-              }}
-              formatter={(value: number, name: string) => {
-                const course = data.byCourse.find((c) => c.courseId === name);
-                return [`${value}m`, course?.name ?? "Study"];
-              }}
-            />
-            {data.byCourse.map((c) => (
-              <Bar
-                key={c.courseId}
-                dataKey={c.courseId}
-                stackId="a"
-                fill={c.color}
-                radius={[2, 2, 0, 0]}
-              />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
       </div>
     </div>
   );
