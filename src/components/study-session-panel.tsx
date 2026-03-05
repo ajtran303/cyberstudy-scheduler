@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Course {
   id: string;
@@ -76,6 +77,11 @@ export function StudySessionPanel() {
   );
   const [manualDuration, setManualDuration] = useState("");
   const [manualNotes, setManualNotes] = useState("");
+
+  // Manual entry submission state
+  const [submittingManual, setSubmittingManual] = useState(false);
+  // Form errors
+  const [manualErrors, setManualErrors] = useState<Record<string, string>>({});
 
   // Edit dialog state
   const [editSession, setEditSession] = useState<StudySession | null>(null);
@@ -162,10 +168,12 @@ export function StudySessionPanel() {
   async function submitManual(e: React.FormEvent) {
     e.preventDefault();
     const duration = parseInt(manualDuration, 10);
-    if (!duration || duration < 1) {
-      toast.error("Enter a valid duration (1-1440 minutes)");
+    if (!duration || duration < 1 || duration > 1440) {
+      setManualErrors({ duration: "Enter a valid duration (1-1440 minutes)" });
       return;
     }
+    setManualErrors({});
+    setSubmittingManual(true);
 
     const body: Record<string, unknown> = {
       startedAt: new Date(manualDate + "T12:00:00").toISOString(),
@@ -174,19 +182,25 @@ export function StudySessionPanel() {
     if (manualCourseId !== NO_COURSE) body.courseId = manualCourseId;
     if (manualNotes.trim()) body.notes = manualNotes.trim();
 
-    const res = await fetch("/api/v1/study-sessions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    try {
+      const res = await fetch("/api/v1/study-sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
-    if (res.ok) {
-      toast.success("Study session logged");
-      setManualDuration("");
-      setManualNotes("");
-      loadData();
-    } else {
-      toast.error("Failed to log session");
+      if (res.ok) {
+        toast.success("Study session logged");
+        setManualDuration("");
+        setManualNotes("");
+        loadData();
+      } else {
+        toast.error("Failed to log session");
+      }
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setSubmittingManual(false);
     }
   }
 
@@ -250,9 +264,29 @@ export function StudySessionPanel() {
 
   if (loading) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        Loading...
-      </p>
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <Skeleton className="h-10 w-full rounded-md" />
+          <Skeleton className="h-9 w-full" />
+          <div className="flex flex-col items-center gap-4 py-4">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-11 w-40 rounded-md" />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-28" />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
+              <Skeleton className="h-2.5 w-2.5 rounded-full" />
+              <div className="flex-1 space-y-1">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="h-4 w-10" />
+            </div>
+          ))}
+        </div>
+      </div>
     );
   }
 
@@ -384,9 +418,11 @@ export function StudySessionPanel() {
                 max={1440}
                 placeholder="e.g. 45"
                 value={manualDuration}
-                onChange={(e) => setManualDuration(e.target.value)}
+                onChange={(e) => { setManualDuration(e.target.value); setManualErrors({}); }}
                 className="mt-1"
+                aria-invalid={!!manualErrors.duration}
               />
+              {manualErrors.duration && <p className="text-xs text-destructive mt-1">{manualErrors.duration}</p>}
             </div>
 
             <div>
@@ -401,8 +437,8 @@ export function StudySessionPanel() {
               />
             </div>
 
-            <Button type="submit" className="w-full min-h-[44px]">
-              Log Session
+            <Button type="submit" className="w-full min-h-[44px]" disabled={submittingManual}>
+              {submittingManual ? "Logging..." : "Log Session"}
             </Button>
           </form>
         </TabsContent>

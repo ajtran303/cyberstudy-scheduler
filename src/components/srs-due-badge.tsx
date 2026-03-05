@@ -4,11 +4,17 @@ import { Badge } from "@/components/ui/badge";
 
 interface SrsDueBadgeProps {
   nextReviewAt: string | null;
+  mastery?: string;
 }
 
-export function SrsDueBadge({ nextReviewAt }: SrsDueBadgeProps) {
+export function SrsDueBadge({ nextReviewAt, mastery }: SrsDueBadgeProps) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // Non-SRS mastery levels: no badge
+  if (mastery === "EXPOSED" || mastery === "CLASSIFIED") {
+    return null;
+  }
 
   if (!nextReviewAt) {
     return (

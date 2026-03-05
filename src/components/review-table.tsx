@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { MASTERY_COLORS, MASTERY_LABELS } from "@/lib/utils";
 import { SrsDueBadge } from "@/components/srs-due-badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ReviewTopic {
   id: string;
@@ -36,7 +37,8 @@ const RATING_BUTTONS = [
   { label: "Easy", quality: 5, color: "#3b82f6" },
 ] as const;
 
-function isDue(nextReviewAt: string | null): boolean {
+function isDue(nextReviewAt: string | null, mastery: string): boolean {
+  if (mastery === "EXPOSED" || mastery === "CLASSIFIED") return false;
   if (!nextReviewAt) return true;
   return new Date(nextReviewAt) <= new Date();
 }
@@ -63,6 +65,17 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
 
   async function doReview(topicId: string, quality: number) {
     setUpdating(topicId);
+    const oldTopics = [...topics];
+
+    // Optimistic: mark as just reviewed so rating buttons disappear
+    setTopics((prev) =>
+      prev.map((t) =>
+        t.id === topicId
+          ? { ...t, lastReviewedAt: new Date().toISOString(), nextReviewAt: new Date(Date.now() + 86400000).toISOString() }
+          : t
+      )
+    );
+
     try {
       const res = await fetch(`/api/v1/topics/${topicId}/review`, {
         method: "POST",
@@ -71,6 +84,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       });
 
       if (!res.ok) {
+        setTopics(oldTopics);
         const body = await res.json().catch(() => null);
         toast.error(body?.error?.message ?? "Failed to record review");
         return;
@@ -82,7 +96,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
         : "unknown";
       toast.success(`Next review: ${nextDate}`);
 
-      // Refresh the list
+      // Refresh with actual server data
       const params = new URLSearchParams({ sort });
       if (courseId) params.set("courseId", courseId);
       const listRes = await fetch(`/api/v1/review?${params}`);
@@ -90,6 +104,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       setTopics(listJson.data || []);
       router.refresh();
     } catch {
+      setTopics(oldTopics);
       toast.error("Network error");
     } finally {
       setUpdating(null);
@@ -113,6 +128,15 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
 
   async function doUpdateMastery(topicId: string, mastery: string, oldMastery: string) {
     setUpdating(topicId);
+    const oldTopics = [...topics];
+
+    // Optimistic update
+    setTopics((prev) =>
+      prev.map((t) =>
+        t.id === topicId ? { ...t, mastery: mastery as keyof typeof MASTERY_COLORS } : t
+      )
+    );
+
     try {
       const res = await fetch(`/api/v1/topics/${topicId}/mastery`, {
         method: "PATCH",
@@ -121,6 +145,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       });
 
       if (!res.ok) {
+        setTopics(oldTopics);
         const body = await res.json().catch(() => null);
         toast.error(body?.error?.message ?? "Failed to update mastery");
         return;
@@ -132,14 +157,9 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
           onClick: () => doUpdateMastery(topicId, oldMastery, mastery),
         },
       });
-      // Refresh the list
-      const params = new URLSearchParams({ sort });
-      if (courseId) params.set("courseId", courseId);
-      const listRes = await fetch(`/api/v1/review?${params}`);
-      const json = await listRes.json();
-      setTopics(json.data || []);
       router.refresh();
     } catch {
+      setTopics(oldTopics);
       toast.error("Network error");
     } finally {
       setUpdating(null);
@@ -166,7 +186,22 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       </div>
 
       {loading ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">Loading...</p>
+        <div className="space-y-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+              <Skeleton className="h-2 w-2 rounded-full shrink-0" />
+              <div className="flex-1 space-y-1">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <div className="flex gap-1">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <Skeleton key={j} className="h-5 w-14 rounded-full" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : topics.length === 0 ? (
         <div className="py-12 text-center">
           <p className="text-sm font-medium text-muted-foreground">No topics to review</p>
@@ -198,9 +233,9 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                     )}
                   </p>
                 </Link>
-                <SrsDueBadge nextReviewAt={topic.nextReviewAt} />
+                <SrsDueBadge nextReviewAt={topic.nextReviewAt} mastery={topic.mastery} />
               </div>
-              {isDue(topic.nextReviewAt) && (
+              {isDue(topic.nextReviewAt, topic.mastery) && (
                 <div className="flex items-center gap-1 pl-5 sm:pl-0">
                   {RATING_BUTTONS.map((btn) => (
                     <button

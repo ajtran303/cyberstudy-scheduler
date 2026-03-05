@@ -24,12 +24,35 @@ export function CreateCourseDialog({ children }: { children: React.ReactNode }) 
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function validate(formData: FormData): Record<string, string> {
+    const errs: Record<string, string> = {};
+    const name = (formData.get("name") as string)?.trim();
+    if (!name) errs.name = "Course name is required";
+    else if (name.length > 200) errs.name = "Max 200 characters";
+
+    const email = formData.get("professorEmail") as string;
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errs.professorEmail = "Invalid email address";
+    }
+
+    const website = formData.get("website") as string;
+    if (website && !/^https?:\/\/.+/.test(website)) {
+      errs.website = "Must start with http:// or https://";
+    }
+
+    return errs;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
-
     const formData = new FormData(e.currentTarget);
+    const fieldErrors = validate(formData);
+    setErrors(fieldErrors);
+    if (Object.keys(fieldErrors).length > 0) return;
+
+    setLoading(true);
 
     try {
       const res = await fetch("/api/v1/courses", {
@@ -53,6 +76,7 @@ export function CreateCourseDialog({ children }: { children: React.ReactNode }) 
 
       toast.success("Course created");
       setOpen(false);
+      setErrors({});
       router.refresh();
     } catch {
       toast.error("Network error");
@@ -71,7 +95,8 @@ export function CreateCourseDialog({ children }: { children: React.ReactNode }) 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Course Name *</Label>
-            <Input id="name" name="name" required />
+            <Input id="name" name="name" required aria-invalid={!!errors.name} />
+            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -100,11 +125,13 @@ export function CreateCourseDialog({ children }: { children: React.ReactNode }) 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="professorEmail">Professor Email</Label>
-              <Input id="professorEmail" name="professorEmail" type="email" />
+              <Input id="professorEmail" name="professorEmail" type="email" aria-invalid={!!errors.professorEmail} />
+              {errors.professorEmail && <p className="text-xs text-destructive">{errors.professorEmail}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
-              <Input id="website" name="website" type="url" />
+              <Input id="website" name="website" type="url" aria-invalid={!!errors.website} />
+              {errors.website && <p className="text-xs text-destructive">{errors.website}</p>}
             </div>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>

@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Assignment {
   id: string;
@@ -42,8 +43,26 @@ export function AssignmentList({ courseId }: { courseId: string }) {
 
   useEffect(() => { load(); }, [courseId]);
 
-  async function toggleStatus(id: string, currentStatus: string) {
+  function confirmToggleStatus(id: string, currentStatus: string) {
+    const newStatus = currentStatus === "PENDING" ? "Done" : "Pending";
+    toast(`Mark assignment as ${newStatus}?`, {
+      action: {
+        label: "Confirm",
+        onClick: () => doToggleStatus(id, currentStatus),
+      },
+      duration: 5000,
+    });
+  }
+
+  async function doToggleStatus(id: string, currentStatus: string) {
     const newStatus = currentStatus === "PENDING" ? "DONE" : "PENDING";
+    const oldAssignments = [...assignments];
+
+    // Optimistic update
+    setAssignments((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a))
+    );
+
     try {
       const res = await fetch(`/api/v1/assignments/${id}`, {
         method: "PATCH",
@@ -52,14 +71,21 @@ export function AssignmentList({ courseId }: { courseId: string }) {
       });
 
       if (!res.ok) {
+        setAssignments(oldAssignments);
         const body = await res.json().catch(() => null);
         toast.error(body?.error?.message ?? "Failed to update assignment");
         return;
       }
 
-      load();
       router.refresh();
+      toast.success(`Marked as ${newStatus === "DONE" ? "done" : "pending"}`, {
+        action: {
+          label: "Undo",
+          onClick: () => doToggleStatus(id, newStatus),
+        },
+      });
     } catch {
+      setAssignments(oldAssignments);
       toast.error("Network error");
     }
   }
@@ -97,7 +123,26 @@ export function AssignmentList({ courseId }: { courseId: string }) {
     }
   }
 
-  if (loading) return <p className="text-sm text-muted-foreground">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-8 w-32 rounded-md" />
+        </div>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+            <Skeleton className="h-4 w-4 rounded shrink-0" />
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -144,7 +189,7 @@ export function AssignmentList({ courseId }: { courseId: string }) {
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
-                onClick={() => toggleStatus(a.id, a.status)}
+                onClick={() => confirmToggleStatus(a.id, a.status)}
                 className={`h-4 w-4 rounded border shrink-0 transition-colors ${
                   a.status === "DONE"
                     ? "bg-primary border-primary"
