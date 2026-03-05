@@ -288,7 +288,7 @@ export function CalendarView() {
   // Format header label
   const headerLabel = data
     ? view === "month"
-      ? new Date(data.start).toLocaleDateString("en-US", {
+      ? new Date(data.start.split("T")[0] + "T12:00:00").toLocaleDateString("en-US", {
           month: "long",
           year: "numeric",
         })
