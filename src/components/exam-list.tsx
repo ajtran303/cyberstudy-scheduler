@@ -240,7 +240,7 @@ export function ExamList({ courseId }: { courseId: string }) {
         </h3>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm">+ New Exam</Button>
+            <Button size="sm" className="min-h-[44px]">+ New Exam</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -308,12 +308,17 @@ export function ExamList({ courseId }: { courseId: string }) {
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
                 onClick={() => confirmToggleStatus(e.id, e.status)}
-                className={`h-4 w-4 rounded border shrink-0 transition-colors ${
-                  e.status === "COMPLETED"
-                    ? "bg-primary border-primary"
-                    : "border-muted-foreground hover:border-primary"
-                }`}
-              />
+                className="flex items-center justify-center size-11 shrink-0 -m-3.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-sm"
+                aria-label={e.status === "COMPLETED" ? `Mark ${e.name} as upcoming` : `Mark ${e.name} as completed`}
+              >
+                <span
+                  className={`h-4 w-4 rounded border transition-colors ${
+                    e.status === "COMPLETED"
+                      ? "bg-primary border-primary"
+                      : "border-muted-foreground hover:border-primary"
+                  }`}
+                />
+              </button>
               <div className="min-w-0 flex-1">
                 <p className={`text-sm font-medium ${e.status === "COMPLETED" ? "line-through" : ""}`}>
                   {e.name}
@@ -333,12 +338,12 @@ export function ExamList({ courseId }: { courseId: string }) {
               <Badge variant="secondary" className="text-xs">
                 {e.status === "COMPLETED" ? "Completed" : "Upcoming"}
               </Badge>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(e)}>
+              <Button variant="ghost" size="icon" className="size-11" onClick={() => openEdit(e)} aria-label="Edit exam">
                 <Pencil className="h-4 w-4" />
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                  <Button variant="ghost" size="icon" className="size-11 text-destructive hover:text-destructive" aria-label="Delete exam">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </AlertDialogTrigger>

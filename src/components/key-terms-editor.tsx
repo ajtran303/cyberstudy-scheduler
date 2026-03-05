@@ -97,17 +97,18 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
             variant="ghost"
             size="sm"
             onClick={() => removeTerm(i)}
-            className="text-destructive shrink-0"
+            className="text-destructive shrink-0 min-h-[44px] min-w-[44px]"
+            aria-label={`Remove term: ${term.term || "empty"}`}
           >
-            x
+            &times;
           </Button>
         </div>
       ))}
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={addTerm}>
+        <Button variant="outline" size="sm" className="min-h-[44px]" onClick={addTerm}>
           + Add Term
         </Button>
-        <Button size="sm" onClick={save} disabled={saving}>
+        <Button size="sm" className="min-h-[44px]" onClick={save} disabled={saving}>
           {saving ? "Saving..." : "Save Terms"}
         </Button>
       </div>

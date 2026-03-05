@@ -91,12 +91,12 @@ export default async function TopicDetailPage({
           </div>
           <div className="flex items-center gap-1">
             <EditTopicDialog topicId={topic.id} name={topic.name} date={topic.date ? topic.date.toISOString() : null}>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="size-11" aria-label="Edit topic">
                 <Pencil className="h-4 w-4" />
               </Button>
             </EditTopicDialog>
             <DeleteTopicDialog topicId={topic.id} courseId={topic.courseId} name={topic.name}>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+              <Button variant="ghost" size="icon" className="size-11 text-destructive hover:text-destructive" aria-label="Delete topic">
                 <Trash2 className="h-4 w-4" />
               </Button>
             </DeleteTopicDialog>

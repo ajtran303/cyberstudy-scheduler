@@ -62,10 +62,11 @@ export function TopicDetailsEditor({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6"
+              className="size-10"
               onClick={() => setEditingDetails(true)}
+              aria-label="Edit details"
             >
-              <Pencil className="h-3 w-3" />
+              <Pencil className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -79,6 +80,7 @@ export function TopicDetailsEditor({
             <div className="flex gap-2">
               <Button
                 size="sm"
+                className="min-h-[44px]"
                 disabled={saving}
                 onClick={() => saveField("details", details)}
               >
@@ -87,6 +89,7 @@ export function TopicDetailsEditor({
               <Button
                 variant="ghost"
                 size="sm"
+                className="min-h-[44px]"
                 onClick={() => {
                   setDetails(initialDetails ?? "");
                   setEditingDetails(false);
@@ -100,8 +103,9 @@ export function TopicDetailsEditor({
           <p className="text-sm text-muted-foreground">{details}</p>
         ) : (
           <button
+            type="button"
             onClick={() => setEditingDetails(true)}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-sm px-1"
           >
             + Add details
           </button>
@@ -116,10 +120,11 @@ export function TopicDetailsEditor({
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6"
+              className="size-10"
               onClick={() => setEditingNotes(true)}
+              aria-label="Edit notes"
             >
-              <Pencil className="h-3 w-3" />
+              <Pencil className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -135,6 +140,7 @@ export function TopicDetailsEditor({
             <div className="flex gap-2">
               <Button
                 size="sm"
+                className="min-h-[44px]"
                 disabled={saving}
                 onClick={() => saveField("notes", notes)}
               >
@@ -143,6 +149,7 @@ export function TopicDetailsEditor({
               <Button
                 variant="ghost"
                 size="sm"
+                className="min-h-[44px]"
                 onClick={() => {
                   setNotes(initialNotes ?? "");
                   setEditingNotes(false);
@@ -158,8 +165,9 @@ export function TopicDetailsEditor({
           </div>
         ) : (
           <button
+            type="button"
             onClick={() => setEditingNotes(true)}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-sm px-1"
           >
             + Add notes
           </button>

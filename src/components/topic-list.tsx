@@ -76,7 +76,7 @@ export function TopicList({ courseId, topics }: TopicListProps) {
         </h3>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm">+ New Topic</Button>
+            <Button size="sm" className="min-h-[44px]">+ New Topic</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

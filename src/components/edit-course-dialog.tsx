@@ -102,7 +102,7 @@ export function EditCourseDialog({ course }: EditCourseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="size-11" aria-label="Edit course">
           <Pencil className="h-4 w-4" />
         </Button>
       </DialogTrigger>
@@ -129,15 +129,19 @@ export function EditCourseDialog({ course }: EditCourseDialogProps) {
             </div>
             <div className="space-y-2">
               <Label>Color</Label>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-1 flex-wrap" role="radiogroup" aria-label="Course color">
                 {COLORS.map((c) => (
                   <button
                     key={c}
                     type="button"
+                    role="radio"
+                    aria-checked={selectedColor === c}
+                    aria-label={c}
                     onClick={() => setSelectedColor(c)}
-                    className={`h-6 w-6 rounded-full transition-all ${selectedColor === c ? "ring-2 ring-white ring-offset-2 ring-offset-background" : ""}`}
-                    style={{ backgroundColor: c }}
-                  />
+                    className={`size-10 rounded-full transition-all flex items-center justify-center focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${selectedColor === c ? "ring-2 ring-white ring-offset-2 ring-offset-background" : ""}`}
+                  >
+                    <span className="size-6 rounded-full" style={{ backgroundColor: c }} />
+                  </button>
                 ))}
               </div>
             </div>

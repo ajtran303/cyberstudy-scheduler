@@ -54,9 +54,9 @@ export function MasterySelector({ topicId, currentMastery }: MasterySelectorProp
             key={level}
             variant="outline"
             size="sm"
+            className={`min-h-[44px] transition-all ${isActive ? "ring-2" : "opacity-60 hover:opacity-100"}`}
             disabled={loading !== null}
             onClick={() => updateMastery(level)}
-            className={`transition-all ${isActive ? "ring-2" : "opacity-60 hover:opacity-100"}`}
             style={{
               borderColor: color,
               color: isActive ? "white" : color,

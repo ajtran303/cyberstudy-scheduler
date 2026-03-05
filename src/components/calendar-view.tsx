@@ -149,7 +149,7 @@ function MonthGrid({
               {overflow > 0 && (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                    <button className="text-xs text-muted-foreground hover:text-foreground transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-sm px-1">
                       +{overflow} more
                     </button>
                   </PopoverTrigger>
@@ -303,6 +303,7 @@ export function CalendarView() {
           <Button
             variant={view === "week" ? "default" : "outline"}
             size="sm"
+            className="min-h-[44px]"
             onClick={() => setView("week")}
           >
             Week
@@ -310,24 +311,26 @@ export function CalendarView() {
           <Button
             variant={view === "month" ? "default" : "outline"}
             size="sm"
+            className="min-h-[44px]"
             onClick={() => setView("month")}
           >
             Month
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+          <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px]" onClick={() => navigate(-1)} aria-label={`Previous ${view}`}>
             &larr;
           </Button>
           <span className="text-sm font-medium min-w-0 flex-1 text-center sm:min-w-32 sm:flex-none">
             {headerLabel}
           </span>
-          <Button variant="outline" size="sm" onClick={() => navigate(1)}>
+          <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px]" onClick={() => navigate(1)} aria-label={`Next ${view}`}>
             &rarr;
           </Button>
           <Button
             variant="ghost"
             size="sm"
+            className="min-h-[44px]"
             onClick={() => setDate(toLocalISODate(new Date()))}
           >
             Today
