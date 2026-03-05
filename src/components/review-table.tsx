@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { MASTERY_COLORS, MASTERY_LABELS } from "@/lib/utils";
 import { SrsDueBadge } from "@/components/srs-due-badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ReviewTopic {
   id: string;
@@ -166,7 +167,22 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       </div>
 
       {loading ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">Loading...</p>
+        <div className="space-y-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+              <Skeleton className="h-2 w-2 rounded-full shrink-0" />
+              <div className="flex-1 space-y-1">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <div className="flex gap-1">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <Skeleton key={j} className="h-5 w-14 rounded-full" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : topics.length === 0 ? (
         <div className="py-12 text-center">
           <p className="text-sm font-medium text-muted-foreground">No topics to review</p>

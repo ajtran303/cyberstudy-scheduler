@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 import { MASTERY_COLORS, MASTERY_LABELS } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AnalyticsData {
   total: number;
@@ -29,7 +30,23 @@ export function AnalyticsChart({ courseId }: { courseId?: string }) {
   }, [courseId]);
 
   if (loading) {
-    return <p className="py-8 text-center text-sm text-muted-foreground">Loading analytics...</p>;
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-4 w-24" />
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <Skeleton className="h-64 w-64 rounded-full" />
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-3 w-3 rounded-full" />
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-8" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!data || data.total === 0) {

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Course {
   id: string;
@@ -250,9 +251,29 @@ export function StudySessionPanel() {
 
   if (loading) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        Loading...
-      </p>
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <Skeleton className="h-10 w-full rounded-md" />
+          <Skeleton className="h-9 w-full" />
+          <div className="flex flex-col items-center gap-4 py-4">
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-11 w-40 rounded-md" />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-28" />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
+              <Skeleton className="h-2.5 w-2.5 rounded-full" />
+              <div className="flex-1 space-y-1">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="h-4 w-10" />
+            </div>
+          ))}
+        </div>
+      </div>
     );
   }
 

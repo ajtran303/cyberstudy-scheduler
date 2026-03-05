@@ -10,6 +10,7 @@ import {
   Label,
   ResponsiveContainer,
 } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface CourseInfo {
   courseId: string;
@@ -44,9 +45,22 @@ export function StudyStatsChart() {
 
   if (loading) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        Loading study stats...
-      </p>
+      <div className="space-y-4">
+        <div className="flex flex-wrap gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-4 w-24" />
+          ))}
+        </div>
+        <div className="h-48 sm:h-64 flex items-end gap-1.5">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className="flex-1 rounded-t-sm"
+              style={{ height: `${20 + Math.random() * 60}%` }}
+            />
+          ))}
+        </div>
+      </div>
     );
   }
 

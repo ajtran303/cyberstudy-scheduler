@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Assignment {
   id: string;
@@ -97,7 +98,26 @@ export function AssignmentList({ courseId }: { courseId: string }) {
     }
   }
 
-  if (loading) return <p className="text-sm text-muted-foreground">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between mb-4">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-8 w-32 rounded-md" />
+        </div>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+            <Skeleton className="h-4 w-4 rounded shrink-0" />
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div>

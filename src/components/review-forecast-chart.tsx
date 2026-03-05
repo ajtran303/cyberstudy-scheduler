@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ForecastBucket {
   date: string;
@@ -32,9 +33,18 @@ export function ReviewForecastChart() {
 
   if (loading) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        Loading forecast...
-      </p>
+      <div className="space-y-4">
+        <Skeleton className="h-4 w-56" />
+        <div className="h-48 sm:h-64 flex items-end gap-1.5">
+          {Array.from({ length: 14 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className="flex-1 rounded-t-sm"
+              style={{ height: `${20 + Math.random() * 60}%` }}
+            />
+          ))}
+        </div>
+      </div>
     );
   }
 
