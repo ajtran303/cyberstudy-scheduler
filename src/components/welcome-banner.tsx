@@ -2,7 +2,6 @@
 
 interface WelcomeBannerProps {
   name: string;
-  reviewCount?: number;
   upcomingAssignments?: number;
   upcomingExams?: number;
   srsDueCount?: number;
@@ -10,7 +9,6 @@ interface WelcomeBannerProps {
 
 export function WelcomeBanner({
   name,
-  reviewCount = 0,
   upcomingAssignments = 0,
   upcomingExams = 0,
   srsDueCount = 0,
@@ -24,9 +22,6 @@ export function WelcomeBanner({
     hints.push(
       `${srsDueCount} topic${srsDueCount === 1 ? "" : "s"} due for SRS review`
     );
-  }
-  if (reviewCount > 0) {
-    hints.push(`${reviewCount} topic${reviewCount === 1 ? "" : "s"} due for review`);
   }
   if (upcomingAssignments > 0) {
     hints.push(
@@ -45,10 +40,19 @@ export function WelcomeBanner({
         {greeting}, {name}
       </h1>
       {hints.length > 0 ? (
-        <p className="mt-1 text-sm text-muted-foreground">
-          <span className="font-mono text-primary">&gt;_</span>{" "}
-          {hints.join(" · ")}
-        </p>
+        <div className="mt-1 text-sm text-muted-foreground">
+          <div className="sm:hidden space-y-0.5">
+            {hints.map((hint, i) => (
+              <p key={i}>
+                <span className="font-mono text-primary">&gt;_</span> {hint}
+              </p>
+            ))}
+          </div>
+          <p className="hidden sm:block">
+            <span className="font-mono text-primary">&gt;_</span>{" "}
+            {hints.join(" · ")}
+          </p>
+        </div>
       ) : (
         <p className="mt-1 text-sm text-muted-foreground">
           <span className="font-mono text-primary">&gt;_</span> All clear — nice

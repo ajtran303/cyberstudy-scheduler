@@ -30,13 +30,7 @@ export default async function DashboardPage() {
   const threeDaysFromNow = new Date(now);
   threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
 
-  const [reviewCount, upcomingAssignments, upcomingExams, srsDueCount] = await Promise.all([
-    prisma.topic.count({
-      where: {
-        course: { userId: session.user.id },
-        mastery: { in: ["EXPOSED", "SCANNING"] },
-      },
-    }),
+  const [upcomingAssignments, upcomingExams, srsDueCount] = await Promise.all([
     prisma.assignment.count({
       where: {
         course: { userId: session.user.id },
@@ -55,7 +49,10 @@ export default async function DashboardPage() {
       where: {
         course: { userId: session.user.id },
         mastery: { in: ["SCANNING", "HARDENED"] },
-        nextReviewAt: { lte: now },
+        OR: [
+          { nextReviewAt: null },
+          { nextReviewAt: { lte: now } },
+        ],
       },
     }),
   ]);
@@ -64,7 +61,6 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <WelcomeBanner
         name={session.user.name || "Student"}
-        reviewCount={reviewCount}
         upcomingAssignments={upcomingAssignments}
         upcomingExams={upcomingExams}
         srsDueCount={srsDueCount}
