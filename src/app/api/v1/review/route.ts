@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { MASTERY_ORDER } from "@/lib/utils";
-import { Prisma } from "@/generated/prisma/client";
+import { Mastery, Prisma } from "@/generated/prisma/client";
 
 export async function GET(req: NextRequest) {
   const user = await getAuthUser(req);
@@ -71,18 +71,13 @@ export async function GET(req: NextRequest) {
     topics = [...topics, ...nullTopics];
   } else if (sort === "srs") {
     const now = new Date();
-    const [nullTopics, dueTopics] = await Promise.all([
-      prisma.topic.findMany({
-        where: { ...where, nextReviewAt: null },
-        include: { course: { select: { id: true, name: true, color: true } } },
-      }),
-      prisma.topic.findMany({
-        where: { ...where, nextReviewAt: { lte: now } },
-        include: { course: { select: { id: true, name: true, color: true } } },
-        orderBy: { nextReviewAt: "asc" },
-      }),
-    ]);
-    topics = [...nullTopics, ...dueTopics];
+    // Only SCANNING and HARDENED topics participate in SRS
+    const srsWhere = { ...where, mastery: { in: [Mastery.SCANNING, Mastery.HARDENED] } };
+    topics = await prisma.topic.findMany({
+      where: { ...srsWhere, nextReviewAt: { lte: now } },
+      include: { course: { select: { id: true, name: true, color: true } } },
+      orderBy: { nextReviewAt: "asc" },
+    });
   } else {
     topics = await prisma.topic.findMany({
       where,

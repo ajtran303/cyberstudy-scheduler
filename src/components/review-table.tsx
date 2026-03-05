@@ -37,7 +37,8 @@ const RATING_BUTTONS = [
   { label: "Easy", quality: 5, color: "#3b82f6" },
 ] as const;
 
-function isDue(nextReviewAt: string | null): boolean {
+function isDue(nextReviewAt: string | null, mastery: string): boolean {
+  if (mastery === "EXPOSED" || mastery === "CLASSIFIED") return false;
   if (!nextReviewAt) return true;
   return new Date(nextReviewAt) <= new Date();
 }
@@ -232,9 +233,9 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                     )}
                   </p>
                 </Link>
-                <SrsDueBadge nextReviewAt={topic.nextReviewAt} />
+                <SrsDueBadge nextReviewAt={topic.nextReviewAt} mastery={topic.mastery} />
               </div>
-              {isDue(topic.nextReviewAt) && (
+              {isDue(topic.nextReviewAt, topic.mastery) && (
                 <div className="flex items-center gap-1 pl-5 sm:pl-0">
                   {RATING_BUTTONS.map((btn) => (
                     <button

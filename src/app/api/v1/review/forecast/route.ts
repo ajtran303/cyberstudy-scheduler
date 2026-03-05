@@ -14,10 +14,8 @@ export async function GET(req: NextRequest) {
   const topics = await prisma.topic.findMany({
     where: {
       course: { userId: user.id },
-      OR: [
-        { nextReviewAt: { lte: horizon } },
-        { nextReviewAt: null },
-      ],
+      mastery: { in: ["SCANNING", "HARDENED"] },
+      nextReviewAt: { lte: horizon },
     },
     select: { nextReviewAt: true },
   });
@@ -33,11 +31,9 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const todayStr = buckets[0].date;
-
   for (const topic of topics) {
     if (!topic.nextReviewAt || topic.nextReviewAt <= now) {
-      // Overdue or never scheduled → today's bucket
+      // Overdue → today's bucket
       buckets[0].count++;
     } else {
       const dateStr = topic.nextReviewAt.toISOString().slice(0, 10);

@@ -23,11 +23,27 @@ export async function PATCH(
       return errorResponse("VALIDATION_ERROR", parsed.error.issues.map((e) => e.message).join(", "), 422);
     }
 
+    const newMastery = parsed.data.mastery;
+    const oldMastery = existing.mastery;
+
+    // Build SRS fields based on mastery transition
+    const srsData: Record<string, unknown> = {};
+    if (newMastery === "SCANNING" && oldMastery === "EXPOSED") {
+      // Entering SRS: initialize scheduling
+      srsData.nextReviewAt = new Date();
+      srsData.reviewInterval = 0;
+      srsData.easeFactor = 2.5;
+    } else if (newMastery === "CLASSIFIED" || newMastery === "EXPOSED") {
+      // Exiting SRS: clear next review
+      srsData.nextReviewAt = null;
+    }
+
     const topic = await prisma.topic.update({
       where: { id },
       data: {
-        mastery: parsed.data.mastery,
+        mastery: newMastery,
         lastReviewedAt: new Date(),
+        ...srsData,
       },
     });
 

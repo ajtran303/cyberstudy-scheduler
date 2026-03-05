@@ -54,7 +54,8 @@ export default async function DashboardPage() {
     prisma.topic.count({
       where: {
         course: { userId: session.user.id },
-        OR: [{ nextReviewAt: { lte: now } }, { nextReviewAt: null }],
+        mastery: { in: ["SCANNING", "HARDENED"] },
+        nextReviewAt: { lte: now },
       },
     }),
   ]);

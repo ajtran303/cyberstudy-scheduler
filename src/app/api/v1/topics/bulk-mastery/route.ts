@@ -21,11 +21,25 @@ export async function PATCH(req: NextRequest) {
       });
       if (!existing) continue;
 
+      const newMastery = update.mastery;
+      const oldMastery = existing.mastery;
+
+      // Build SRS fields based on mastery transition
+      const srsData: Record<string, unknown> = {};
+      if (newMastery === "SCANNING" && oldMastery === "EXPOSED") {
+        srsData.nextReviewAt = new Date();
+        srsData.reviewInterval = 0;
+        srsData.easeFactor = 2.5;
+      } else if (newMastery === "CLASSIFIED" || newMastery === "EXPOSED") {
+        srsData.nextReviewAt = null;
+      }
+
       const topic = await prisma.topic.update({
         where: { id: update.id },
         data: {
-          mastery: update.mastery,
+          mastery: newMastery,
           lastReviewedAt: new Date(),
+          ...srsData,
         },
       });
       updated.push(topic);
