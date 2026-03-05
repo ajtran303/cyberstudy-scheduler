@@ -64,6 +64,17 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
 
   async function doReview(topicId: string, quality: number) {
     setUpdating(topicId);
+    const oldTopics = [...topics];
+
+    // Optimistic: mark as just reviewed so rating buttons disappear
+    setTopics((prev) =>
+      prev.map((t) =>
+        t.id === topicId
+          ? { ...t, lastReviewedAt: new Date().toISOString(), nextReviewAt: new Date(Date.now() + 86400000).toISOString() }
+          : t
+      )
+    );
+
     try {
       const res = await fetch(`/api/v1/topics/${topicId}/review`, {
         method: "POST",
@@ -72,6 +83,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       });
 
       if (!res.ok) {
+        setTopics(oldTopics);
         const body = await res.json().catch(() => null);
         toast.error(body?.error?.message ?? "Failed to record review");
         return;
@@ -83,7 +95,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
         : "unknown";
       toast.success(`Next review: ${nextDate}`);
 
-      // Refresh the list
+      // Refresh with actual server data
       const params = new URLSearchParams({ sort });
       if (courseId) params.set("courseId", courseId);
       const listRes = await fetch(`/api/v1/review?${params}`);
@@ -91,6 +103,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       setTopics(listJson.data || []);
       router.refresh();
     } catch {
+      setTopics(oldTopics);
       toast.error("Network error");
     } finally {
       setUpdating(null);
@@ -114,6 +127,15 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
 
   async function doUpdateMastery(topicId: string, mastery: string, oldMastery: string) {
     setUpdating(topicId);
+    const oldTopics = [...topics];
+
+    // Optimistic update
+    setTopics((prev) =>
+      prev.map((t) =>
+        t.id === topicId ? { ...t, mastery: mastery as keyof typeof MASTERY_COLORS } : t
+      )
+    );
+
     try {
       const res = await fetch(`/api/v1/topics/${topicId}/mastery`, {
         method: "PATCH",
@@ -122,6 +144,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
       });
 
       if (!res.ok) {
+        setTopics(oldTopics);
         const body = await res.json().catch(() => null);
         toast.error(body?.error?.message ?? "Failed to update mastery");
         return;
@@ -133,14 +156,9 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
           onClick: () => doUpdateMastery(topicId, oldMastery, mastery),
         },
       });
-      // Refresh the list
-      const params = new URLSearchParams({ sort });
-      if (courseId) params.set("courseId", courseId);
-      const listRes = await fetch(`/api/v1/review?${params}`);
-      const json = await listRes.json();
-      setTopics(json.data || []);
       router.refresh();
     } catch {
+      setTopics(oldTopics);
       toast.error("Network error");
     } finally {
       setUpdating(null);
