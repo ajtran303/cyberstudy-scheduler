@@ -240,7 +240,7 @@ export function AssignmentList({ courseId }: { courseId: string }) {
         </h3>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm">+ New Assignment</Button>
+            <Button size="sm" className="min-h-[44px]">+ New Assignment</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -308,12 +308,17 @@ export function AssignmentList({ courseId }: { courseId: string }) {
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
                 onClick={() => confirmToggleStatus(a.id, a.status)}
-                className={`h-4 w-4 rounded border shrink-0 transition-colors ${
-                  a.status === "DONE"
-                    ? "bg-primary border-primary"
-                    : "border-muted-foreground hover:border-primary"
-                }`}
-              />
+                className="flex items-center justify-center size-11 shrink-0 -m-3.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-sm"
+                aria-label={a.status === "DONE" ? `Mark ${a.name} as pending` : `Mark ${a.name} as done`}
+              >
+                <span
+                  className={`h-4 w-4 rounded border transition-colors ${
+                    a.status === "DONE"
+                      ? "bg-primary border-primary"
+                      : "border-muted-foreground hover:border-primary"
+                  }`}
+                />
+              </button>
               <div className="min-w-0 flex-1">
                 <p className={`text-sm font-medium ${a.status === "DONE" ? "line-through" : ""}`}>
                   {a.name}
@@ -333,12 +338,12 @@ export function AssignmentList({ courseId }: { courseId: string }) {
               <Badge variant="secondary" className="text-xs">
                 {a.status === "DONE" ? "Done" : "Pending"}
               </Badge>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(a)}>
+              <Button variant="ghost" size="icon" className="size-11" onClick={() => openEdit(a)} aria-label="Edit assignment">
                 <Pencil className="h-4 w-4" />
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                  <Button variant="ghost" size="icon" className="size-11 text-destructive hover:text-destructive" aria-label="Delete assignment">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </AlertDialogTrigger>

@@ -159,7 +159,7 @@ export function FlashcardDeck() {
           </Select>
         </div>
         {cards.length > 1 && (
-          <Button variant="outline" size="sm" onClick={handleShuffle}>
+          <Button variant="outline" size="sm" className="min-h-[44px]" onClick={handleShuffle}>
             Shuffle
           </Button>
         )}
@@ -244,7 +244,7 @@ export function FlashcardDeck() {
               }}
             >
               <span aria-hidden="true">&larr;</span>
-              <span className="hidden sm:inline ml-1">Prev</span>
+              <span className="sr-only sm:not-sr-only sm:inline ml-1">Prev</span>
             </Button>
             <span className="text-sm text-muted-foreground tabular-nums">
               {currentIndex + 1} of {cards.length}
@@ -259,7 +259,7 @@ export function FlashcardDeck() {
                 setFlipped(false);
               }}
             >
-              <span className="hidden sm:inline mr-1">Next</span>
+              <span className="sr-only sm:not-sr-only sm:inline mr-1">Next</span>
               <span aria-hidden="true">&rarr;</span>
             </Button>
           </div>

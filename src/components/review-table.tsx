@@ -242,7 +242,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                       key={btn.label}
                       disabled={updating === topic.id}
                       onClick={() => doReview(topic.id, btn.quality)}
-                      className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium transition-all opacity-60 hover:opacity-100 disabled:cursor-default disabled:opacity-30"
+                      className="inline-flex items-center justify-center rounded-full px-3 min-h-[44px] text-xs font-medium transition-all opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:cursor-default disabled:opacity-30"
                       style={{
                         color: btn.color,
                         border: `1px solid ${btn.color}`,
@@ -261,11 +261,11 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                       key={level}
                       disabled={updating === topic.id || isActive}
                       onClick={() => confirmMasteryUpdate(topic.id, level)}
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium transition-all ${
+                      className={`inline-flex items-center justify-center rounded-full px-3 min-h-[44px] text-xs font-medium transition-all ${
                         isActive
                           ? "text-white"
-                          : "opacity-40 hover:opacity-100"
-                      } disabled:cursor-default`}
+                          : "opacity-60 hover:opacity-100"
+                      } focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:cursor-default`}
                       style={{
                         backgroundColor: isActive ? MASTERY_COLORS[level] : "transparent",
                         color: isActive ? "white" : MASTERY_COLORS[level],
