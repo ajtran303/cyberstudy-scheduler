@@ -4,7 +4,12 @@ export const CreateCourseSchema = z.object({
   name: z.string().min(1).max(200),
   professorName: z.string().max(200).optional(),
   professorEmail: z.string().email().optional(),
-  website: z.string().url().optional(),
+  website: z
+    .string()
+    .url()
+    .nullish()
+    .or(z.literal(""))
+    .transform((v) => v || null),
   courseCode: z.string().max(50).optional(),
   color: z.string().regex(/^#[0-9a-f]{6}$/i).optional(),
   status: z.enum(["NOT_STARTED", "IN_PROGRESS", "COMPLETED"]).optional(),
