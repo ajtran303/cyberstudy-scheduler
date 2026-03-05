@@ -11,24 +11,24 @@ export async function GET(req: NextRequest) {
   const view = url.searchParams.get("view") || "week";
   const dateStr = url.searchParams.get("date");
 
-  const baseDate = dateStr ? new Date(dateStr) : new Date();
-  baseDate.setHours(0, 0, 0, 0);
+  // Use UTC to avoid timezone shifting with noon-UTC stored dates
+  const baseDate = dateStr ? new Date(dateStr + "T12:00:00Z") : new Date();
+  const baseY = baseDate.getUTCFullYear();
+  const baseM = baseDate.getUTCMonth();
+  const baseD = baseDate.getUTCDate();
 
   let start: Date;
   let end: Date;
 
   if (view === "month") {
-    start = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
-    end = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 0, 23, 59, 59);
+    start = new Date(Date.UTC(baseY, baseM, 1, 0, 0, 0));
+    end = new Date(Date.UTC(baseY, baseM + 1, 0, 23, 59, 59));
   } else {
-    // Week view: start on Monday
-    const day = baseDate.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
-    start = new Date(baseDate);
-    start.setDate(baseDate.getDate() + diff);
-    end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    end.setHours(23, 59, 59);
+    // Week view: start on Monday (UTC day-of-week)
+    const dayOfWeek = new Date(Date.UTC(baseY, baseM, baseD)).getUTCDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    start = new Date(Date.UTC(baseY, baseM, baseD + diff, 0, 0, 0));
+    end = new Date(Date.UTC(baseY, baseM, baseD + diff + 6, 23, 59, 59));
   }
 
   const [topics, assignments, exams] = await Promise.all([

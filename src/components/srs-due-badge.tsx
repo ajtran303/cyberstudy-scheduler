@@ -9,7 +9,7 @@ interface SrsDueBadgeProps {
 
 export function SrsDueBadge({ nextReviewAt, mastery }: SrsDueBadgeProps) {
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
   // Non-SRS mastery levels: no badge
   if (mastery === "EXPOSED" || mastery === "CLASSIFIED") {
@@ -29,12 +29,8 @@ export function SrsDueBadge({ nextReviewAt, mastery }: SrsDueBadgeProps) {
   }
 
   const reviewDate = new Date(nextReviewAt);
-  const reviewDay = new Date(
-    reviewDate.getFullYear(),
-    reviewDate.getMonth(),
-    reviewDate.getDate(),
-  );
-  const diffMs = reviewDay.getTime() - today.getTime();
+  const reviewDay = Date.UTC(reviewDate.getUTCFullYear(), reviewDate.getUTCMonth(), reviewDate.getUTCDate());
+  const diffMs = reviewDay - today;
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) {

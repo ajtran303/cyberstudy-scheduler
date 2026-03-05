@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { CreateTopicSchema } from "@/lib/schemas/topic";
+import { toNoonUTC } from "@/lib/utils";
 import { parseSort } from "@/lib/schemas/common";
 import { Mastery, Prisma } from "@/generated/prisma/client";
 
@@ -32,12 +33,8 @@ export async function GET(
   }
   if (dateFrom || dateTo) {
     where.date = {};
-    if (dateFrom) where.date.gte = new Date(dateFrom);
-    if (dateTo) {
-      const end = new Date(dateTo);
-      end.setHours(23, 59, 59, 999);
-      where.date.lte = end;
-    }
+    if (dateFrom) where.date.gte = toNoonUTC(dateFrom);
+    if (dateTo) where.date.lte = toNoonUTC(dateTo);
   }
 
   const orderBy: Prisma.TopicOrderByWithRelationInput = {
@@ -76,7 +73,7 @@ export async function POST(
       data: {
         ...rest,
         courseId,
-        date: date ? new Date(date) : null,
+        date: date ? toNoonUTC(date) : null,
         ...(keyTerms ? { keyTerms: keyTerms as unknown as Prisma.InputJsonValue } : {}),
       },
     });

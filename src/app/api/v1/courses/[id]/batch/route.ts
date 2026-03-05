@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthUser, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { BatchImportSchema } from "@/lib/schemas/course";
 import { Prisma } from "@/generated/prisma/client";
+import { toNoonUTC } from "@/lib/utils";
 
 type BatchResult = {
   index: number;
@@ -53,7 +54,7 @@ export async function POST(
             data: {
               courseId,
               name: t.name,
-              date: t.date ? new Date(t.date) : null,
+              date: t.date ? toNoonUTC(t.date) : null,
               details: t.details,
               notes: t.notes,
               keyTerms: t.keyTerms ? (t.keyTerms as unknown as Prisma.InputJsonValue) : undefined,
@@ -82,7 +83,7 @@ export async function POST(
             data: {
               courseId,
               name: a.name,
-              dueDate: a.dueDate ? new Date(a.dueDate) : null,
+              dueDate: a.dueDate ? toNoonUTC(a.dueDate) : null,
               description: a.description,
               sortOrder: i,
             },
@@ -109,7 +110,7 @@ export async function POST(
             data: {
               courseId,
               name: e.name,
-              date: e.date ? new Date(e.date) : null,
+              date: e.date ? toNoonUTC(e.date) : null,
               description: e.description,
               sortOrder: i,
             },

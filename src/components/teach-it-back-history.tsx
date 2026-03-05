@@ -1,5 +1,7 @@
 "use client";
 
+import { formatDate } from "@/lib/utils";
+
 interface TeachItBackEntry {
   id: string;
   attemptedAt: string;
@@ -25,7 +27,7 @@ export function TeachItBackHistory({ entries }: { entries: TeachItBackEntry[] })
           <div className="flex items-center gap-2 text-xs">
             <span className={outcomeColors[entry.outcome]}>{entry.outcome}</span>
             <span className="text-muted-foreground">
-              {new Date(entry.attemptedAt).toLocaleDateString()}
+              {formatDate(entry.attemptedAt)}
             </span>
           </div>
           {entry.notes && (

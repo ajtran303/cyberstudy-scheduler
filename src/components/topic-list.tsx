@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MasteryBadge } from "@/components/mastery-badge";
+import { formatDate } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -113,7 +114,7 @@ export function TopicList({ courseId, topics }: TopicListProps) {
               <p className="text-sm font-medium truncate">{topic.name}</p>
               <div className="flex gap-3 text-xs text-muted-foreground">
                 {topic.date && (
-                  <span>{new Date(topic.date).toLocaleDateString()}</span>
+                  <span>{formatDate(topic.date)}</span>
                 )}
                 {topic.details && (
                   <span className="truncate">{topic.details}</span>

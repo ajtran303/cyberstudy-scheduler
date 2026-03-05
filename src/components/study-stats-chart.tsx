@@ -120,8 +120,8 @@ export function StudyStatsChart() {
               dataKey="date"
               tick={{ fontSize: 10, fill: "currentColor" }}
               tickFormatter={(v: string) => {
-                const d = new Date(v + "T00:00:00");
-                return `${d.getMonth() + 1}/${d.getDate()}`;
+                const d = new Date(v + "T12:00:00Z");
+                return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
               }}
               interval="preserveStartEnd"
               minTickGap={30}
@@ -157,8 +157,9 @@ export function StudyStatsChart() {
                 fontSize: 12,
               }}
               labelFormatter={(label: string) => {
-                const d = new Date(label + "T00:00:00");
-                return d.toLocaleDateString(undefined, {
+                const d = new Date(label + "T12:00:00Z");
+                const local = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+                return local.toLocaleDateString(undefined, {
                   weekday: "short",
                   month: "short",
                   day: "numeric",

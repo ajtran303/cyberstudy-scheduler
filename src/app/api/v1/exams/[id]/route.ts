@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, errorResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { UpdateExamSchema } from "@/lib/schemas/exam";
-import { addDaysLeft } from "@/lib/utils";
+import { addDaysLeft, toNoonUTC } from "@/lib/utils";
 
 export async function PATCH(
   req: NextRequest,
@@ -27,7 +27,7 @@ export async function PATCH(
     const { date, ...rest } = parsed.data;
     const updateData: Record<string, unknown> = { ...rest };
     if (date !== undefined) {
-      updateData.date = date ? new Date(date) : null;
+      updateData.date = date ? toNoonUTC(date) : null;
     }
 
     const exam = await prisma.exam.update({

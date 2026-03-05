@@ -7,7 +7,7 @@ export const KeyTermSchema = z.object({
 
 export const CreateTopicSchema = z.object({
   name: z.string().min(1).max(300),
-  date: z.string().datetime({ offset: true }).optional().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD format").optional(),
   details: z.string().optional(),
   notes: z.string().optional(),
   keyTerms: z.array(KeyTermSchema).optional(),
@@ -16,7 +16,7 @@ export const CreateTopicSchema = z.object({
 
 export const UpdateTopicSchema = z.object({
   name: z.string().min(1).max(300).optional(),
-  date: z.string().datetime({ offset: true }).nullable().optional().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional()),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD format").nullable().optional(),
   details: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
   keyTerms: z.array(KeyTermSchema).nullable().optional(),

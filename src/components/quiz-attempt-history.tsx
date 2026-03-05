@@ -1,5 +1,7 @@
 "use client";
 
+import { formatDate } from "@/lib/utils";
+
 interface QuizAttemptEntry {
   id: string;
   correct: boolean;
@@ -22,7 +24,7 @@ export function QuizAttemptHistory({ entries }: { entries: QuizAttemptEntry[] })
               {entry.correct ? "Correct" : "Incorrect"}
             </span>
             <span className="text-muted-foreground">
-              {new Date(entry.createdAt).toLocaleDateString()}
+              {formatDate(entry.createdAt)}
             </span>
             {entry.sessionId && (
               <span className="font-mono text-muted-foreground">

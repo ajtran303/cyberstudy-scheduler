@@ -28,8 +28,10 @@ export default async function DashboardPage() {
 
   // Gather stats for the welcome banner
   const now = new Date();
-  const threeDaysFromNow = new Date(now);
-  threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+  // Use UTC-based calculation so noon-UTC stored dates are matched correctly
+  const threeDaysFromNow = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 3, 23, 59, 59)
+  );
 
   const [upcomingAssignments, upcomingExams, srsDueCount] = await Promise.all([
     prisma.assignment.count({
