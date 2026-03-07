@@ -25,9 +25,9 @@ export function daysLeft(date: Date | string | null | undefined): string {
   const target = new Date(date);
   const now = new Date();
 
-  // Use UTC components so noon-UTC dates are never shifted
+  // target uses UTC (noon-UTC stored dates); now uses local (browser = ET)
   const targetDay = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
-  const nowDay = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const nowDay = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 
   const diffDays = Math.round((targetDay - nowDay) / (1000 * 60 * 60 * 24));
 

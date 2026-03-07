@@ -221,7 +221,7 @@ export function StudySessionPanel() {
     setEditSession(session);
     setEditCourseId(session.courseId ?? NO_COURSE);
     const d = new Date(session.startedAt);
-    setEditDate(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`);
+    setEditDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`);
     setEditDuration(String(session.durationMinutes ?? ""));
     setEditNotes(session.notes ?? "");
   }
