@@ -26,10 +26,3 @@ export const UpdateTopicSchema = z.object({
 export const UpdateMasterySchema = z.object({
   mastery: z.enum(["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"]),
 });
-
-export const BulkMasterySchema = z.object({
-  updates: z.array(z.object({
-    id: z.string().min(1),
-    mastery: z.enum(["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"]),
-  })).min(1),
-});

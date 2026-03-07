@@ -84,7 +84,6 @@ curl http://localhost:3000/api/v1/courses \
 | GET/POST | `/courses/:id/topics` | List / create topics (filterable by mastery, date) |
 | GET/PATCH/DELETE | `/topics/:id` | Topic CRUD |
 | PATCH | `/topics/:id/mastery` | Update mastery level |
-| PATCH | `/topics/bulk-mastery` | Bulk mastery update |
 | POST | `/topics/:id/review` | Record SRS review (quality 0–5), returns next review date |
 | GET/POST | `/topics/:id/teach-it-back` | Teach-back log |
 | GET/POST | `/topics/:id/quiz-attempts` | Quiz attempt log |
