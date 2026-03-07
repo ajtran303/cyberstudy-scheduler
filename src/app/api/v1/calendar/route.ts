@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { addDaysLeft } from "@/lib/utils";
+import { APP_TIMEZONE, localDatePartsInTz } from "@/lib/tz";
 
 export async function GET(req: NextRequest) {
   const user = await getAuthUser(req);
@@ -11,11 +12,20 @@ export async function GET(req: NextRequest) {
   const view = url.searchParams.get("view") || "week";
   const dateStr = url.searchParams.get("date");
 
-  // Use UTC to avoid timezone shifting with noon-UTC stored dates
-  const baseDate = dateStr ? new Date(dateStr + "T12:00:00Z") : new Date();
-  const baseY = baseDate.getUTCFullYear();
-  const baseM = baseDate.getUTCMonth();
-  const baseD = baseDate.getUTCDate();
+  let baseY: number, baseM: number, baseD: number;
+  if (dateStr) {
+    // Explicit date param — parse at noon UTC (represents a calendar date)
+    const baseDate = new Date(dateStr + "T12:00:00Z");
+    baseY = baseDate.getUTCFullYear();
+    baseM = baseDate.getUTCMonth();
+    baseD = baseDate.getUTCDate();
+  } else {
+    // No date param — use today in America/New_York
+    const parts = localDatePartsInTz(new Date(), APP_TIMEZONE);
+    baseY = parts.year;
+    baseM = parts.month;
+    baseD = parts.day;
+  }
 
   let start: Date;
   let end: Date;

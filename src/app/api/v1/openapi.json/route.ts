@@ -207,7 +207,7 @@ const spec = {
       get: {
         tags: ["Aggregate"],
         summary: "Today's study plan",
-        description: "Returns SRS reviews due, upcoming deadlines (assignments due within 7 days, exams within 14 days), exam prep topics, and daily study stats.",
+        description: "Returns SRS reviews due, upcoming deadlines (assignments due within 7 days, exams within 14 days), exam prep topics, and daily study stats. All day boundaries (today, this week, etc.) are anchored to the America/New_York timezone.",
         responses: {
           200: {
             description: "Today plan data",

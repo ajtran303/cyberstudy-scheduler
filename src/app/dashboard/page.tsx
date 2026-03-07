@@ -15,6 +15,7 @@ import { ReviewForecastChart } from "@/components/review-forecast-chart";
 import { WelcomeBanner } from "@/components/welcome-banner";
 import { TodayPlan } from "@/components/today-plan";
 import { StudyStats } from "@/components/study-stats";
+import { APP_TIMEZONE, localDatePartsInTz, offsetMsInTz } from "@/lib/tz";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -30,9 +31,11 @@ export default async function DashboardPage() {
 
   // Gather stats for the welcome banner
   const now = new Date();
-  // Use UTC-based calculation so noon-UTC stored dates are matched correctly
+  // Compute 3-day-out boundary anchored to America/New_York
+  const { year, month, day } = localDatePartsInTz(now, APP_TIMEZONE);
+  const offset = offsetMsInTz(now, APP_TIMEZONE);
   const threeDaysFromNow = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 3, 23, 59, 59)
+    Date.UTC(year, month, day + 3, 23, 59, 59) - offset
   );
 
   const [upcomingAssignments, upcomingExams, srsDueCount] = await Promise.all([

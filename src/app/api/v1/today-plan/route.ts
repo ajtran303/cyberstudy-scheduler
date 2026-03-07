@@ -5,24 +5,15 @@ import {
   successResponse,
   unauthorizedResponse,
 } from "@/lib/api-helpers";
+import { APP_TIMEZONE, dayBoundsInTz } from "@/lib/tz";
 
 export async function GET(req: NextRequest) {
   const user = await getAuthUser(req);
   if (!user) return unauthorizedResponse();
 
   const now = new Date();
-  const todayStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0)
-  );
-  const todayEnd = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59)
-  );
-  const sevenDaysOut = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 7, 23, 59, 59)
-  );
-  const fourteenDaysOut = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 14, 23, 59, 59)
-  );
+  const { todayStart, todayEnd, sevenDaysOut, fourteenDaysOut } =
+    dayBoundsInTz(now, APP_TIMEZONE);
 
   // Phase 1: parallel queries
   const [srsTopics, pendingAssignments, upcomingExams, todaySessions, todayTeachItBacks, todayQuizAttempts] =
@@ -153,9 +144,7 @@ export async function GET(req: NextRequest) {
   );
 
   // Weekly average: sessions from last 7 days
-  const weekStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 6, 0, 0, 0)
-  );
+  const weekStart = new Date(todayStart.getTime() - 6 * 86_400_000);
   const weekSessions = await prisma.studySession.findMany({
     where: {
       userId: user.id,
