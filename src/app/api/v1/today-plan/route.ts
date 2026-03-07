@@ -6,6 +6,7 @@ import {
   unauthorizedResponse,
 } from "@/lib/api-helpers";
 import { APP_TIMEZONE, dayBoundsInTz } from "@/lib/tz";
+import { interleaveTopics } from "@/lib/interleave";
 
 export async function GET(req: NextRequest) {
   const user = await getAuthUser(req);
@@ -181,6 +182,8 @@ export async function GET(req: NextRequest) {
     return new Date(a.date).getTime() - new Date(b.date).getTime();
   });
 
+  const interleavedReviews = interleaveTopics(srsTopics);
+
   return successResponse({
     stats: {
       studyMinutesToday,
@@ -188,6 +191,7 @@ export async function GET(req: NextRequest) {
       reviewsToday: todayTeachItBacks + todayQuizAttempts,
     },
     srsReviews: Object.values(srsByCourse),
+    interleavedReviews,
     srsTotal: srsTopics.length,
     deadlines,
     examPrep: examPrep.filter((ep) => ep.topics.length > 0),

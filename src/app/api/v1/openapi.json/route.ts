@@ -198,7 +198,7 @@ const spec = {
       get: { tags: ["Aggregate"], summary: "Calendar events", parameters: [{ name: "view", in: "query", schema: { type: "string", enum: ["week", "month"] } }, { name: "date", in: "query", schema: { type: "string", format: "date" } }], responses: { 200: { description: "Calendar items" } } },
     },
     "/review": {
-      get: { tags: ["Aggregate"], summary: "Review topics by mastery priority", parameters: [{ name: "courseId", in: "query", schema: { type: "string" } }, { name: "courseIds", in: "query", schema: { type: "string" } }, { name: "sort", in: "query", schema: { type: "string" } }], responses: { 200: { description: "Array of topics" } } },
+      get: { tags: ["Aggregate"], summary: "Review topics by mastery priority", parameters: [{ name: "courseId", in: "query", schema: { type: "string" } }, { name: "courseIds", in: "query", schema: { type: "string" } }, { name: "sort", in: "query", schema: { type: "string", enum: ["mastery_priority", "lastReviewedAt:asc", "lastReviewedAt:desc", "srs", "interleaved"] } }], responses: { 200: { description: "Array of topics" } } },
     },
     "/analytics": {
       get: { tags: ["Aggregate"], summary: "Mastery distribution", parameters: [{ name: "courseId", in: "query", schema: { type: "string" } }], responses: { 200: { description: "Distribution counts" } } },
@@ -236,6 +236,11 @@ const spec = {
                               topics: { type: "array", items: { $ref: "#/components/schemas/Topic" } },
                             },
                           },
+                        },
+                        interleavedReviews: {
+                          type: "array",
+                          description: "Flat list of SRS-due topics interleaved across courses for spaced interleaving practice",
+                          items: { $ref: "#/components/schemas/Topic" },
                         },
                         srsTotal: { type: "integer" },
                         deadlines: {

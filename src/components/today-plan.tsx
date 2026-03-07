@@ -64,6 +64,7 @@ interface TodayData {
     reviewsToday: number;
   };
   srsReviews: SrsGroup[];
+  interleavedReviews: SrsTopic[];
   srsTotal: number;
   deadlines: Deadline[];
   examPrep: ExamPrepGroup[];
@@ -174,60 +175,52 @@ export function TodayPlan() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {data.srsReviews.length === 0 ? (
+          {data.interleavedReviews.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4 text-center">
               All caught up!
             </p>
           ) : (
-            <div className="space-y-4">
-              {data.srsReviews.map((group) => (
-                <div key={group.course.id}>
-                  <div className="flex items-center gap-2 mb-2">
+            <div className="space-y-1">
+              {data.interleavedReviews.map((topic) => (
+                <div
+                  key={topic.id}
+                  className="flex flex-col gap-1 rounded-md px-3 py-2.5 hover:bg-accent transition-colors sm:flex-row sm:items-center sm:gap-3"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div
-                      className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: group.course.color }}
+                      className="h-2 w-2 rounded-full shrink-0"
+                      style={{ backgroundColor: topic.course.color }}
                     />
-                    <span className="text-sm font-medium">
-                      {group.course.name}
-                    </span>
+                    <Link
+                      href={`/dashboard/topics/${topic.id}`}
+                      className="min-w-0 flex-1"
+                    >
+                      <p className="text-sm font-medium truncate">
+                        {topic.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {topic.course.name}
+                      </p>
+                    </Link>
+                    <SrsDueBadge
+                      nextReviewAt={topic.nextReviewAt}
+                      mastery={topic.mastery}
+                    />
                   </div>
-                  <div className="space-y-1 pl-4">
-                    {group.topics.map((topic) => (
-                      <div
-                        key={topic.id}
-                        className="flex flex-col gap-1 rounded-md px-3 py-2 hover:bg-accent transition-colors sm:flex-row sm:items-center sm:gap-3"
+                  <div className="flex items-center gap-1 pl-5 sm:pl-0">
+                    {RATING_BUTTONS.map((btn) => (
+                      <button
+                        key={btn.label}
+                        disabled={updating === topic.id}
+                        onClick={() => doReview(topic.id, btn.quality)}
+                        className="inline-flex items-center justify-center rounded-full px-3 min-h-[44px] text-xs font-medium transition-all opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:cursor-default disabled:opacity-30"
+                        style={{
+                          color: btn.color,
+                          border: `1px solid ${btn.color}`,
+                        }}
                       >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <Link
-                            href={`/dashboard/topics/${topic.id}`}
-                            className="min-w-0 flex-1"
-                          >
-                            <p className="text-sm font-medium truncate">
-                              {topic.name}
-                            </p>
-                          </Link>
-                          <SrsDueBadge
-                            nextReviewAt={topic.nextReviewAt}
-                            mastery={topic.mastery}
-                          />
-                        </div>
-                        <div className="flex items-center gap-1 pl-0 sm:pl-0">
-                          {RATING_BUTTONS.map((btn) => (
-                            <button
-                              key={btn.label}
-                              disabled={updating === topic.id}
-                              onClick={() => doReview(topic.id, btn.quality)}
-                              className="inline-flex items-center justify-center rounded-full px-3 min-h-[44px] text-xs font-medium transition-all opacity-80 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:cursor-default disabled:opacity-30"
-                              style={{
-                                color: btn.color,
-                                border: `1px solid ${btn.color}`,
-                              }}
-                            >
-                              {btn.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                        {btn.label}
+                      </button>
                     ))}
                   </div>
                 </div>
