@@ -6,6 +6,8 @@
  * - quality >= 3: progress interval, adjust ease
  */
 
+import { APP_TIMEZONE, localDatePartsInTz } from "@/lib/tz";
+
 export interface SrsInput {
   quality: number; // 0-5
   currentInterval: number; // days (0 = first review)
@@ -44,10 +46,11 @@ export function computeSrs({
     }
   }
 
-  // nextReviewAt = noon UTC + interval days (timezone-safe)
+  // nextReviewAt = noon UTC on local-date + interval days (ET-aware)
   const now = new Date();
+  const { year, month, day } = localDatePartsInTz(now, APP_TIMEZONE);
   const nextReviewAt = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + nextInterval, 12),
+    Date.UTC(year, month, day + nextInterval, 12),
   );
 
   return { nextInterval, nextEaseFactor, nextReviewAt };
