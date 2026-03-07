@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthUser, successResponse, unauthorizedResponse } from "@/lib/api-helpers";
 import { MASTERY_ORDER } from "@/lib/utils";
 import { Mastery, Prisma } from "@/generated/prisma/client";
+import { interleaveTopics } from "@/lib/interleave";
 
 export async function GET(req: NextRequest) {
   const user = await getAuthUser(req);
@@ -86,6 +87,21 @@ export async function GET(req: NextRequest) {
       }),
     ]);
     topics = [...nullTopics, ...dueTopics];
+  } else if (sort === "interleaved") {
+    const now = new Date();
+    const srsWhere = { ...where, mastery: { in: [Mastery.SCANNING, Mastery.HARDENED] } };
+    const [nullTopics, dueTopics] = await Promise.all([
+      prisma.topic.findMany({
+        where: { ...srsWhere, nextReviewAt: null },
+        include: { course: { select: { id: true, name: true, color: true } } },
+      }),
+      prisma.topic.findMany({
+        where: { ...srsWhere, nextReviewAt: { lte: now } },
+        include: { course: { select: { id: true, name: true, color: true } } },
+        orderBy: { nextReviewAt: "asc" },
+      }),
+    ]);
+    topics = interleaveTopics([...nullTopics, ...dueTopics]);
   } else {
     topics = await prisma.topic.findMany({
       where,

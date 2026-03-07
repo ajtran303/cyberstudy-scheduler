@@ -87,11 +87,11 @@ curl http://localhost:3000/api/v1/courses \
 | POST | `/topics/:id/review` | Record SRS review (quality 0–5), returns next review date |
 | GET/POST | `/topics/:id/teach-it-back` | Teach-back log |
 | GET/POST | `/topics/:id/quiz-attempts` | Quiz attempt log |
-| GET | `/review` | Review queue (sort: mastery_priority, srs, lastReviewedAt) |
+| GET | `/review` | Review queue (sort: mastery_priority, srs, interleaved, lastReviewedAt) |
 | GET | `/review/forecast` | SRS forecast for upcoming reviews |
 | GET/POST | `/study-sessions` | Study session tracking |
 | GET | `/calendar` | Week/month calendar events |
-| GET | `/today-plan` | Aggregated daily plan: SRS due, deadlines, exam prep |
+| GET | `/today-plan` | Aggregated daily plan: SRS due (grouped + interleaved), deadlines, exam prep |
 | GET | `/analytics` | Mastery distribution stats |
 
 Full interactive docs at [/api/docs](http://localhost:3000/api/docs) (Swagger UI).
@@ -101,7 +101,8 @@ Full interactive docs at [/api/docs](http://localhost:3000/api/docs) (Swagger UI
 - **Today's Plan** — single dashboard tab answering "what should I study now?" with SRS reviews due, upcoming deadlines, and per-exam topic prep
 - **Spaced repetition** — SM-2 algorithm schedules reviews for SCANNING/HARDENED topics
 - **Mastery tracking** — four-tier system that never auto-promotes; only explicit updates
-- **Review queue** — sort by mastery priority, SRS due date, or last reviewed
+- **Review queue** — sort by mastery priority, SRS due date, interleaved (cross-course), or last reviewed
+- **Interleaved practice** — round-robin algorithm alternates topics across courses to improve long-term retention vs blocked practice
 - **Review forecast** — chart showing upcoming SRS reviews over time
 - **Batch import** — populate a course in one call with 207 partial-success support
 - **Calendar** — week and month views aggregating topics, assignments, and exams

@@ -181,6 +181,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
             <SelectItem value="lastReviewedAt:asc">Oldest Reviewed</SelectItem>
             <SelectItem value="lastReviewedAt:desc">Recently Reviewed</SelectItem>
             <SelectItem value="srs">SRS Due</SelectItem>
+            <SelectItem value="interleaved">Interleaved</SelectItem>
           </SelectContent>
         </Select>
       </div>
