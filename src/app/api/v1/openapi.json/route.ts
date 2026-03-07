@@ -167,9 +167,6 @@ const spec = {
     "/topics/{id}/mastery": {
       patch: { tags: ["Mastery"], summary: "Set mastery for one topic", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], requestBody: { required: true, content: { "application/json": { schema: { type: "object", properties: { mastery: { type: "string", enum: ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] } } } } } }, responses: { 200: { description: "Updated topic" } } },
     },
-    "/topics/bulk-mastery": {
-      patch: { tags: ["Mastery"], summary: "Bulk update mastery", requestBody: { required: true, content: { "application/json": { schema: { type: "object", properties: { updates: { type: "array", items: { type: "object", properties: { id: { type: "string" }, mastery: { type: "string" } } } } } } } } }, responses: { 200: { description: "Updated topics" } } },
-    },
     "/topics/{id}/teach-it-back": {
       post: { tags: ["Study Events"], summary: "Log a Teach It Back session", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 201: { description: "Created" } } },
       get: { tags: ["Study Events"], summary: "Get Teach It Back history", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }, { name: "limit", in: "query", schema: { type: "integer", default: 5 } }], responses: { 200: { description: "Array of sessions" } } },
