@@ -11,9 +11,9 @@ import {
 const TAB_OPTIONS = [
   { value: "today", label: "Today" },
   { value: "review", label: "Review" },
+  { value: "flashcards", label: "Flashcards" },
   { value: "courses", label: "Courses" },
   { value: "assignments", label: "Assignments" },
-  { value: "flashcards", label: "Flashcards" },
   { value: "study", label: "Study" },
   { value: "calendar", label: "Calendar" },
   { value: "analytics", label: "Analytics" },

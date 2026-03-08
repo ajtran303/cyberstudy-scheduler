@@ -18,11 +18,11 @@ export function DashboardTabs({ children }: DashboardTabsProps) {
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="today" className="flex-1 sm:flex-initial">Today</TabsTrigger>
           <TabsTrigger value="review" className="flex-1 sm:flex-initial">Review</TabsTrigger>
-          <TabsTrigger value="courses" className="flex-1 sm:flex-initial">Courses</TabsTrigger>
+          <TabsTrigger value="flashcards" className="flex-1 sm:flex-initial">Flashcards</TabsTrigger>
         </TabsList>
         <TabsList className="w-full sm:w-auto">
+          <TabsTrigger value="courses" className="flex-1 sm:flex-initial">Courses</TabsTrigger>
           <TabsTrigger value="assignments" className="flex-1 sm:flex-initial">Assignments</TabsTrigger>
-          <TabsTrigger value="flashcards" className="flex-1 sm:flex-initial">Flashcards</TabsTrigger>
           <TabsTrigger value="study" className="flex-1 sm:flex-initial">Study</TabsTrigger>
         </TabsList>
         <TabsList className="w-full sm:w-auto">
