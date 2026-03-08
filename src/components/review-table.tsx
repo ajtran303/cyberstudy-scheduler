@@ -254,7 +254,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                   ))}
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-1 pl-5 sm:pl-0 sm:flex sm:items-center sm:gap-1.5">
+              {!isDue(topic.nextReviewAt, topic.mastery) && <div className="grid grid-cols-2 gap-1 pl-5 sm:pl-0 sm:flex sm:items-center sm:gap-1.5">
                 {MASTERY_LEVELS.map((level) => {
                   const isActive = topic.mastery === level;
                   return (
@@ -277,7 +277,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                     </button>
                   );
                 })}
-              </div>
+              </div>}
             </div>
           ))}
         </div>
