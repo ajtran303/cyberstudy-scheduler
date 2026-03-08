@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { CourseCard } from "@/components/course-card";
 import { CreateCourseDialog } from "@/components/create-course-dialog";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DashboardTabs } from "@/components/dashboard-tabs";
 import { ReviewTable } from "@/components/review-table";
 import { CalendarView } from "@/components/calendar-view";
 import { AnalyticsChart } from "@/components/analytics-chart";
@@ -75,89 +75,59 @@ export default async function DashboardPage() {
         srsDueCount={srsDueCount}
       />
 
-      <Tabs defaultValue="today" className="w-full">
-        <div className="flex flex-col gap-1 sm:flex-row sm:gap-2">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="today" className="flex-1 sm:flex-initial">Today</TabsTrigger>
-            <TabsTrigger value="review" className="flex-1 sm:flex-initial">Review</TabsTrigger>
-            <TabsTrigger value="courses" className="flex-1 sm:flex-initial">Courses</TabsTrigger>
-          </TabsList>
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="assignments" className="flex-1 sm:flex-initial">Assignments</TabsTrigger>
-            <TabsTrigger value="flashcards" className="flex-1 sm:flex-initial">Flashcards</TabsTrigger>
-            <TabsTrigger value="study" className="flex-1 sm:flex-initial">Study</TabsTrigger>
-          </TabsList>
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="calendar" className="flex-1 sm:flex-initial">Calendar</TabsTrigger>
-            <TabsTrigger value="analytics" className="flex-1 sm:flex-initial">Analytics</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="today" className="mt-4">
-          <TodayPlan />
-        </TabsContent>
-
-        <TabsContent value="courses" className="mt-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Your Courses</h2>
-            <CreateCourseDialog>
-              <Button size="sm">+ New Course</Button>
-            </CreateCourseDialog>
-          </div>
-          {courses.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <p className="text-muted-foreground mb-4">
-                No courses yet. Create your first course to get started.
-              </p>
-              <CreateCourseDialog>
-                <Button>Create Course</Button>
-              </CreateCourseDialog>
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  id={course.id}
-                  name={course.name}
-                  courseCode={course.courseCode}
-                  professorName={course.professorName}
-                  status={course.status}
-                  color={course.color}
-                  _count={course._count}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="review" className="mt-4">
-          <ReviewTable />
-        </TabsContent>
-
-        <TabsContent value="calendar" className="mt-4">
-          <CalendarView />
-        </TabsContent>
-
-        <TabsContent value="analytics" className="mt-4 space-y-6">
-          <StudyStats />
-          <AnalyticsChart />
-          <StudyStatsChart />
-          <ReviewForecastChart />
-        </TabsContent>
-
-        <TabsContent value="study" className="mt-4 space-y-6">
-          <StudySessionPanel />
-        </TabsContent>
-
-        <TabsContent value="assignments" className="mt-4">
-          <AllAssignments />
-        </TabsContent>
-
-        <TabsContent value="flashcards" className="mt-4">
-          <FlashcardDeck />
-        </TabsContent>
-      </Tabs>
+      <DashboardTabs>
+        {{
+          today: <TodayPlan />,
+          courses: (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Your Courses</h2>
+                <CreateCourseDialog>
+                  <Button size="sm">+ New Course</Button>
+                </CreateCourseDialog>
+              </div>
+              {courses.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <p className="text-muted-foreground mb-4">
+                    No courses yet. Create your first course to get started.
+                  </p>
+                  <CreateCourseDialog>
+                    <Button>Create Course</Button>
+                  </CreateCourseDialog>
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {courses.map((course) => (
+                    <CourseCard
+                      key={course.id}
+                      id={course.id}
+                      name={course.name}
+                      courseCode={course.courseCode}
+                      professorName={course.professorName}
+                      status={course.status}
+                      color={course.color}
+                      _count={course._count}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ),
+          review: <ReviewTable />,
+          calendar: <CalendarView />,
+          analytics: (
+            <>
+              <StudyStats />
+              <AnalyticsChart />
+              <StudyStatsChart />
+              <ReviewForecastChart />
+            </>
+          ),
+          study: <StudySessionPanel />,
+          assignments: <AllAssignments />,
+          flashcards: <FlashcardDeck />,
+        }}
+      </DashboardTabs>
     </div>
   );
 }
