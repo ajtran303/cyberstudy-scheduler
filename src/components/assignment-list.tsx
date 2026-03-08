@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Pencil, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowDownAZ, CalendarArrowDown, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +46,10 @@ export function AssignmentList({ courseId }: { courseId: string }) {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+
+  // Filter & sort state
+  const [hideDone, setHideDone] = useState(false);
+  const [sortBy, setSortBy] = useState<"due" | "name">("due");
 
   // Edit state
   const [editAssignment, setEditAssignment] = useState<Assignment | null>(null);
@@ -232,6 +236,21 @@ export function AssignmentList({ courseId }: { courseId: string }) {
     );
   }
 
+  const displayed = assignments
+    .filter((a) => !hideDone || a.status !== "DONE")
+    .sort((a, b) => {
+      if (sortBy === "name") return a.name.localeCompare(b.name);
+      // Due date: nulls last
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
+
+  function isOverdue(a: Assignment) {
+    return a.daysLeft === "late" && a.status === "PENDING";
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -297,12 +316,35 @@ export function AssignmentList({ courseId }: { courseId: string }) {
         </DialogContent>
       </Dialog>
 
+      <div className="flex items-center gap-2 mb-3">
+        <Button
+          variant={hideDone ? "default" : "outline"}
+          size="sm"
+          className="h-8 text-xs"
+          onClick={() => setHideDone(!hideDone)}
+        >
+          {hideDone ? <><Eye className="h-3.5 w-3.5 mr-1" /> Show all</> : <><EyeOff className="h-3.5 w-3.5 mr-1" /> Hide done</>}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 text-xs"
+          onClick={() => setSortBy(sortBy === "due" ? "name" : "due")}
+        >
+          {sortBy === "due" ? <><CalendarArrowDown className="h-3.5 w-3.5 mr-1" /> Due date</> : <><ArrowDownAZ className="h-3.5 w-3.5 mr-1" /> Name</>}
+        </Button>
+      </div>
+
       <div className="space-y-1">
-        {assignments.map((a) => (
+        {displayed.map((a) => (
           <div
             key={a.id}
             className={`flex flex-col gap-1 rounded-md px-3 py-2.5 transition-colors sm:flex-row sm:items-center sm:gap-3 ${
-              a.status === "DONE" ? "opacity-50" : "hover:bg-accent"
+              a.status === "DONE"
+                ? "opacity-50"
+                : isOverdue(a)
+                ? "bg-destructive/5 border border-destructive/20 hover:bg-destructive/10"
+                : "hover:bg-accent"
             }`}
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -320,7 +362,8 @@ export function AssignmentList({ courseId }: { courseId: string }) {
                 />
               </button>
               <div className="min-w-0 flex-1">
-                <p className={`text-sm font-medium ${a.status === "DONE" ? "line-through" : ""}`}>
+                <p className={`text-sm font-medium flex items-center gap-1.5 ${a.status === "DONE" ? "line-through" : ""}`}>
+                  {isOverdue(a) && <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />}
                   {a.name}
                 </p>
                 {a.description && (
@@ -368,8 +411,10 @@ export function AssignmentList({ courseId }: { courseId: string }) {
             </div>
           </div>
         ))}
-        {assignments.length === 0 && (
-          <p className="py-8 text-center text-sm text-muted-foreground">No assignments yet</p>
+        {displayed.length === 0 && (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            {assignments.length === 0 ? "No assignments yet" : "No assignments match filters"}
+          </p>
         )}
       </div>
     </div>
