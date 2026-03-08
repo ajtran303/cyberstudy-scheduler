@@ -634,7 +634,7 @@ export function FlashcardDeck() {
 
           {/* Rating buttons (SRS mode, after flip) */}
           {mode === "srs" && flipped && !rated && (
-            <div className="grid grid-cols-4 gap-2 w-full max-w-md mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full max-w-md mx-auto">
               {RATING_BUTTONS.map((btn) => (
                 <button
                   key={btn.label}
@@ -675,7 +675,7 @@ export function FlashcardDeck() {
                 }}
               >
                 <span aria-hidden="true">&larr;</span>
-                <span className="sr-only sm:not-sr-only sm:inline ml-1">Prev</span>
+                <span className="ml-1">Prev</span>
               </Button>
             )}
             <span className="text-sm text-muted-foreground tabular-nums">
@@ -699,7 +699,7 @@ export function FlashcardDeck() {
                 }
               }}
             >
-              <span className="sr-only sm:not-sr-only sm:inline mr-1">Next</span>
+              <span className="mr-1">Next</span>
               <span aria-hidden="true">&rarr;</span>
             </Button>
           </div>
