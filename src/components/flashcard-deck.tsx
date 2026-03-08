@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,7 @@ export function FlashcardDeck() {
   const [sessionComplete, setSessionComplete] = useState(false);
   const [srsEmpty, setSrsEmpty] = useState<"none" | "no-keyterms" | null>(null);
   const [dueTopicCount, setDueTopicCount] = useState(0);
+  const [dueTopicCourses, setDueTopicCourses] = useState<{ id: string; name: string }[]>([]);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const topicProgressRef = useRef<Map<string, TopicProgress>>(new Map());
 
@@ -155,6 +157,15 @@ export function FlashcardDeck() {
       }
 
       if (deck.length === 0) {
+        const uniqueCourses = new Map<string, string>();
+        for (const t of topics) {
+          if (!uniqueCourses.has(t.course.id)) {
+            uniqueCourses.set(t.course.id, t.course.name);
+          }
+        }
+        setDueTopicCourses(
+          Array.from(uniqueCourses, ([id, name]) => ({ id, name }))
+        );
         setSrsEmpty("no-keyterms");
         setCards([]);
         setCardsLoading(false);
@@ -469,6 +480,19 @@ export function FlashcardDeck() {
           <p className="mt-2 text-xs text-muted-foreground">
             Add key terms to topics to use flashcard review.
           </p>
+          {dueTopicCourses.length > 0 && (
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {dueTopicCourses.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/dashboard/courses/${c.id}`}
+                  className="text-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+                >
+                  {c.name}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       ) : mode === "browse" && !selectedCourseId ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -483,6 +507,14 @@ export function FlashcardDeck() {
           <p className="text-muted-foreground">
             No key terms found. Add key terms to topics to build your flashcard deck.
           </p>
+          {selectedCourseId && (
+            <Link
+              href={`/dashboard/courses/${selectedCourseId}`}
+              className="mt-3 text-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+            >
+              Go to course
+            </Link>
+          )}
         </div>
       ) : sessionComplete ? (
         /* Session summary */
