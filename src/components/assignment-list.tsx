@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AlertTriangle, ArrowDownAZ, CalendarArrowDown, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
@@ -18,17 +18,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Assignment {
@@ -195,24 +184,52 @@ export function AssignmentList({ courseId }: { courseId: string }) {
     }
   }
 
-  async function handleDelete(id: string) {
-    try {
-      const res = await fetch(`/api/v1/assignments/${id}`, {
-        method: "DELETE",
-      });
+  const pendingDeleteRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        toast.error(body?.error?.message ?? "Failed to delete assignment");
-        return;
+  function handleDelete(id: string) {
+    const deleted = assignments.find((a) => a.id === id);
+    if (!deleted) return;
+
+    // Optimistically remove from list
+    setAssignments((prev) => prev.filter((a) => a.id !== id));
+
+    // Clear any previous pending delete
+    if (pendingDeleteRef.current) clearTimeout(pendingDeleteRef.current);
+
+    toast("Assignment deleted", {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          clearTimeout(pendingDeleteRef.current);
+          setAssignments((prev) =>
+            [...prev, deleted].sort((a, b) => {
+              if (!a.dueDate) return 1;
+              if (!b.dueDate) return -1;
+              return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+            })
+          );
+        },
+      },
+      duration: 5000,
+    });
+
+    pendingDeleteRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/v1/assignments/${id}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          toast.error(body?.error?.message ?? "Failed to delete assignment");
+          setAssignments((prev) => [...prev, deleted]);
+        } else {
+          router.refresh();
+        }
+      } catch {
+        toast.error("Network error");
+        setAssignments((prev) => [...prev, deleted]);
       }
-
-      toast.success("Assignment deleted");
-      load();
-      router.refresh();
-    } catch {
-      toast.error("Network error");
-    }
+    }, 5000);
   }
 
   if (loading) {
@@ -384,30 +401,9 @@ export function AssignmentList({ courseId }: { courseId: string }) {
               <Button variant="ghost" size="icon" className="size-11" onClick={() => openEdit(a)} aria-label="Edit assignment">
                 <Pencil className="h-4 w-4" />
               </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="size-11 text-destructive hover:text-destructive" aria-label="Delete assignment">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete assignment?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete <strong>{a.name}</strong>. This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => handleDelete(a.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Button variant="ghost" size="icon" className="size-11 text-destructive hover:text-destructive" aria-label="Delete assignment" onClick={() => handleDelete(a.id)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         ))}
