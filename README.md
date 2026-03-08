@@ -25,11 +25,11 @@ A personal dashboard for tracking cybersecurity coursework, topic mastery, assig
 
 Four-tier mastery that never auto-promotes — only explicit PATCH updates:
 
-**EXPOSED** → **SCANNING** → **HARDENED** → **CLASSIFIED**
+**NOT_STARTED** → **LEARNING** → **PROFICIENT** → **MASTERED**
 
 ### Spaced Repetition (SRS)
 
-Topics at SCANNING or HARDENED mastery participate in SM-2 spaced repetition scheduling. Each review records a quality rating (0–5) and computes the next review date, interval, and ease factor. Topics that have never been reviewed or whose `nextReviewAt` has passed are surfaced as due.
+Topics at LEARNING or PROFICIENT mastery participate in SM-2 spaced repetition scheduling. Each review records a quality rating (0–5) and computes the next review date, interval, and ease factor. Topics that have never been reviewed or whose `nextReviewAt` has passed are surfaced as due.
 
 ## Setup
 
@@ -99,7 +99,7 @@ Full interactive docs at [/api/docs](http://localhost:3000/api/docs) (Swagger UI
 ## Features
 
 - **Today's Plan** — single dashboard tab answering "what should I study now?" with SRS reviews due, upcoming deadlines, and per-exam topic prep
-- **Spaced repetition** — SM-2 algorithm schedules reviews for SCANNING/HARDENED topics
+- **Spaced repetition** — SM-2 algorithm schedules reviews for LEARNING/PROFICIENT topics
 - **Mastery tracking** — four-tier system that never auto-promotes; only explicit updates
 - **Review queue** — sort by mastery priority, SRS due date, interleaved (cross-course), or last reviewed
 - **Interleaved practice** — round-robin algorithm alternates topics across courses to improve long-term retention vs blocked practice
