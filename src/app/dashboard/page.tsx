@@ -6,16 +6,12 @@ import { CreateCourseDialog } from "@/components/create-course-dialog";
 import { Button } from "@/components/ui/button";
 import { DashboardTabs } from "@/components/dashboard-tabs";
 import { ReviewTable } from "@/components/review-table";
-import { CalendarView } from "@/components/calendar-view";
-import { AnalyticsChart } from "@/components/analytics-chart";
+import { InsightsTabs } from "@/components/insights-tabs";
 import { StudySessionPanel } from "@/components/study-session-panel";
 import { FlashcardDeck } from "@/components/flashcard-deck";
 import { AllAssignments } from "@/components/all-assignments";
-import { StudyStatsChart } from "@/components/study-stats-chart";
-import { ReviewForecastChart } from "@/components/review-forecast-chart";
 import { WelcomeBanner } from "@/components/welcome-banner";
 import { TodayPlan } from "@/components/today-plan";
-import { StudyStats } from "@/components/study-stats";
 import { APP_TIMEZONE, localDatePartsInTz, offsetMsInTz } from "@/lib/tz";
 
 export default async function DashboardPage() {
@@ -78,10 +74,10 @@ export default async function DashboardPage() {
       <DashboardTabs>
         {{
           today: (
-            <>
+            <div className="space-y-6">
               <TodayPlan />
               <StudySessionPanel />
-            </>
+            </div>
           ),
           courses: (
             <>
@@ -120,15 +116,7 @@ export default async function DashboardPage() {
           ),
           review: <ReviewTable />,
           assignments: <AllAssignments />,
-          insights: (
-            <>
-              <CalendarView />
-              <StudyStats />
-              <AnalyticsChart />
-              <StudyStatsChart />
-              <ReviewForecastChart />
-            </>
-          ),
+          insights: <InsightsTabs />,
           flashcards: <FlashcardDeck />,
         }}
       </DashboardTabs>

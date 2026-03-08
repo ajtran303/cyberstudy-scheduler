@@ -78,6 +78,7 @@ export function StudySessionPanel() {
 
   // Manual entry submission state
   const [submittingManual, setSubmittingManual] = useState(false);
+  const [showRecent, setShowRecent] = useState(false);
   // Form errors
   const [manualErrors, setManualErrors] = useState<Record<string, string>>({});
 
@@ -437,10 +438,15 @@ export function StudySessionPanel() {
 
       {/* Recent Sessions */}
       <div>
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between text-sm font-medium text-muted-foreground mb-3 cursor-pointer hover:text-foreground transition-colors"
+          onClick={() => setShowRecent((v) => !v)}
+        >
           Recent Sessions
-        </h3>
-        {sessions.length === 0 ? (
+          <svg className={`h-4 w-4 transition-transform ${showRecent ? "rotate-180" : ""}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        {showRecent && (sessions.length === 0 ? (
           <p className="text-xs text-muted-foreground text-center py-4">
             No sessions yet
           </p>
@@ -485,7 +491,7 @@ export function StudySessionPanel() {
               </button>
             ))}
           </div>
-        )}
+        ))}
       </div>
 
       {/* Edit Session Dialog */}
