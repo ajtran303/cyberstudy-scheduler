@@ -22,10 +22,10 @@ export async function GET(req: NextRequest) {
 
   const total = topics.length;
   const distribution = {
-    EXPOSED: 0,
-    SCANNING: 0,
-    HARDENED: 0,
-    CLASSIFIED: 0,
+    NOT_STARTED: 0,
+    LEARNING: 0,
+    PROFICIENT: 0,
+    MASTERED: 0,
   };
 
   for (const t of topics) {
@@ -33,10 +33,10 @@ export async function GET(req: NextRequest) {
   }
 
   const percentages = {
-    EXPOSED: total ? Math.round((distribution.EXPOSED / total) * 100) : 0,
-    SCANNING: total ? Math.round((distribution.SCANNING / total) * 100) : 0,
-    HARDENED: total ? Math.round((distribution.HARDENED / total) * 100) : 0,
-    CLASSIFIED: total ? Math.round((distribution.CLASSIFIED / total) * 100) : 0,
+    NOT_STARTED: total ? Math.round((distribution.NOT_STARTED / total) * 100) : 0,
+    LEARNING: total ? Math.round((distribution.LEARNING / total) * 100) : 0,
+    PROFICIENT: total ? Math.round((distribution.PROFICIENT / total) * 100) : 0,
+    MASTERED: total ? Math.round((distribution.MASTERED / total) * 100) : 0,
   };
 
   return successResponse({ total, distribution, percentages });

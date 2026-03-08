@@ -28,7 +28,7 @@ interface ReviewTableProps {
   courseId?: string;
 }
 
-const MASTERY_LEVELS = ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] as const;
+const MASTERY_LEVELS = ["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"] as const;
 
 const RATING_BUTTONS = [
   { label: "Forgot", quality: 1, color: "#ef4444" },
@@ -38,7 +38,7 @@ const RATING_BUTTONS = [
 ] as const;
 
 function isDue(nextReviewAt: string | null, mastery: string): boolean {
-  if (mastery === "EXPOSED" || mastery === "CLASSIFIED") return false;
+  if (mastery === "NOT_STARTED" || mastery === "MASTERED") return false;
   if (!nextReviewAt) return true;
   return new Date(nextReviewAt) <= new Date();
 }

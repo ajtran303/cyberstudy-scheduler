@@ -24,5 +24,5 @@ export const UpdateTopicSchema = z.object({
 });
 
 export const UpdateMasterySchema = z.object({
-  mastery: z.enum(["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"]),
+  mastery: z.enum(["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"]),
 });

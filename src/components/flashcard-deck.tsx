@@ -206,7 +206,7 @@ export function FlashcardDeck() {
                 definition: kt.definition,
                 topicId: topic.id,
                 topicName: topic.name,
-                mastery: topic.mastery ?? "EXPOSED",
+                mastery: topic.mastery ?? "NOT_STARTED",
                 courseColor: "",
                 courseName: "",
               });

@@ -28,12 +28,12 @@ export async function PATCH(
 
     // Build SRS fields based on mastery transition
     const srsData: Record<string, unknown> = {};
-    if (newMastery === "SCANNING" && oldMastery === "EXPOSED") {
+    if (newMastery === "LEARNING" && oldMastery === "NOT_STARTED") {
       // Entering SRS: initialize scheduling
       srsData.nextReviewAt = new Date();
       srsData.reviewInterval = 0;
       srsData.easeFactor = 2.5;
-    } else if (newMastery === "CLASSIFIED" || newMastery === "EXPOSED") {
+    } else if (newMastery === "MASTERED" || newMastery === "NOT_STARTED") {
       // Exiting SRS: clear next review
       srsData.nextReviewAt = null;
     }

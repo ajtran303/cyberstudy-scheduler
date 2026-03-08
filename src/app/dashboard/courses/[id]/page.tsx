@@ -130,7 +130,7 @@ export default async function CourseDetailPage({
               name: t.name,
               date: t.date?.toISOString() ?? null,
               details: t.details,
-              mastery: t.mastery as "EXPOSED" | "SCANNING" | "HARDENED" | "CLASSIFIED",
+              mastery: t.mastery as "NOT_STARTED" | "LEARNING" | "PROFICIENT" | "MASTERED",
               lastReviewedAt: t.lastReviewedAt?.toISOString() ?? null,
             }))}
           />

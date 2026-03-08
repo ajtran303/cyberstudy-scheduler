@@ -45,22 +45,22 @@ export function addDaysLeft<T extends { dueDate?: Date | null; date?: Date | nul
 }
 
 export const MASTERY_ORDER = {
-  EXPOSED: 0,
-  SCANNING: 1,
-  HARDENED: 2,
-  CLASSIFIED: 3,
+  NOT_STARTED: 0,
+  LEARNING: 1,
+  PROFICIENT: 2,
+  MASTERED: 3,
 } as const;
 
 export const MASTERY_COLORS = {
-  EXPOSED: "#ef4444",
-  SCANNING: "#f59e0b",
-  HARDENED: "#10b981",
-  CLASSIFIED: "#8b5cf6",
+  NOT_STARTED: "#ef4444",
+  LEARNING: "#f59e0b",
+  PROFICIENT: "#10b981",
+  MASTERED: "#8b5cf6",
 } as const;
 
 export const MASTERY_LABELS = {
-  EXPOSED: "Exposed",
-  SCANNING: "Scanning",
-  HARDENED: "Hardened",
-  CLASSIFIED: "Classified",
+  NOT_STARTED: "Not Started",
+  LEARNING: "Learning",
+  PROFICIENT: "Proficient",
+  MASTERED: "Mastered",
 } as const;

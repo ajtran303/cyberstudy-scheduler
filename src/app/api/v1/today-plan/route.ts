@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       prisma.topic.findMany({
         where: {
           course: { userId: user.id },
-          mastery: { in: ["SCANNING", "HARDENED"] },
+          mastery: { in: ["LEARNING", "PROFICIENT"] },
           OR: [{ nextReviewAt: null }, { nextReviewAt: { lte: now } }],
         },
         include: {
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
             where: {
               courseId: exam.courseId,
               date: { lte: exam.date },
-              mastery: { not: "CLASSIFIED" },
+              mastery: { not: "MASTERED" },
             },
             select: {
               id: true,
@@ -105,8 +105,8 @@ export async function GET(req: NextRequest) {
 
       const topicsNeedingReview = topics.filter(
         (t) =>
-          t.mastery === "EXPOSED" ||
-          ((t.mastery === "SCANNING" || t.mastery === "HARDENED") &&
+          t.mastery === "NOT_STARTED" ||
+          ((t.mastery === "LEARNING" || t.mastery === "PROFICIENT") &&
             (!t.nextReviewAt || new Date(t.nextReviewAt) <= now))
       ).length;
 

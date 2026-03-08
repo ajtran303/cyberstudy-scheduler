@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   const topics = await prisma.topic.findMany({
     where: {
       course: { userId: user.id },
-      mastery: { in: ["SCANNING", "HARDENED"] },
+      mastery: { in: ["LEARNING", "PROFICIENT"] },
       nextReviewAt: { lte: horizon },
     },
     select: { nextReviewAt: true },

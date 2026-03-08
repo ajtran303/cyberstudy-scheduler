@@ -53,7 +53,7 @@ export default async function DashboardPage() {
     prisma.topic.count({
       where: {
         course: { userId: session.user.id },
-        mastery: { in: ["SCANNING", "HARDENED"] },
+        mastery: { in: ["LEARNING", "PROFICIENT"] },
         OR: [
           { nextReviewAt: null },
           { nextReviewAt: { lte: now } },
