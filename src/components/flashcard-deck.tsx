@@ -226,26 +226,32 @@ export function FlashcardDeck() {
       return next;
     });
 
-    // Update topic progress
+    // Check if this rating completes the topic before updating state
+    const tp = topicProgress.get(topicId);
+    const shouldPostReview =
+      tp && !tp.reviewed && tp.ratedCards + 1 === tp.totalCards;
+    const reviewQuality = tp
+      ? Math.min(tp.minQuality, quality)
+      : quality;
+
+    // Update topic progress (no side effects in updater)
     setTopicProgress((prev) => {
       const next = new Map(prev);
-      const tp = next.get(topicId);
-      if (!tp) return next;
+      const existing = next.get(topicId);
+      if (!existing) return next;
       const updated = {
-        ...tp,
-        ratedCards: tp.ratedCards + 1,
-        minQuality: Math.min(tp.minQuality, quality),
+        ...existing,
+        ratedCards: existing.ratedCards + 1,
+        minQuality: Math.min(existing.minQuality, quality),
+        reviewed: existing.reviewed || shouldPostReview,
       };
       next.set(topicId, updated);
-
-      // If all cards for this topic are rated, POST the review
-      if (updated.ratedCards === updated.totalCards && !updated.reviewed) {
-        updated.reviewed = true;
-        postReview(topicId, updated.minQuality);
-      }
-
       return next;
     });
+
+    if (shouldPostReview) {
+      postReview(topicId, reviewQuality);
+    }
 
     // Auto-advance after delay
     advanceTimerRef.current = setTimeout(() => {
