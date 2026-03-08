@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/utils";
+import { useStudyTimer, formatElapsed } from "@/contexts/study-timer-context";
 
 interface Course {
   id: string;
@@ -39,14 +40,6 @@ interface StudySession {
   notes: string | null;
 }
 
-function formatElapsed(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
-}
-
 function formatDuration(minutes: number): string {
   if (minutes >= 60) {
     const h = Math.floor(minutes / 60);
@@ -59,17 +52,21 @@ function formatDuration(minutes: number): string {
 const NO_COURSE = "__none__";
 
 export function StudySessionPanel() {
+  const {
+    isRunning,
+    elapsed,
+    notes: timerNotes,
+    startTimer,
+    stopTimer,
+    setNotes,
+  } = useStudyTimer();
+
   const [courses, setCourses] = useState<Course[]>([]);
   const [sessions, setSessions] = useState<StudySession[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Timer state
-  const [timerCourseId, setTimerCourseId] = useState<string>(NO_COURSE);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [timerStart, setTimerStart] = useState<Date | null>(null);
-  const [elapsed, setElapsed] = useState(0);
-  const [timerNotes, setTimerNotes] = useState("");
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Course selection (pre-start only)
+  const [selectedCourseId, setSelectedCourseId] = useState<string>(NO_COURSE);
 
   // Manual entry state
   const [manualCourseId, setManualCourseId] = useState<string>(NO_COURSE);
@@ -115,55 +112,18 @@ export function StudySessionPanel() {
     loadData();
   }, [loadData]);
 
-  // Timer tick
-  useEffect(() => {
-    if (timerRunning && timerStart) {
-      intervalRef.current = setInterval(() => {
-        setElapsed(
-          Math.floor((Date.now() - timerStart.getTime()) / 1000)
-        );
-      }, 1000);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [timerRunning, timerStart]);
-
-  async function startTimer() {
-    const now = new Date();
-    setTimerStart(now);
-    setElapsed(0);
-    setTimerRunning(true);
+  function handleStart() {
+    const course = courses.find((c) => c.id === selectedCourseId);
+    startTimer(
+      course?.id ?? null,
+      course?.name ?? null,
+      course?.color ?? null
+    );
   }
 
-  async function stopTimer() {
-    if (!timerStart) return;
-    setTimerRunning(false);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
-    const endedAt = new Date();
-    const body: Record<string, unknown> = {
-      startedAt: timerStart.toISOString(),
-      endedAt: endedAt.toISOString(),
-    };
-    if (timerCourseId !== NO_COURSE) body.courseId = timerCourseId;
-    if (timerNotes.trim()) body.notes = timerNotes.trim();
-
-    const res = await fetch("/api/v1/study-sessions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    if (res.ok) {
-      toast.success("Study session saved");
-      setTimerStart(null);
-      setElapsed(0);
-      setTimerNotes("");
-      loadData();
-    } else {
-      toast.error("Failed to save session");
-    }
+  async function handleStop() {
+    const ok = await stopTimer();
+    if (ok) loadData();
   }
 
   async function submitManual(e: React.FormEvent) {
@@ -308,9 +268,9 @@ export function StudySessionPanel() {
           <div>
             <Label htmlFor="timer-course">Course (optional)</Label>
             <Select
-              value={timerCourseId}
-              onValueChange={setTimerCourseId}
-              disabled={timerRunning}
+              value={selectedCourseId}
+              onValueChange={setSelectedCourseId}
+              disabled={isRunning}
             >
               <SelectTrigger id="timer-course" className="mt-1">
                 <SelectValue placeholder="No course" />
@@ -337,9 +297,9 @@ export function StudySessionPanel() {
               {formatElapsed(elapsed)}
             </div>
 
-            {!timerRunning ? (
+            {!isRunning ? (
               <Button
-                onClick={startTimer}
+                onClick={handleStart}
                 size="lg"
                 className="min-h-[44px] min-w-[160px]"
               >
@@ -347,7 +307,7 @@ export function StudySessionPanel() {
               </Button>
             ) : (
               <Button
-                onClick={stopTimer}
+                onClick={handleStop}
                 size="lg"
                 variant="destructive"
                 className="min-h-[44px] min-w-[160px]"
@@ -357,14 +317,14 @@ export function StudySessionPanel() {
             )}
           </div>
 
-          {timerRunning && (
+          {isRunning && (
             <div>
               <Label htmlFor="timer-notes">Notes (optional)</Label>
               <Textarea
                 id="timer-notes"
                 placeholder="What are you studying?"
                 value={timerNotes}
-                onChange={(e) => setTimerNotes(e.target.value)}
+                onChange={(e) => setNotes(e.target.value)}
                 className="mt-1"
                 rows={2}
               />
