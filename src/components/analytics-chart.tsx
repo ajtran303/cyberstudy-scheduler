@@ -86,7 +86,7 @@ export function AnalyticsChart({ courseId }: { courseId?: string }) {
         <CardDescription>{data.total} topics total</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col md:flex-row items-center gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6">
           <div className="h-44 w-44 sm:h-48 sm:w-48 shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
