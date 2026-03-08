@@ -28,7 +28,7 @@ export function DashboardTabs({ children }: DashboardTabsProps) {
       </div>
 
       {Object.entries(children).map(([key, content]) => (
-        <TabsContent key={key} value={key} className={key === "insights" ? "mt-4 space-y-6" : "mt-4"}>
+        <TabsContent key={key} value={key} className={"mt-4"}>
           {content}
         </TabsContent>
       ))}
