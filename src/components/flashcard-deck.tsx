@@ -83,6 +83,7 @@ export function FlashcardDeck() {
   const [srsEmpty, setSrsEmpty] = useState<"none" | "no-keyterms" | null>(null);
   const [dueTopicCount, setDueTopicCount] = useState(0);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const topicProgressRef = useRef<Map<string, TopicProgress>>(new Map());
 
   // Load courses
   useEffect(() => {
@@ -161,6 +162,7 @@ export function FlashcardDeck() {
       }
 
       setCards(deck);
+      topicProgressRef.current = progress;
       setTopicProgress(progress);
       setSessionStats({ total: deck.length, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0 });
       setCurrentIndex(0);
@@ -226,32 +228,18 @@ export function FlashcardDeck() {
       return next;
     });
 
-    // Update topic progress — compute review decision from fresh state
-    let pendingReview: { topicId: string; quality: number } | null = null;
+    // Update topic progress via ref (always fresh, no closure staleness)
+    const tp = topicProgressRef.current.get(topicId);
+    if (tp) {
+      tp.ratedCards += 1;
+      tp.minQuality = Math.min(tp.minQuality, quality);
 
-    setTopicProgress((prev) => {
-      const next = new Map(prev);
-      const existing = next.get(topicId);
-      if (!existing) return next;
-      const updated = {
-        ...existing,
-        ratedCards: existing.ratedCards + 1,
-        minQuality: Math.min(existing.minQuality, quality),
-      };
-      if (updated.ratedCards === updated.totalCards && !updated.reviewed) {
-        updated.reviewed = true;
-        pendingReview = { topicId, quality: updated.minQuality };
+      if (tp.ratedCards === tp.totalCards && !tp.reviewed) {
+        tp.reviewed = true;
+        postReview(topicId, tp.minQuality);
       }
-      next.set(topicId, updated);
-      return next;
-    });
-
-    // Post review outside the updater (React may call the updater twice
-    // in strict mode, but pendingReview will be set identically both times)
-    if (pendingReview) {
-      const { topicId: tid, quality: q } = pendingReview;
-      postReview(tid, q);
     }
+    setTopicProgress(new Map(topicProgressRef.current));
 
     // Auto-advance after delay
     advanceTimerRef.current = setTimeout(() => {
@@ -361,6 +349,7 @@ export function FlashcardDeck() {
     setCurrentIndex(0);
     setFlipped(false);
     setRated(false);
+    topicProgressRef.current = new Map();
     setTopicProgress(new Map());
     setSessionStats({ total: 0, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0 });
     setSrsEmpty(null);
