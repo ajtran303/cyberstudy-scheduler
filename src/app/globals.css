@@ -47,10 +47,10 @@
   --radius-4xl: calc(var(--radius) + 16px);
 
   /* Mastery colors */
-  --color-mastery-exposed: #ef4444;
-  --color-mastery-scanning: #f59e0b;
-  --color-mastery-hardened: #10b981;
-  --color-mastery-classified: #8b5cf6;
+  --color-mastery-not-started: #ef4444;
+  --color-mastery-learning: #f59e0b;
+  --color-mastery-proficient: #10b981;
+  --color-mastery-mastered: #8b5cf6;
 
   /* Cyber accent */
   --color-cyber-accent: var(--cyber-accent);

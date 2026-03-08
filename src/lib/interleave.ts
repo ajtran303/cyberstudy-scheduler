@@ -11,8 +11,8 @@ export function interleaveTopics<T extends { courseId: string; mastery: string; 
 
   for (const bucket of buckets.values()) {
     bucket.sort((a, b) => {
-      const mA = a.mastery === "SCANNING" ? 0 : 1;
-      const mB = b.mastery === "SCANNING" ? 0 : 1;
+      const mA = a.mastery === "LEARNING" ? 0 : 1;
+      const mB = b.mastery === "LEARNING" ? 0 : 1;
       if (mA !== mB) return mA - mB;
       const overdueA = a.nextReviewAt ? now - new Date(a.nextReviewAt).getTime() : Infinity;
       const overdueB = b.nextReviewAt ? now - new Date(b.nextReviewAt).getTime() : Infinity;

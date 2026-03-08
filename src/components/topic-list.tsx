@@ -22,7 +22,7 @@ interface Topic {
   name: string;
   date: string | null;
   details: string | null;
-  mastery: "EXPOSED" | "SCANNING" | "HARDENED" | "CLASSIFIED";
+  mastery: "NOT_STARTED" | "LEARNING" | "PROFICIENT" | "MASTERED";
   lastReviewedAt: string | null;
 }
 

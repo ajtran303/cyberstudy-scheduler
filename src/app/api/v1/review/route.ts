@@ -72,8 +72,8 @@ export async function GET(req: NextRequest) {
     topics = [...topics, ...nullTopics];
   } else if (sort === "srs") {
     const now = new Date();
-    // Only SCANNING and HARDENED topics participate in SRS
-    const srsWhere = { ...where, mastery: { in: [Mastery.SCANNING, Mastery.HARDENED] } };
+    // Only LEARNING and PROFICIENT topics participate in SRS
+    const srsWhere = { ...where, mastery: { in: [Mastery.LEARNING, Mastery.PROFICIENT] } };
     // Topics with null nextReviewAt have never been scheduled — they're due immediately
     const [nullTopics, dueTopics] = await Promise.all([
       prisma.topic.findMany({
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
     topics = [...nullTopics, ...dueTopics];
   } else if (sort === "interleaved") {
     const now = new Date();
-    const srsWhere = { ...where, mastery: { in: [Mastery.SCANNING, Mastery.HARDENED] } };
+    const srsWhere = { ...where, mastery: { in: [Mastery.LEARNING, Mastery.PROFICIENT] } };
     const [nullTopics, dueTopics] = await Promise.all([
       prisma.topic.findMany({
         where: { ...srsWhere, nextReviewAt: null },

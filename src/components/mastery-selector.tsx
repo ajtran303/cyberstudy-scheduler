@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { MASTERY_COLORS, MASTERY_LABELS } from "@/lib/utils";
 
-const MASTERY_LEVELS = ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] as const;
+const MASTERY_LEVELS = ["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"] as const;
 
 interface MasterySelectorProps {
   topicId: string;

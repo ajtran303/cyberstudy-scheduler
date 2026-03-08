@@ -56,7 +56,7 @@ const spec = {
           details: { type: "string", nullable: true },
           notes: { type: "string", nullable: true },
           keyTerms: { type: "array", items: { type: "object", properties: { term: { type: "string" }, definition: { type: "string" } } }, nullable: true },
-          mastery: { type: "string", enum: ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] },
+          mastery: { type: "string", enum: ["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"] },
           lastReviewedAt: { type: "string", format: "date-time", nullable: true },
         },
       },
@@ -165,7 +165,7 @@ const spec = {
       delete: { tags: ["Topics"], summary: "Delete topic", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 200: { description: "Deleted" } } },
     },
     "/topics/{id}/mastery": {
-      patch: { tags: ["Mastery"], summary: "Set mastery for one topic", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], requestBody: { required: true, content: { "application/json": { schema: { type: "object", properties: { mastery: { type: "string", enum: ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] } } } } } }, responses: { 200: { description: "Updated topic" } } },
+      patch: { tags: ["Mastery"], summary: "Set mastery for one topic", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], requestBody: { required: true, content: { "application/json": { schema: { type: "object", properties: { mastery: { type: "string", enum: ["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"] } } } } } }, responses: { 200: { description: "Updated topic" } } },
     },
     "/topics/{id}/teach-it-back": {
       post: { tags: ["Study Events"], summary: "Log a Teach It Back session", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 201: { description: "Created" } } },
@@ -263,7 +263,7 @@ const spec = {
                             type: "object",
                             properties: {
                               exam: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, date: { type: "string", format: "date-time", nullable: true }, course: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, color: { type: "string" } } } } },
-                              topics: { type: "array", items: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, mastery: { type: "string", enum: ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] }, nextReviewAt: { type: "string", format: "date-time", nullable: true } } } },
+                              topics: { type: "array", items: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, mastery: { type: "string", enum: ["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"] }, nextReviewAt: { type: "string", format: "date-time", nullable: true } } } },
                               topicsNeedingReview: { type: "integer" },
                             },
                           },

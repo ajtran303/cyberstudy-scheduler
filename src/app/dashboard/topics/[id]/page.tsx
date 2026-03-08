@@ -76,7 +76,7 @@ export default async function TopicDetailPage({
           <div className="flex-1">
             <h1 className="text-2xl font-bold">{topic.name}</h1>
             <div className="mt-2 flex items-center gap-3">
-              <MasteryBadge mastery={topic.mastery as "EXPOSED" | "SCANNING" | "HARDENED" | "CLASSIFIED"} />
+              <MasteryBadge mastery={topic.mastery as "NOT_STARTED" | "LEARNING" | "PROFICIENT" | "MASTERED"} />
               {topic.lastReviewedAt && (
                 <span className="text-xs text-muted-foreground">
                   Last reviewed: {formatDate(topic.lastReviewedAt)}
@@ -143,9 +143,9 @@ export default async function TopicDetailPage({
               <div key={tib.id} className="rounded-md bg-muted p-3">
                 <div className="flex items-center gap-2 text-xs">
                   <span className={
-                    tib.outcome === "PASS" ? "text-mastery-hardened" :
-                    tib.outcome === "PARTIAL" ? "text-mastery-scanning" :
-                    "text-mastery-exposed"
+                    tib.outcome === "PASS" ? "text-mastery-proficient" :
+                    tib.outcome === "PARTIAL" ? "text-mastery-learning" :
+                    "text-mastery-not-started"
                   }>
                     {tib.outcome}
                   </span>
@@ -176,7 +176,7 @@ export default async function TopicDetailPage({
             {topic.quizAttempts.map((qa) => (
               <div key={qa.id} className="rounded-md bg-muted p-3">
                 <div className="flex items-center gap-2 text-xs">
-                  <span className={qa.correct ? "text-mastery-hardened" : "text-mastery-exposed"}>
+                  <span className={qa.correct ? "text-mastery-proficient" : "text-mastery-not-started"}>
                     {qa.correct ? "Correct" : "Incorrect"}
                   </span>
                   <span className="text-muted-foreground">

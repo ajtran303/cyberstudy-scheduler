@@ -59,7 +59,7 @@ model Topic {
   details        String?
   notes          String?
   keyTerms       Json?
-  mastery        Mastery       @default(EXPOSED)
+  mastery        Mastery       @default(NOT_STARTED)
   lastReviewedAt DateTime?
   nextReviewAt   DateTime?
   reviewInterval Float         @default(0)
@@ -72,10 +72,10 @@ model Topic {
 }
 
 enum Mastery {
-  EXPOSED
-  SCANNING
-  HARDENED
-  CLASSIFIED
+  NOT_STARTED
+  LEARNING
+  PROFICIENT
+  MASTERED
 }
 
 // ─── Assignments ─────────────────────────────────────

@@ -12,7 +12,7 @@ interface AnalyticsData {
   percentages: Record<string, number>;
 }
 
-const LEVELS = ["EXPOSED", "SCANNING", "HARDENED", "CLASSIFIED"] as const;
+const LEVELS = ["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"] as const;
 
 export function AnalyticsChart({ courseId }: { courseId?: string }) {
   const [data, setData] = useState<AnalyticsData | null>(null);
