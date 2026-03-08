@@ -226,15 +226,9 @@ export function FlashcardDeck() {
       return next;
     });
 
-    // Check if this rating completes the topic before updating state
-    const tp = topicProgress.get(topicId);
-    const shouldPostReview =
-      tp && !tp.reviewed && tp.ratedCards + 1 === tp.totalCards;
-    const reviewQuality = tp
-      ? Math.min(tp.minQuality, quality)
-      : quality;
+    // Update topic progress — compute review decision from fresh state
+    let pendingReview: { topicId: string; quality: number } | null = null;
 
-    // Update topic progress (no side effects in updater)
     setTopicProgress((prev) => {
       const next = new Map(prev);
       const existing = next.get(topicId);
@@ -243,14 +237,20 @@ export function FlashcardDeck() {
         ...existing,
         ratedCards: existing.ratedCards + 1,
         minQuality: Math.min(existing.minQuality, quality),
-        reviewed: existing.reviewed || shouldPostReview,
       };
+      if (updated.ratedCards === updated.totalCards && !updated.reviewed) {
+        updated.reviewed = true;
+        pendingReview = { topicId, quality: updated.minQuality };
+      }
       next.set(topicId, updated);
       return next;
     });
 
-    if (shouldPostReview) {
-      postReview(topicId, reviewQuality);
+    // Post review outside the updater (React may call the updater twice
+    // in strict mode, but pendingReview will be set identically both times)
+    if (pendingReview) {
+      const { topicId: tid, quality: q } = pendingReview;
+      postReview(tid, q);
     }
 
     // Auto-advance after delay
