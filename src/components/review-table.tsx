@@ -237,7 +237,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                 <SrsDueBadge nextReviewAt={topic.nextReviewAt} mastery={topic.mastery} />
               </div>
               {isDue(topic.nextReviewAt, topic.mastery) && (
-                <div className="grid grid-cols-2 gap-1 pl-5 sm:pl-0 sm:flex sm:items-center">
+                <div className="flex items-center gap-1 pl-5 sm:pl-0">
                   {RATING_BUTTONS.map((btn) => (
                     <button
                       key={btn.label}
