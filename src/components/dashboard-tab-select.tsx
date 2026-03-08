@@ -14,9 +14,7 @@ const TAB_OPTIONS = [
   { value: "flashcards", label: "Flashcards" },
   { value: "courses", label: "Courses" },
   { value: "assignments", label: "Assignments" },
-  { value: "study", label: "Study" },
-  { value: "calendar", label: "Calendar" },
-  { value: "analytics", label: "Analytics" },
+  { value: "insights", label: "Insights" },
 ] as const;
 
 interface DashboardTabSelectProps {

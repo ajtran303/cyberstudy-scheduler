@@ -77,7 +77,12 @@ export default async function DashboardPage() {
 
       <DashboardTabs>
         {{
-          today: <TodayPlan />,
+          today: (
+            <>
+              <TodayPlan />
+              <StudySessionPanel />
+            </>
+          ),
           courses: (
             <>
               <div className="flex items-center justify-between mb-4">
@@ -114,17 +119,16 @@ export default async function DashboardPage() {
             </>
           ),
           review: <ReviewTable />,
-          calendar: <CalendarView />,
-          analytics: (
+          assignments: <AllAssignments />,
+          insights: (
             <>
+              <CalendarView />
               <StudyStats />
               <AnalyticsChart />
               <StudyStatsChart />
               <ReviewForecastChart />
             </>
           ),
-          study: <StudySessionPanel />,
-          assignments: <AllAssignments />,
           flashcards: <FlashcardDeck />,
         }}
       </DashboardTabs>

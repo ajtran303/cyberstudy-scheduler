@@ -23,16 +23,12 @@ export function DashboardTabs({ children }: DashboardTabsProps) {
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="courses" className="flex-1 sm:flex-initial">Courses</TabsTrigger>
           <TabsTrigger value="assignments" className="flex-1 sm:flex-initial">Assignments</TabsTrigger>
-          <TabsTrigger value="study" className="flex-1 sm:flex-initial">Study</TabsTrigger>
-        </TabsList>
-        <TabsList className="w-full sm:w-auto">
-          <TabsTrigger value="calendar" className="flex-1 sm:flex-initial">Calendar</TabsTrigger>
-          <TabsTrigger value="analytics" className="flex-1 sm:flex-initial">Analytics</TabsTrigger>
+          <TabsTrigger value="insights" className="flex-1 sm:flex-initial">Insights</TabsTrigger>
         </TabsList>
       </div>
 
       {Object.entries(children).map(([key, content]) => (
-        <TabsContent key={key} value={key} className={key === "analytics" ? "mt-4 space-y-6" : "mt-4"}>
+        <TabsContent key={key} value={key} className={key === "insights" ? "mt-4 space-y-6" : "mt-4"}>
           {content}
         </TabsContent>
       ))}
