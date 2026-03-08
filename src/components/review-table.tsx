@@ -217,14 +217,14 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
               key={topic.id}
               className="flex flex-col gap-1 rounded-md px-3 py-2.5 hover:bg-accent transition-colors sm:flex-row sm:items-center sm:gap-3"
             >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                 <div
                   className="h-2 w-2 rounded-full shrink-0"
                   style={{ backgroundColor: topic.course.color }}
                 />
                 <Link
                   href={`/dashboard/topics/${topic.id}`}
-                  className="min-w-0 flex-1"
+                  className="min-w-0 flex-1 overflow-hidden"
                 >
                   <p className="text-sm font-medium truncate">{topic.name}</p>
                   <p className="text-xs text-muted-foreground">
@@ -237,7 +237,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                 <SrsDueBadge nextReviewAt={topic.nextReviewAt} mastery={topic.mastery} />
               </div>
               {isDue(topic.nextReviewAt, topic.mastery) && (
-                <div className="grid grid-cols-2 gap-1 pl-5 sm:pl-0 sm:flex sm:items-center">
+                <div className="flex items-center gap-1 pl-5 sm:pl-0">
                   {RATING_BUTTONS.map((btn) => (
                     <button
                       key={btn.label}
@@ -254,7 +254,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                   ))}
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-1 pl-5 sm:pl-0 sm:flex sm:items-center sm:gap-1.5">
+              {!isDue(topic.nextReviewAt, topic.mastery) && <div className="grid grid-cols-2 gap-1 pl-5 sm:pl-0 sm:flex sm:items-center sm:gap-1.5">
                 {MASTERY_LEVELS.map((level) => {
                   const isActive = topic.mastery === level;
                   return (
@@ -277,7 +277,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
                     </button>
                   );
                 })}
-              </div>
+              </div>}
             </div>
           ))}
         </div>

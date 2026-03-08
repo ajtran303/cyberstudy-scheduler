@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -165,16 +165,45 @@ export function StudySessionPanel() {
     }
   }
 
-  async function deleteSession(id: string) {
-    const res = await fetch(`/api/v1/study-sessions/${id}`, {
-      method: "DELETE",
+  const pendingDeleteRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  function deleteSession(id: string) {
+    const deleted = sessions.find((s) => s.id === id);
+    if (!deleted) return;
+
+    setSessions((prev) => prev.filter((s) => s.id !== id));
+
+    if (pendingDeleteRef.current) clearTimeout(pendingDeleteRef.current);
+
+    toast("Session deleted", {
+      action: {
+        label: "Undo",
+        onClick: () => {
+          clearTimeout(pendingDeleteRef.current);
+          setSessions((prev) =>
+            [...prev, deleted].sort(
+              (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+            )
+          );
+        },
+      },
+      duration: 5000,
     });
-    if (res.ok) {
-      toast.success("Session deleted");
-      loadData();
-    } else {
-      toast.error("Failed to delete session");
-    }
+
+    pendingDeleteRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/v1/study-sessions/${id}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) {
+          toast.error("Failed to delete session");
+          setSessions((prev) => [...prev, deleted]);
+        }
+      } catch {
+        toast.error("Network error");
+        setSessions((prev) => [...prev, deleted]);
+      }
+    }, 5000);
   }
 
   function openEditDialog(session: StudySession) {

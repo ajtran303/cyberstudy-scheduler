@@ -85,28 +85,30 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
   return (
     <div className="space-y-3">
       {terms.map((term, i) => (
-        <div key={i} className="flex flex-col gap-1 relative">
-          <Input
-            placeholder="Term"
-            value={term.term}
-            onChange={(e) => updateTerm(i, "term", e.target.value)}
-            className="font-mono"
-          />
-          <Textarea
-            placeholder="Definition"
-            value={term.definition}
-            ref={autoResize}
-            onChange={(e) => {
-              updateTerm(i, "definition", e.target.value);
-              autoResize(e.target);
-            }}
-            className="min-h-[36px] overflow-hidden"
-          />
+        <div key={i} className="flex gap-2 items-start">
+          <div className="flex-1 flex flex-col gap-1 min-w-0">
+            <Input
+              placeholder="Term"
+              value={term.term}
+              onChange={(e) => updateTerm(i, "term", e.target.value)}
+              className="font-mono"
+            />
+            <Textarea
+              placeholder="Definition"
+              value={term.definition}
+              ref={autoResize}
+              onChange={(e) => {
+                updateTerm(i, "definition", e.target.value);
+                autoResize(e.target);
+              }}
+              className="min-h-[36px] overflow-hidden"
+            />
+          </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => removeTerm(i)}
-            className="text-destructive absolute top-0 right-0 min-h-[44px] min-w-[44px]"
+            className="text-destructive shrink-0 min-h-[44px] min-w-[44px]"
             aria-label={`Remove term: ${term.term || "empty"}`}
           >
             &times;

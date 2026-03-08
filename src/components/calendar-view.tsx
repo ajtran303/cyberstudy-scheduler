@@ -298,7 +298,7 @@ export function CalendarView() {
 
   return (
     <div>
-      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="flex gap-2">
           <Button
             variant={view === "week" ? "default" : "outline"}
@@ -317,11 +317,11 @@ export function CalendarView() {
             Month
           </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px]" onClick={() => navigate(-1)} aria-label={`Previous ${view}`}>
             &larr;
           </Button>
-          <span className="text-sm font-medium min-w-0 flex-1 text-center sm:min-w-32 sm:flex-none">
+          <span className="text-sm font-medium min-w-0 text-center sm:min-w-32">
             {headerLabel}
           </span>
           <Button variant="outline" size="sm" className="min-h-[44px] min-w-[44px]" onClick={() => navigate(1)} aria-label={`Next ${view}`}>

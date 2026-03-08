@@ -116,7 +116,7 @@ export default async function CourseDetailPage({
             Exams ({course.exams.length})
           </TabsTrigger>
           <TabsTrigger value="assignments" className="flex-1">
-            <span className="sm:hidden">Assign.</span>
+            <span className="sm:hidden">Tasks</span>
             <span className="hidden sm:inline">Assignments</span>
             {" "}({course.assignments.length})
           </TabsTrigger>
