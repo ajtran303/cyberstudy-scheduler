@@ -217,14 +217,14 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
               key={topic.id}
               className="flex flex-col gap-1 rounded-md px-3 py-2.5 hover:bg-accent transition-colors sm:flex-row sm:items-center sm:gap-3"
             >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                 <div
                   className="h-2 w-2 rounded-full shrink-0"
                   style={{ backgroundColor: topic.course.color }}
                 />
                 <Link
                   href={`/dashboard/topics/${topic.id}`}
-                  className="min-w-0 flex-1"
+                  className="min-w-0 flex-1 overflow-hidden"
                 >
                   <p className="text-sm font-medium truncate">{topic.name}</p>
                   <p className="text-xs text-muted-foreground">
