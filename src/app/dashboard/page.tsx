@@ -10,6 +10,7 @@ import { CalendarView } from "@/components/calendar-view";
 import { AnalyticsChart } from "@/components/analytics-chart";
 import { StudySessionPanel } from "@/components/study-session-panel";
 import { FlashcardDeck } from "@/components/flashcard-deck";
+import { AllAssignments } from "@/components/all-assignments";
 import { StudyStatsChart } from "@/components/study-stats-chart";
 import { ReviewForecastChart } from "@/components/review-forecast-chart";
 import { WelcomeBanner } from "@/components/welcome-banner";
@@ -82,6 +83,7 @@ export default async function DashboardPage() {
             <TabsTrigger value="courses" className="flex-1 sm:flex-initial">Courses</TabsTrigger>
           </TabsList>
           <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="assignments" className="flex-1 sm:flex-initial">Assignments</TabsTrigger>
             <TabsTrigger value="flashcards" className="flex-1 sm:flex-initial">Flashcards</TabsTrigger>
             <TabsTrigger value="study" className="flex-1 sm:flex-initial">Study</TabsTrigger>
           </TabsList>
@@ -146,6 +148,10 @@ export default async function DashboardPage() {
 
         <TabsContent value="study" className="mt-4 space-y-6">
           <StudySessionPanel />
+        </TabsContent>
+
+        <TabsContent value="assignments" className="mt-4">
+          <AllAssignments />
         </TabsContent>
 
         <TabsContent value="flashcards" className="mt-4">
