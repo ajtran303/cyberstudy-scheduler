@@ -9,7 +9,7 @@ import { ReviewTable } from "@/components/review-table";
 import { InsightsTabs } from "@/components/insights-tabs";
 import { StudySessionPanel } from "@/components/study-session-panel";
 import { FlashcardDeck } from "@/components/flashcard-deck";
-import { AllAssignments } from "@/components/all-assignments";
+import { AllDeadlines } from "@/components/all-assignments";
 import { WelcomeBanner } from "@/components/welcome-banner";
 import { TodayPlan } from "@/components/today-plan";
 import { APP_TIMEZONE, localDatePartsInTz, offsetMsInTz } from "@/lib/tz";
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
             </>
           ),
           review: <ReviewTable />,
-          assignments: <AllAssignments />,
+          deadlines: <AllDeadlines />,
           insights: <InsightsTabs />,
           flashcards: <FlashcardDeck />,
         }}

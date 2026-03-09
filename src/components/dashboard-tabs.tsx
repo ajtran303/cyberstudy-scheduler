@@ -22,7 +22,7 @@ export function DashboardTabs({ children }: DashboardTabsProps) {
         </TabsList>
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="courses" className="flex-1 sm:flex-initial">Courses</TabsTrigger>
-          <TabsTrigger value="assignments" className="flex-1 sm:flex-initial">Assignments</TabsTrigger>
+          <TabsTrigger value="deadlines" className="flex-1 sm:flex-initial">Deadlines</TabsTrigger>
           <TabsTrigger value="insights" className="flex-1 sm:flex-initial">Insights</TabsTrigger>
         </TabsList>
       </div>
