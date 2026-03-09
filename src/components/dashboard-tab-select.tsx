@@ -13,7 +13,7 @@ const TAB_OPTIONS = [
   { value: "review", label: "Review" },
   { value: "flashcards", label: "Flashcards" },
   { value: "courses", label: "Courses" },
-  { value: "assignments", label: "Assignments" },
+  { value: "deadlines", label: "Deadlines" },
   { value: "insights", label: "Insights" },
 ] as const;
 

@@ -16,7 +16,22 @@ interface Course {
   color: string | null;
 }
 
-interface Assignment {
+type ItemKind = "assignment" | "exam";
+
+interface DeadlineItem {
+  id: string;
+  kind: ItemKind;
+  name: string;
+  dueDate: string | null;
+  done: boolean;
+  description: string | null;
+  daysLeft: string;
+  courseId: string;
+  courseName: string;
+  courseColor: string | null;
+}
+
+interface RawAssignment {
   id: string;
   name: string;
   dueDate: string | null;
@@ -25,15 +40,18 @@ interface Assignment {
   daysLeft: string;
 }
 
-interface MergedAssignment extends Assignment {
-  courseId: string;
-  courseName: string;
-  courseColor: string | null;
+interface RawExam {
+  id: string;
+  name: string;
+  date: string | null;
+  status: "UPCOMING" | "COMPLETED";
+  description: string | null;
+  daysLeft: string;
 }
 
-export function AllAssignments() {
+export function AllDeadlines() {
   const router = useRouter();
-  const [items, setItems] = useState<MergedAssignment[]>([]);
+  const [items, setItems] = useState<DeadlineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [hideDone, setHideDone] = useState(false);
 
@@ -46,14 +64,40 @@ export function AllAssignments() {
 
         const results = await Promise.all(
           courses.map(async (c) => {
-            const r = await fetch(`/api/v1/courses/${c.id}/assignments`);
-            const j = await r.json();
-            return ((j.data || []) as Assignment[]).map((a) => ({
-              ...a,
+            const [assignRes, examRes] = await Promise.all([
+              fetch(`/api/v1/courses/${c.id}/assignments`),
+              fetch(`/api/v1/courses/${c.id}/exams`),
+            ]);
+            const assignJson = await assignRes.json();
+            const examJson = await examRes.json();
+
+            const assignments: DeadlineItem[] = ((assignJson.data || []) as RawAssignment[]).map((a) => ({
+              id: a.id,
+              kind: "assignment" as const,
+              name: a.name,
+              dueDate: a.dueDate,
+              done: a.status === "DONE",
+              description: a.description,
+              daysLeft: a.daysLeft,
               courseId: c.id,
               courseName: c.name,
               courseColor: c.color,
             }));
+
+            const exams: DeadlineItem[] = ((examJson.data || []) as RawExam[]).map((e) => ({
+              id: e.id,
+              kind: "exam" as const,
+              name: e.name,
+              dueDate: e.date,
+              done: e.status === "COMPLETED",
+              description: e.description,
+              daysLeft: e.daysLeft,
+              courseId: c.id,
+              courseName: c.name,
+              courseColor: c.color,
+            }));
+
+            return [...assignments, ...exams];
           })
         );
 
@@ -68,11 +112,11 @@ export function AllAssignments() {
   }, []);
 
   const displayed = items
-    .filter((a) => !hideDone || a.status !== "DONE")
+    .filter((a) => !hideDone || !a.done)
     .sort((a, b) => {
-      // Overdue PENDING items first
-      const aOverdue = a.daysLeft === "late" && a.status === "PENDING" ? 0 : 1;
-      const bOverdue = b.daysLeft === "late" && b.status === "PENDING" ? 0 : 1;
+      // Overdue pending items first
+      const aOverdue = a.daysLeft === "late" && !a.done ? 0 : 1;
+      const bOverdue = b.daysLeft === "late" && !b.done ? 0 : 1;
       if (aOverdue !== bOverdue) return aOverdue - bOverdue;
       // Then by due date, nulls last
       if (!a.dueDate && !b.dueDate) return 0;
@@ -81,22 +125,29 @@ export function AllAssignments() {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
 
-  const doneCount = items.filter((a) => a.status === "DONE").length;
+  const doneCount = items.filter((a) => a.done).length;
 
-  function isOverdue(a: MergedAssignment) {
-    return a.daysLeft === "late" && a.status === "PENDING";
+  function isOverdue(a: DeadlineItem) {
+    return a.daysLeft === "late" && !a.done;
   }
 
-  async function toggleStatus(id: string, currentStatus: string) {
-    const newStatus = currentStatus === "PENDING" ? "DONE" : "PENDING";
+  async function toggleStatus(item: DeadlineItem) {
     const oldItems = [...items];
 
     setItems((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: newStatus as "PENDING" | "DONE" } : a))
+      prev.map((a) => (a.id === item.id ? { ...a, done: !item.done } : a))
     );
 
+    const endpoint = item.kind === "assignment"
+      ? `/api/v1/assignments/${item.id}`
+      : `/api/v1/exams/${item.id}`;
+
+    const newStatus = item.kind === "assignment"
+      ? (item.done ? "PENDING" : "DONE")
+      : (item.done ? "UPCOMING" : "COMPLETED");
+
     try {
-      const res = await fetch(`/api/v1/assignments/${id}`, {
+      const res = await fetch(endpoint, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -105,15 +156,16 @@ export function AllAssignments() {
       if (!res.ok) {
         setItems(oldItems);
         const body = await res.json().catch(() => null);
-        toast.error(body?.error?.message ?? "Failed to update assignment");
+        toast.error(body?.error?.message ?? "Failed to update status");
         return;
       }
 
       router.refresh();
-      toast.success(`Marked as ${newStatus === "DONE" ? "done" : "pending"}`, {
+      const label = item.done ? "pending" : "done";
+      toast.success(`Marked as ${label}`, {
         action: {
           label: "Undo",
-          onClick: () => toggleStatus(id, newStatus),
+          onClick: () => toggleStatus({ ...item, done: !item.done }),
         },
       });
     } catch {
@@ -153,9 +205,9 @@ export function AllAssignments() {
       <div className="space-y-1">
         {displayed.map((a) => (
           <div
-            key={a.id}
+            key={`${a.kind}-${a.id}`}
             className={`flex flex-col gap-1 rounded-md px-3 py-2.5 transition-colors sm:flex-row sm:items-center sm:gap-3 ${
-              a.status === "DONE"
+              a.done
                 ? "opacity-50"
                 : isOverdue(a)
                 ? "bg-destructive/5 border border-destructive/20 hover:bg-destructive/10"
@@ -164,22 +216,27 @@ export function AllAssignments() {
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <button
-                onClick={() => toggleStatus(a.id, a.status)}
+                onClick={() => toggleStatus(a)}
                 className="flex items-center justify-center size-11 shrink-0 -m-3.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none rounded-sm"
-                aria-label={a.status === "DONE" ? `Mark ${a.name} as pending` : `Mark ${a.name} as done`}
+                aria-label={a.done ? `Mark ${a.name} as pending` : `Mark ${a.name} as done`}
               >
                 <span
                   className={`h-4 w-4 rounded border transition-colors ${
-                    a.status === "DONE"
+                    a.done
                       ? "bg-primary border-primary"
                       : "border-muted-foreground hover:border-primary"
                   }`}
                 />
               </button>
               <Link href={`/dashboard/courses/${a.courseId}`} className="min-w-0 flex-1">
-                <p className={`text-sm font-medium flex items-center gap-1.5 ${a.status === "DONE" ? "line-through" : ""}`}>
+                <p className={`text-sm font-medium flex items-center gap-1.5 ${a.done ? "line-through" : ""}`}>
                   {isOverdue(a) && <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />}
                   {a.name}
+                  {a.kind === "exam" && (
+                    <Badge variant="outline" className="text-[10px] px-1 py-0 ml-1 font-normal">
+                      Exam
+                    </Badge>
+                  )}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">
                   <span
@@ -198,14 +255,14 @@ export function AllAssignments() {
               )}
               <DaysLeftBadge daysLeft={a.daysLeft} />
               <Badge variant="secondary" className="text-xs">
-                {a.status === "DONE" ? "Done" : "Pending"}
+                {a.done ? "Done" : "Pending"}
               </Badge>
             </div>
           </div>
         ))}
         {displayed.length === 0 && (
           <p className="py-8 text-center text-sm text-muted-foreground">
-            {items.length === 0 ? "No assignments across your courses" : "No assignments match filters"}
+            {items.length === 0 ? "No deadlines across your courses" : "No deadlines match filters"}
           </p>
         )}
       </div>
