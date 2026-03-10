@@ -35,19 +35,18 @@ export async function GET(req: NextRequest) {
     const mins = s.durationMinutes!;
     totalMinutes += mins;
 
-    if (s.course) {
-      const existing = courseMap.get(s.course.id);
-      if (existing) {
-        existing.totalMinutes += mins;
-        existing.sessionCount += 1;
-      } else {
-        courseMap.set(s.course.id, {
-          name: s.course.name,
-          color: s.course.color,
-          totalMinutes: mins,
-          sessionCount: 1,
-        });
-      }
+    const key = s.course ? s.course.id : "__general__";
+    const existing = courseMap.get(key);
+    if (existing) {
+      existing.totalMinutes += mins;
+      existing.sessionCount += 1;
+    } else {
+      courseMap.set(key, {
+        name: s.course ? s.course.name : "General",
+        color: s.course ? s.course.color : "#6b7280",
+        totalMinutes: mins,
+        sessionCount: 1,
+      });
     }
   }
 
@@ -72,9 +71,8 @@ export async function GET(req: NextRequest) {
     const day = dayMap.get(dateKey)!;
     day.total += mins;
 
-    if (s.course) {
-      day[s.course.id] = (day[s.course.id] || 0) + mins;
-    }
+    const courseKey = s.course ? s.course.id : "__general__";
+    day[courseKey] = (day[courseKey] || 0) + mins;
   }
 
   // Fill in missing days so the chart has continuous x-axis
