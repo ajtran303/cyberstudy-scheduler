@@ -10,11 +10,11 @@ import {
 
 const TAB_OPTIONS = [
   { value: "today", label: "Today" },
-  { value: "review", label: "Review" },
-  { value: "flashcards", label: "Flashcards" },
-  { value: "courses", label: "Courses" },
+  { value: "study-plan", label: "Study Plan" },
   { value: "deadlines", label: "Deadlines" },
+  { value: "courses", label: "Courses" },
   { value: "insights", label: "Insights" },
+  { value: "flashcards", label: "Flashcards" },
 ] as const;
 
 interface DashboardTabSelectProps {
