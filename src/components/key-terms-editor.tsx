@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 interface KeyTerm {
@@ -36,7 +35,7 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
     const removed = terms[index];
     const updated = terms.filter((_, i) => i !== index);
     setTerms(updated);
-    toast("Term removed", {
+    toast("Flashcard removed", {
       action: {
         label: "Undo",
         onClick: () => {
@@ -69,11 +68,11 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        toast.error(body?.error?.message ?? "Failed to save terms");
+        toast.error(body?.error?.message ?? "Failed to save flashcards");
         return;
       }
 
-      toast.success("Terms saved");
+      toast.success("Flashcards saved");
       router.refresh();
     } catch {
       toast.error("Network error");
@@ -87,14 +86,18 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
       {terms.map((term, i) => (
         <div key={i} className="flex gap-2 items-start">
           <div className="flex-1 flex flex-col gap-1 min-w-0">
-            <Input
-              placeholder="Term"
+            <Textarea
+              placeholder="Front"
               value={term.term}
-              onChange={(e) => updateTerm(i, "term", e.target.value)}
-              className="font-mono"
+              ref={autoResize}
+              onChange={(e) => {
+                updateTerm(i, "term", e.target.value);
+                autoResize(e.target);
+              }}
+              className="min-h-[36px] overflow-hidden font-mono"
             />
             <Textarea
-              placeholder="Definition"
+              placeholder="Back"
               value={term.definition}
               ref={autoResize}
               onChange={(e) => {
@@ -109,7 +112,7 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
             size="sm"
             onClick={() => removeTerm(i)}
             className="text-destructive shrink-0 min-h-[44px] min-w-[44px]"
-            aria-label={`Remove term: ${term.term || "empty"}`}
+            aria-label={`Remove flashcard: ${term.term || "empty"}`}
           >
             &times;
           </Button>
@@ -117,10 +120,10 @@ export function KeyTermsEditor({ topicId, initialTerms }: KeyTermsEditorProps) {
       ))}
       <div className="flex gap-2">
         <Button variant="outline" size="sm" className="min-h-[44px]" onClick={addTerm}>
-          + Add Term
+          + Add Flashcard
         </Button>
         <Button size="sm" className="min-h-[44px]" onClick={save} disabled={saving}>
-          {saving ? "Saving..." : "Save Terms"}
+          {saving ? "Saving..." : "Save Flashcards"}
         </Button>
       </div>
     </div>

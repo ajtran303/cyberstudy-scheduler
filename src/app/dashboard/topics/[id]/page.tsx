@@ -121,9 +121,9 @@ export default async function TopicDetailPage({
         initialNotes={topic.notes}
       />
 
-      {/* Key Terms */}
+      {/* Flashcards */}
       <div>
-        <h2 className="text-sm font-semibold mb-2">Key Terms</h2>
+        <h2 className="text-sm font-semibold mb-2">Flashcards</h2>
         <KeyTermsEditor topicId={topic.id} initialTerms={keyTerms} />
       </div>
 
