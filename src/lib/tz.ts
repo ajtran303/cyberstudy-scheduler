@@ -32,6 +32,35 @@ export function localDatePartsInTz(
   return { year: y, month: m - 1, day: d };
 }
 
+/** Compute Sun–Sat week boundaries anchored to a timezone, returned as UTC Dates. */
+export function weekBoundsInTz(
+  now: Date,
+  timeZone: string
+): { weekStart: Date; weekEnd: Date; weekStartISO: string; weekEndISO: string } {
+  const offset = offsetMsInTz(now, timeZone);
+  const { year, month, day } = localDatePartsInTz(now, timeZone);
+
+  // JS Date.getDay(): 0=Sunday. Build a local Date to find day-of-week.
+  const localDay = new Date(year, month, day).getDay(); // 0-6
+
+  // Sunday midnight in the timezone, expressed as UTC
+  const sundayMidnightUtc = new Date(
+    Date.UTC(year, month, day - localDay, 0, 0, 0) - offset
+  );
+  // Saturday 23:59:59.999 in the timezone, expressed as UTC
+  const saturdayEndUtc = new Date(
+    sundayMidnightUtc.getTime() + 7 * 86_400_000 - 1
+  );
+
+  // ISO date strings for the week boundaries (YYYY-MM-DD)
+  const ws = new Date(sundayMidnightUtc.getTime() + offset);
+  const we = new Date(saturdayEndUtc.getTime() + offset);
+  const weekStartISO = `${ws.getUTCFullYear()}-${String(ws.getUTCMonth() + 1).padStart(2, "0")}-${String(ws.getUTCDate()).padStart(2, "0")}`;
+  const weekEndISO = `${we.getUTCFullYear()}-${String(we.getUTCMonth() + 1).padStart(2, "0")}-${String(we.getUTCDate()).padStart(2, "0")}`;
+
+  return { weekStart: sundayMidnightUtc, weekEnd: saturdayEndUtc, weekStartISO, weekEndISO };
+}
+
 /** Compute day boundaries anchored to a timezone, returned as UTC Dates. */
 export function dayBoundsInTz(
   now: Date,

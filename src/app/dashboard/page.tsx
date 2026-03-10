@@ -5,7 +5,7 @@ import { CourseCard } from "@/components/course-card";
 import { CreateCourseDialog } from "@/components/create-course-dialog";
 import { Button } from "@/components/ui/button";
 import { DashboardTabs } from "@/components/dashboard-tabs";
-import { ReviewTable } from "@/components/review-table";
+import { StudyPlan } from "@/components/study-plan";
 import { InsightsTabs } from "@/components/insights-tabs";
 import { StudySessionPanel } from "@/components/study-session-panel";
 import { FlashcardDeck } from "@/components/flashcard-deck";
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
               )}
             </>
           ),
-          review: <ReviewTable />,
+          "study-plan": <StudyPlan />,
           deadlines: <AllDeadlines />,
           insights: <InsightsTabs />,
           flashcards: <FlashcardDeck />,
