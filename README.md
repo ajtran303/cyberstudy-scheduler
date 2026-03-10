@@ -87,6 +87,7 @@ curl http://localhost:3000/api/v1/courses \
 | POST | `/topics/:id/review` | Record SRS review (quality 0–5), returns next review date |
 | GET/POST | `/topics/:id/teach-it-back` | Teach-back log |
 | GET/POST | `/topics/:id/quiz-attempts` | Quiz attempt log |
+| GET | `/study-plan` | Weekly study plan: this week's topics by course, nearest deadlines, not-started backlog |
 | GET | `/review` | Review queue (sort: mastery_priority, srs, interleaved, lastReviewedAt) |
 | GET | `/review/forecast` | SRS forecast for upcoming reviews |
 | GET/POST | `/study-sessions` | Study session tracking |
@@ -99,6 +100,7 @@ Full interactive docs at [/api/docs](http://localhost:3000/api/docs) (Swagger UI
 ## Features
 
 - **Today's Plan** — single dashboard tab answering "what should I study now?" with SRS reviews due, upcoming deadlines, and per-exam topic prep
+- **Study Plan** — weekly view of topics grouped by course with nearest deadlines, progress tracking, and collapsible not-started backlog
 - **Spaced repetition** — SM-2 algorithm schedules reviews for LEARNING/PROFICIENT topics
 - **Mastery tracking** — four-tier system that never auto-promotes; only explicit updates
 - **Review queue** — sort by mastery priority, SRS due date, interleaved (cross-course), or last reviewed
