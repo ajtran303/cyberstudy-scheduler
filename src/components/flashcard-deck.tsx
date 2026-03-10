@@ -70,6 +70,9 @@ export function FlashcardDeck() {
   const [mode, setMode] = useState<"srs" | "browse">("srs");
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+  const [selectedTopicId, setSelectedTopicId] = useState<string>("");
+  const [topicOptions, setTopicOptions] = useState<{ id: string; name: string }[]>([]);
+  const [allBrowseCards, setAllBrowseCards] = useState<FlashcardItem[]>([]);
   const [cards, setCards] = useState<FlashcardItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -189,18 +192,25 @@ export function FlashcardDeck() {
     if (mode !== "browse") return;
     if (!selectedCourseId) {
       setCards([]);
+      setAllBrowseCards([]);
+      setTopicOptions([]);
+      setSelectedTopicId("");
       return;
     }
     async function loadTopics() {
       setCardsLoading(true);
+      setSelectedTopicId("");
       const res = await fetch(`/api/v1/courses/${selectedCourseId}/topics`);
       const json = await res.json();
       const topics = json.data ?? [];
       const deck: FlashcardItem[] = [];
+      const options: { id: string; name: string }[] = [];
       for (const topic of topics) {
+        let hasCards = false;
         if (Array.isArray(topic.keyTerms)) {
           for (const kt of topic.keyTerms) {
             if (kt.term && kt.definition) {
+              hasCards = true;
               deck.push({
                 term: kt.term,
                 definition: kt.definition,
@@ -213,7 +223,12 @@ export function FlashcardDeck() {
             }
           }
         }
+        if (hasCards) {
+          options.push({ id: topic.id, name: topic.name });
+        }
       }
+      setAllBrowseCards(deck);
+      setTopicOptions(options);
       setCards(deck);
       setCurrentIndex(0);
       setFlipped(false);
@@ -221,6 +236,18 @@ export function FlashcardDeck() {
     }
     loadTopics();
   }, [mode, selectedCourseId]);
+
+  // Filter browse cards by selected topic
+  useEffect(() => {
+    if (mode !== "browse" || allBrowseCards.length === 0) return;
+    if (selectedTopicId) {
+      setCards(allBrowseCards.filter((c) => c.topicId === selectedTopicId));
+    } else {
+      setCards(allBrowseCards);
+    }
+    setCurrentIndex(0);
+    setFlipped(false);
+  }, [selectedTopicId, mode, allBrowseCards]);
 
   async function handleRate(quality: number) {
     if (rated || mode !== "srs" || !cards.length) return;
@@ -344,6 +371,9 @@ export function FlashcardDeck() {
   function handleModeChange(newMode: "srs" | "browse") {
     setMode(newMode);
     setCards([]);
+    setAllBrowseCards([]);
+    setTopicOptions([]);
+    setSelectedTopicId("");
     setCurrentIndex(0);
     setFlipped(false);
     setRated(false);
@@ -409,26 +439,49 @@ export function FlashcardDeck() {
       {/* Header row: course filter + shuffle */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {mode === "browse" ? (
-          <div className="flex-1">
-            <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a course" />
-              </SelectTrigger>
-              <SelectContent>
-                {courses.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    <span className="flex items-center gap-2">
-                      <span
-                        className="inline-block h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: c.color }}
-                      />
-                      {c.name}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <>
+            <div className="flex-1">
+              <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: c.color }}
+                        />
+                        {c.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {topicOptions.length > 0 && (
+              <div className="flex-1">
+                <Select
+                  value={selectedTopicId || "all"}
+                  onValueChange={(v) => setSelectedTopicId(v === "all" ? "" : v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Topics" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Topics</SelectItem>
+                    {topicOptions.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </>
+
         ) : (
           <div className="flex-1">
             <Select
