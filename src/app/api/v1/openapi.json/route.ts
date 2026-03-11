@@ -164,6 +164,57 @@ const spec = {
       patch: { tags: ["Topics"], summary: "Update topic", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 200: { description: "Updated topic" } } },
       delete: { tags: ["Topics"], summary: "Delete topic", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], responses: { 200: { description: "Deleted" } } },
     },
+    "/topics/performance-summary": {
+      get: {
+        tags: ["Topics"],
+        summary: "Per-topic quiz and TIB performance summary",
+        description: "Returns quiz miss rate (last 10 attempts) and Teach It Back activity (last 30 days) for all non-mastered topics. Designed for weekly quiz generation — call once before building a quiz to weight topics by recent performance.",
+        responses: {
+          200: {
+            description: "Array of topic performance summaries",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    data: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          topicId: { type: "string" },
+                          topicName: { type: "string" },
+                          mastery: { type: "string", enum: ["NOT_STARTED", "LEARNING", "PROFICIENT"] },
+                          courseId: { type: "string" },
+                          courseName: { type: "string" },
+                          courseCode: { type: "string", nullable: true },
+                          quiz: {
+                            type: "object",
+                            properties: {
+                              recentAttempts: { type: "integer", description: "Number of attempts in the window (max 10)" },
+                              recentMissRate: { type: "number", nullable: true, description: "Fraction of incorrect attempts (0.0–1.0), null if no attempts" },
+                            },
+                          },
+                          tib: {
+                            type: "object",
+                            properties: {
+                              last30dCount: { type: "integer", description: "Number of TIB sessions in the last 30 days" },
+                              lastOutcome: { type: "string", nullable: true, enum: ["PASS", "PARTIAL", "MISS"], description: "Most recent TIB outcome, null if none in window" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    error: { $ref: "#/components/schemas/Error", nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          401: { description: "Unauthorized" },
+        },
+      },
+    },
     "/topics/{id}/mastery": {
       patch: { tags: ["Mastery"], summary: "Set mastery for one topic", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }], requestBody: { required: true, content: { "application/json": { schema: { type: "object", properties: { mastery: { type: "string", enum: ["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"] } } } } } }, responses: { 200: { description: "Updated topic" } } },
     },
