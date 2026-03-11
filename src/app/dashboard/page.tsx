@@ -5,13 +5,12 @@ import { CourseCard } from "@/components/course-card";
 import { CreateCourseDialog } from "@/components/create-course-dialog";
 import { Button } from "@/components/ui/button";
 import { DashboardTabs } from "@/components/dashboard-tabs";
-import { StudyPlan } from "@/components/study-plan";
 import { InsightsTabs } from "@/components/insights-tabs";
 import { StudySessionPanel } from "@/components/study-session-panel";
 import { FlashcardDeck } from "@/components/flashcard-deck";
 import { AllDeadlines } from "@/components/all-assignments";
 import { WelcomeBanner } from "@/components/welcome-banner";
-import { TodayPlan } from "@/components/today-plan";
+import { DailyBriefing } from "@/components/daily-briefing";
 import { APP_TIMEZONE, localDatePartsInTz, offsetMsInTz } from "@/lib/tz";
 
 export default async function DashboardPage() {
@@ -75,7 +74,7 @@ export default async function DashboardPage() {
         {{
           today: (
             <div className="space-y-6">
-              <TodayPlan />
+              <DailyBriefing />
               <StudySessionPanel />
             </div>
           ),
@@ -114,7 +113,6 @@ export default async function DashboardPage() {
               )}
             </>
           ),
-          "study-plan": <StudyPlan />,
           deadlines: <AllDeadlines />,
           insights: <InsightsTabs />,
           flashcards: <FlashcardDeck />,

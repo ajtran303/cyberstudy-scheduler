@@ -10,7 +10,6 @@ import {
 
 const TAB_OPTIONS = [
   { value: "today", label: "Today" },
-  { value: "study-plan", label: "Study Plan" },
   { value: "deadlines", label: "Deadlines" },
   { value: "courses", label: "Courses" },
   { value: "insights", label: "Insights" },

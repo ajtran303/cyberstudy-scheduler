@@ -17,7 +17,6 @@ export function DashboardTabs({ children }: DashboardTabsProps) {
       <div className="hidden sm:flex flex-col gap-1 sm:flex-row sm:gap-2">
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="today" className="flex-1 sm:flex-initial">Today</TabsTrigger>
-          <TabsTrigger value="study-plan" className="flex-1 sm:flex-initial">Study Plan</TabsTrigger>
           <TabsTrigger value="deadlines" className="flex-1 sm:flex-initial">Deadlines</TabsTrigger>
         </TabsList>
         <TabsList className="w-full sm:w-auto">
