@@ -151,7 +151,8 @@ export function FlashcardDeck() {
           reviewed: false,
         });
 
-        for (const kt of validTerms) {
+        const shuffledTerms = shuffle(validTerms);
+        for (const kt of shuffledTerms) {
           deck.push({
             term: kt.term,
             definition: kt.definition,
