@@ -178,6 +178,45 @@ const spec = {
     "/quiz-attempts": {
       get: { tags: ["Study Events"], summary: "Get quiz attempts by sessionId", parameters: [{ name: "sessionId", in: "query", required: true, schema: { type: "string" } }], responses: { 200: { description: "Array of attempts" } } },
     },
+    "/quiz-attempts/bulk": {
+      post: {
+        tags: ["Study Events"],
+        summary: "Bulk-create quiz attempts for a session",
+        description: "Create multiple quiz attempts across topics in a single request. All topic IDs are validated upfront — if any are invalid, the entire request fails (no partial writes).",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["sessionId", "attempts"],
+                properties: {
+                  sessionId: { type: "string", description: "Shared session identifier for the quiz" },
+                  attempts: {
+                    type: "array",
+                    minItems: 1,
+                    items: {
+                      type: "object",
+                      required: ["topicId", "correct"],
+                      properties: {
+                        topicId: { type: "string" },
+                        correct: { type: "boolean" },
+                        questionText: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: { description: "Array of created quiz attempts" },
+          404: { description: "One or more topic IDs not found" },
+          422: { description: "Validation error" },
+        },
+      },
+    },
     "/courses/{courseId}/assignments": {
       get: { tags: ["Assignments"], summary: "List assignments", parameters: [{ name: "courseId", in: "path", required: true, schema: { type: "string" } }, { name: "status", in: "query", schema: { type: "string" } }, { name: "sort", in: "query", schema: { type: "string" } }], responses: { 200: { description: "Array" } } },
       post: { tags: ["Assignments"], summary: "Create assignment", parameters: [{ name: "courseId", in: "path", required: true, schema: { type: "string" } }], responses: { 201: { description: "Created" } } },
