@@ -422,7 +422,7 @@ export function FlashcardDeck() {
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          SRS Due
+          Due for Review
         </button>
         <button
           onClick={() => handleModeChange("browse")}
@@ -519,7 +519,7 @@ export function FlashcardDeck() {
       {mode === "srs" && srsEmpty === "none" ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <p className="text-sm font-medium text-muted-foreground">
-            All caught up! No flashcards due for review.
+            All caught up! No flashcards due for review right now.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
             Switch to Browse mode to study any course.
@@ -531,7 +531,7 @@ export function FlashcardDeck() {
             {dueTopicCount} topic{dueTopicCount !== 1 ? "s" : ""} due for review but none have key terms.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            Add key terms to topics to use flashcard review.
+            Add key terms to topics to enable flashcard review.
           </p>
           {dueTopicCourses.length > 0 && (
             <div className="mt-4 flex flex-wrap justify-center gap-2">

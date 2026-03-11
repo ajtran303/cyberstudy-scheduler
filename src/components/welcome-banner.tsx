@@ -20,7 +20,7 @@ export function WelcomeBanner({
   const hints: string[] = [];
   if (srsDueCount > 0) {
     hints.push(
-      `${srsDueCount} topic${srsDueCount === 1 ? "" : "s"} due for SRS review`
+      `${srsDueCount} topic${srsDueCount === 1 ? "" : "s"} due for flashcard review`
     );
   }
   if (upcomingAssignments > 0) {

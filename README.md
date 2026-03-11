@@ -95,7 +95,7 @@ curl http://localhost:3000/api/v1/courses \
 
 ## Agent Integration
 
-An autonomous AI agent integrates with the API to automate quiz generation, grading, and spaced repetition. All calls use JWT auth via `POST /auth/login`. Tokens are not cached between sessions.
+An autonomous AI agent integrates with the API to automate quiz generation, grading, and study tracking. All calls use JWT auth via `POST /auth/login`. Tokens are not cached between sessions.
 
 ### Read operations
 
@@ -108,25 +108,11 @@ An autonomous AI agent integrates with the API to automate quiz generation, grad
 
 - **`POST /quiz-attempts/bulk`** — logs a full quiz session in one request after grading. Contains all question results across topics: `topicId`, `questionText`, `correct`. `sessionId` is set at the top level using the quiz filename convention (`quiz-YYYY-MM-DD-[course]-[daily|weekly]`). Fail-fast: all topic IDs are verified before any writes.
 - **`POST /topics/:id/teach-it-back`** — logs a Teach It Back outcome (PASS / PARTIAL / MISS) with full Socratic feedback notes. Called after every TIB session grading.
-- **`POST /topics/:id/review`** — updates the SRS schedule using SM-2. Called after quiz grading (once per unique topic) and after TIB logging. Quality is mapped from performance signals:
-
-  | Signal | Quality |
-  |--------|---------|
-  | TIB PASS | 5 |
-  | TIB PARTIAL | 3 |
-  | TIB MISS | 1 |
-  | Quiz 100% correct | 5 |
-  | Quiz 75–99% correct | 4 |
-  | Quiz 50–74% correct | 3 |
-  | Quiz 25–49% correct | 1 |
-  | Quiz 0–24% correct | 0 |
-
-  When both TIB and a quiz occur on the same day, the TIB review call is made last and overwrites the quiz's quality. This is intentional — TIB is a higher-signal test of understanding.
-
 - **`PATCH /topics/:id`** — writes key terms (flashcard term/definition pairs) extracted from Obsidian notes. On-demand only, never scheduled.
 
 ### Never writes
 
+- **`POST /topics/:id/review`** — SRS scheduling is driven exclusively by the dashboard's flashcard review UI. The agent does not call this endpoint. Quiz and TIB performance is tracked through their own endpoints (`/quiz-attempts/bulk`, `/topics/:id/teach-it-back`) and surfaced via `GET /topics/performance-summary`.
 - **`PATCH /topics/:id/mastery`** — mastery levels are always set manually. The agent reads mastery data for briefings and topic selection but never writes it.
 
 ### Workflows
@@ -135,11 +121,11 @@ An autonomous AI agent integrates with the API to automate quiz generation, grad
 |----------|---------|-----------|
 | Daily study ping | Mon–Fri 5:15 PM, Sat 10:30 AM | `GET /daily-briefing` |
 | Quiz generation | Daily + weekly crons | none (reads Obsidian only) |
-| Quiz grading | On user submission | `POST /quiz-attempts/bulk`, `POST /topics/:id/review` |
-| Teach It Back | After every TIB session | `GET /topics/:id/teach-it-back`, `POST /topics/:id/teach-it-back`, `POST /topics/:id/review` |
+| Quiz grading | On user submission | `POST /quiz-attempts/bulk` |
+| Teach It Back | After every TIB session | `GET /topics/:id/teach-it-back`, `POST /topics/:id/teach-it-back` |
 | Key terms sync | On-demand | `PATCH /topics/:id` |
 | Performance summary | Weekly (before quiz gen) | `GET /topics/performance-summary` |
 
 ### Data boundaries
 
-The agent treats Obsidian as the source of truth for note content and completeness. The API is the source of truth for study performance (mastery, quiz history, TIB outcomes, SRS schedule). These two systems are intentionally kept separate — no notes state is stored in the API, and no performance data is stored in Obsidian.
+The agent treats Obsidian as the source of truth for note content and completeness. The API is the source of truth for study performance (mastery, quiz history, TIB outcomes). SRS scheduling is decoupled from agent activity — it is driven solely by flashcard reviews in the dashboard UI, ensuring flashcard due dates are never pushed out by quiz or TIB grading. These two systems are intentionally kept separate — no notes state is stored in the API, and no performance data is stored in Obsidian.

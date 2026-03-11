@@ -36,7 +36,7 @@ export function ReviewForecastChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Review Forecast</CardTitle>
+          <CardTitle>Flashcard Review Forecast</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-48 sm:h-64 flex items-end gap-1.5">
@@ -59,15 +59,15 @@ export function ReviewForecastChart() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Review Forecast</CardTitle>
+          <CardTitle>Flashcard Review Forecast</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="py-12 text-center">
             <p className="text-sm font-medium text-muted-foreground">
-              No upcoming reviews
+              No upcoming flashcard reviews
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Study topics to schedule SRS reviews.
+              Review flashcards to schedule upcoming reviews.
             </p>
           </div>
         </CardContent>
@@ -78,9 +78,9 @@ export function ReviewForecastChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Review Forecast</CardTitle>
+        <CardTitle>Flashcard Review Forecast</CardTitle>
         <CardDescription>
-          {totalReviews} review{totalReviews === 1 ? "" : "s"} in the next 14 days
+          {totalReviews} flashcard review{totalReviews === 1 ? "" : "s"} in the next 14 days
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -193,7 +193,7 @@ export function DailyBriefing() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">
-            SRS Reviews Due
+            Flashcard Reviews Due
             {todayData.srsTotal > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {todayData.srsTotal}

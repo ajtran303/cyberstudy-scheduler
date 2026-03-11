@@ -107,7 +107,7 @@ export default async function CourseDetailPage({
       <Tabs defaultValue="topics" className="w-full min-w-0">
         <TabsList className="w-full">
           <TabsTrigger value="review" className="flex-1">
-            Review
+            Flashcard Review
           </TabsTrigger>
           <TabsTrigger value="topics" className="flex-1">
             Topics ({course.topics.length})
