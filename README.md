@@ -81,8 +81,11 @@ curl http://localhost:3000/api/v1/courses \
 | GET/PATCH/DELETE | `/topics/:id` | Topic CRUD |
 | PATCH | `/topics/:id/mastery` | Update mastery level |
 | POST | `/topics/:id/review` | Record SRS review (quality 0–5) |
+| GET | `/topics/performance-summary` | Per-topic quiz miss rate and TIB history |
 | GET/POST | `/topics/:id/teach-it-back` | Teach-back log |
 | GET/POST | `/topics/:id/quiz-attempts` | Quiz attempt log |
+| POST | `/quiz-attempts/bulk` | Bulk-create quiz attempts for a session |
+| GET | `/quiz-attempts?sessionId=...` | Quiz attempts by session |
 | GET | `/daily-briefing` | Daily study assignments: topics by mastery, deadlines, coverage |
 | GET | `/review` | Review queue (multiple sort modes) |
 | GET | `/review/forecast` | SRS forecast for upcoming reviews |
@@ -92,23 +95,39 @@ curl http://localhost:3000/api/v1/courses \
 
 ## Agent Integration
 
-The API is designed for consumption by an autonomous AI agent. The agent authenticates via `POST /auth/login` with JWT credentials, obtaining a Bearer token for all subsequent requests.
+An autonomous AI agent integrates with the API to automate quiz generation, grading, and spaced repetition. All calls use JWT auth via `POST /auth/login`. Tokens are not cached between sessions.
 
-### What the agent reads
+### Read operations
 
-- **`GET /daily-briefing`** — primary data source for study assignment pings. Returns topics by mastery (LEARNING → NOT_STARTED, MASTERED excluded) plus upcoming deadlines with coverage descriptions. Called once per ping.
-- **`GET /topics/:id/teach-it-back`** — fetches teach-it-back history before selecting a topic for a new session.
-- **`GET /quiz-attempts?sessionId=...`** — retrieves quiz attempt history by session for grading context.
+- **`GET /daily-briefing`** — primary data source for daily study assignment pings. Returns per-course topic priorities (LEARNING → NOT_STARTED, MASTERED excluded) and upcoming deadlines with coverage descriptions. One call per ping session.
+- **`GET /topics/performance-summary`** — used by the weekly quiz to weight question emphasis. Returns per-topic quiz miss rate (last 10 attempts) and TIB history (last 30 days). One call replaces 22+ individual topic queries.
+- **`GET /review?sort=lastReviewedAt:asc`** — used for Teach It Back topic selection. Returns topics sorted by least-recently-reviewed, with null `lastReviewedAt` (never reviewed) first. Only `lastReviewedAt` reflects actual SRS reviews — PATCH operations do not touch this field.
+- **`GET /topics/:id/teach-it-back?limit=5`** — checked before selecting a TIB topic to avoid repeating a recently-passed topic.
 
-### What the agent writes
+### Write operations
 
-- **`POST /topics/:id/teach-it-back`** — logs teach-it-back outcomes (PASS / PARTIAL / MISS) with Socratic feedback notes. Triggered after every session grading.
-- **`POST /topics/:id/quiz-attempts`** — logs individual question results (correct/incorrect, question text, sessionId) during quiz grading.
+- **`POST /quiz-attempts/bulk`** — logs a full quiz session in one request after grading. Contains all question results across topics: `topicId`, `questionText`, `correct`. `sessionId` is set at the top level using the quiz filename convention (`quiz-YYYY-MM-DD-[course]-[daily|weekly]`). Fail-fast: all topic IDs are verified before any writes.
+- **`POST /topics/:id/teach-it-back`** — logs a Teach It Back outcome (PASS / PARTIAL / MISS) with full Socratic feedback notes. Called after every TIB session grading.
+- **`POST /topics/:id/review`** — updates the SRS schedule using SM-2. Called after quiz grading (once per unique topic) and after TIB logging. Quality is mapped from performance signals:
+
+  | Signal | Quality |
+  |--------|---------|
+  | TIB PASS | 5 |
+  | TIB PARTIAL | 3 |
+  | TIB MISS | 1 |
+  | Quiz 100% correct | 5 |
+  | Quiz 75–99% correct | 4 |
+  | Quiz 50–74% correct | 3 |
+  | Quiz 25–49% correct | 1 |
+  | Quiz 0–24% correct | 0 |
+
+  When both TIB and a quiz occur on the same day, the TIB review call is made last and overwrites the quiz's quality. This is intentional — TIB is a higher-signal test of understanding.
+
 - **`PATCH /topics/:id`** — writes key terms (flashcard term/definition pairs) extracted from Obsidian notes. On-demand only, never scheduled.
 
-### What the agent never writes
+### Never writes
 
-- **`PATCH /topics/:id/mastery`** — mastery levels are always set manually. The agent reads mastery data but never promotes or demotes topics.
+- **`PATCH /topics/:id/mastery`** — mastery levels are always set manually. The agent reads mastery data for briefings and topic selection but never writes it.
 
 ### Workflows
 
@@ -116,5 +135,11 @@ The API is designed for consumption by an autonomous AI agent. The agent authent
 |----------|---------|-----------|
 | Daily study ping | Mon–Fri 5:15 PM, Sat 10:30 AM | `GET /daily-briefing` |
 | Quiz generation | Daily + weekly crons | none (reads Obsidian only) |
-| Quiz grading | On user submission | `POST /topics/:id/quiz-attempts` |
-| Teach It Back | After every TIB session | `GET` + `POST /topics/:id/teach-it-back` |
+| Quiz grading | On user submission | `POST /quiz-attempts/bulk`, `POST /topics/:id/review` |
+| Teach It Back | After every TIB session | `GET /topics/:id/teach-it-back`, `POST /topics/:id/teach-it-back`, `POST /topics/:id/review` |
+| Key terms sync | On-demand | `PATCH /topics/:id` |
+| Performance summary | Weekly (before quiz gen) | `GET /topics/performance-summary` |
+
+### Data boundaries
+
+The agent treats Obsidian as the source of truth for note content and completeness. The API is the source of truth for study performance (mastery, quiz history, TIB outcomes, SRS schedule). These two systems are intentionally kept separate — no notes state is stored in the API, and no performance data is stored in Obsidian.
