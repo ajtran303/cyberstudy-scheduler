@@ -262,6 +262,73 @@ const spec = {
         },
       },
     },
+    "/daily-briefing": {
+      get: {
+        tags: ["Aggregate"],
+        summary: "Daily briefing",
+        description: "Unified endpoint combining topic priorities and upcoming deadlines into a single response grouped by course. Returns NOT_STARTED and LEARNING topics by default (MASTERED always excluded). Courses sorted by soonest deadline first.",
+        parameters: [
+          { name: "deadlineWindowDays", in: "query", description: "How far out to look for assignment deadlines (1–90, default 7). Exam window is always at least 14 days or this value, whichever is larger.", schema: { type: "integer", default: 7 } },
+          { name: "include", in: "query", description: "Set to 'proficient' to include PROFICIENT-mastery topics in the response.", schema: { type: "string", enum: ["proficient"] } },
+        ],
+        responses: {
+          200: {
+            description: "Daily briefing data",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    data: {
+                      type: "object",
+                      properties: {
+                        date: { type: "string", format: "date", description: "Today's date in YYYY-MM-DD (America/New_York)" },
+                        courses: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              id: { type: "string" },
+                              code: { type: "string", nullable: true, description: "Course code (e.g. CIST-1122)" },
+                              name: { type: "string" },
+                              topics: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    topicId: { type: "string" },
+                                    topicName: { type: "string" },
+                                    mastery: { type: "string", enum: ["NOT_STARTED", "LEARNING", "PROFICIENT"] },
+                                  },
+                                },
+                              },
+                              deadlines: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    name: { type: "string" },
+                                    type: { type: "string", enum: ["assignment", "exam"] },
+                                    dueDate: { type: "string", format: "date", nullable: true },
+                                    daysLeft: { type: "integer", nullable: true },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    error: { $ref: "#/components/schemas/Error", nullable: true },
+                  },
+                },
+              },
+            },
+          },
+          401: { description: "Unauthorized" },
+        },
+      },
+    },
     "/today-plan": {
       get: {
         tags: ["Aggregate"],
