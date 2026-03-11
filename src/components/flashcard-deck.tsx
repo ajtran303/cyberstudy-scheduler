@@ -183,7 +183,7 @@ export function FlashcardDeck() {
       setCards(deck);
       topicProgressRef.current = progress;
       setTopicProgress(progress);
-      setSessionStats({ total: deck.length, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0 });
+      setSessionStats({ total: deck.length, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0, requeuedCount: 0 });
       setCurrentIndex(0);
       setFlipped(false);
       setRated(false);
