@@ -170,7 +170,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-muted-foreground">
-          {topics.length} topics to review
+          {topics.length} topics due for flashcard review
         </h3>
         <Select value={sort} onValueChange={setSort}>
           <SelectTrigger className="w-40 sm:w-48">
@@ -180,7 +180,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
             <SelectItem value="mastery_priority">Mastery Priority</SelectItem>
             <SelectItem value="lastReviewedAt:asc">Oldest Reviewed</SelectItem>
             <SelectItem value="lastReviewedAt:desc">Recently Reviewed</SelectItem>
-            <SelectItem value="srs">SRS Due</SelectItem>
+            <SelectItem value="srs">Flashcard Due</SelectItem>
             <SelectItem value="interleaved">Interleaved</SelectItem>
           </SelectContent>
         </Select>
@@ -205,7 +205,7 @@ export function ReviewTable({ courseId }: ReviewTableProps) {
         </div>
       ) : topics.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="text-sm font-medium text-muted-foreground">No topics to review</p>
+          <p className="text-sm font-medium text-muted-foreground">No topics due for flashcard review</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Add topics to your courses and they&apos;ll appear here sorted by mastery priority.
           </p>
