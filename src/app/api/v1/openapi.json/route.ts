@@ -203,65 +203,6 @@ const spec = {
     "/analytics": {
       get: { tags: ["Aggregate"], summary: "Mastery distribution", parameters: [{ name: "courseId", in: "query", schema: { type: "string" } }], responses: { 200: { description: "Distribution counts" } } },
     },
-    "/study-plan": {
-      get: {
-        tags: ["Aggregate"],
-        summary: "Weekly study plan",
-        description: "Returns this week's topics grouped by course with nearest deadlines, a not-started backlog, and weekly completion stats. Week boundaries (Sun–Sat) are anchored to America/New_York.",
-        responses: {
-          200: {
-            description: "Study plan data",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    data: {
-                      type: "object",
-                      properties: {
-                        weekStart: { type: "string", format: "date", description: "ISO date of Sunday" },
-                        weekEnd: { type: "string", format: "date", description: "ISO date of Saturday" },
-                        stats: {
-                          type: "object",
-                          properties: {
-                            totalThisWeek: { type: "integer" },
-                            completedThisWeek: { type: "integer" },
-                            remainingThisWeek: { type: "integer" },
-                          },
-                        },
-                        thisWeek: {
-                          type: "array",
-                          items: {
-                            type: "object",
-                            properties: {
-                              course: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, color: { type: "string" } } },
-                              nearestDeadline: { type: "object", nullable: true, properties: { name: { type: "string" }, date: { type: "string", format: "date-time", nullable: true }, type: { type: "string", enum: ["assignment", "exam"] } } },
-                              topics: { type: "array", items: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, mastery: { type: "string", enum: ["NOT_STARTED", "LEARNING", "PROFICIENT", "MASTERED"] }, date: { type: "string", format: "date-time", nullable: true } } } },
-                            },
-                          },
-                        },
-                        notStarted: {
-                          type: "array",
-                          items: {
-                            type: "object",
-                            properties: {
-                              course: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, color: { type: "string" } } },
-                              topics: { type: "array", items: { type: "object", properties: { id: { type: "string" }, name: { type: "string" }, date: { type: "string", format: "date-time", nullable: true } } } },
-                            },
-                          },
-                        },
-                      },
-                    },
-                    error: { $ref: "#/components/schemas/Error", nullable: true },
-                  },
-                },
-              },
-            },
-          },
-          401: { description: "Unauthorized" },
-        },
-      },
-    },
     "/daily-briefing": {
       get: {
         tags: ["Aggregate"],
