@@ -95,6 +95,7 @@ export function DailyBriefing() {
   const [briefingData, setBriefingData] = useState<BriefingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
 
   async function load() {
     setLoading(true);
@@ -323,34 +324,62 @@ export function DailyBriefing() {
               )}
 
               {/* Topics */}
-              {course.topics.length > 0 && (
-                <div className="space-y-1">
-                  {course.topics.map((topic) => (
-                    <div
-                      key={topic.topicId}
-                      className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent transition-colors"
-                    >
-                      <Link
-                        href={`/dashboard/topics/${topic.topicId}`}
-                        className="text-sm truncate flex-1 hover:underline"
+              {course.topics.length > 0 && (() => {
+                const active = course.topics.filter((t) => t.mastery !== "NOT_STARTED");
+                const notStarted = course.topics.filter((t) => t.mastery === "NOT_STARTED");
+                const isExpanded = expandedCourses.has(course.id);
+                const NOT_STARTED_LIMIT = 3;
+                const visibleNotStarted = isExpanded
+                  ? notStarted
+                  : notStarted.slice(0, NOT_STARTED_LIMIT);
+                const hiddenCount = notStarted.length - NOT_STARTED_LIMIT;
+
+                return (
+                  <div className="space-y-1">
+                    {[...active, ...visibleNotStarted].map((topic) => (
+                      <div
+                        key={topic.topicId}
+                        className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent transition-colors"
                       >
-                        {topic.topicName}
-                      </Link>
-                      <Badge
-                        variant="secondary"
-                        className="shrink-0 text-[11px]"
-                        style={{
-                          backgroundColor:
-                            MASTERY_COLORS[topic.mastery] + "20",
-                          color: MASTERY_COLORS[topic.mastery],
-                        }}
+                        <Link
+                          href={`/dashboard/topics/${topic.topicId}`}
+                          className="text-sm truncate flex-1 hover:underline"
+                        >
+                          {topic.topicName}
+                        </Link>
+                        <Badge
+                          variant="secondary"
+                          className="shrink-0 text-[11px]"
+                          style={{
+                            backgroundColor:
+                              MASTERY_COLORS[topic.mastery] + "20",
+                            color: MASTERY_COLORS[topic.mastery],
+                          }}
+                        >
+                          {MASTERY_LABELS[topic.mastery]}
+                        </Badge>
+                      </div>
+                    ))}
+                    {hiddenCount > 0 && (
+                      <button
+                        onClick={() =>
+                          setExpandedCourses((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(course.id)) next.delete(course.id);
+                            else next.add(course.id);
+                            return next;
+                          })
+                        }
+                        className="w-full text-center text-xs text-muted-foreground py-2 hover:text-foreground transition-colors"
                       >
-                        {MASTERY_LABELS[topic.mastery]}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        {isExpanded
+                          ? "show less"
+                          : `+${hiddenCount} more not started`}
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
 
               {course.topics.length === 0 && course.deadlines.length === 0 && (
                 <p className="text-sm text-muted-foreground text-center py-2">
