@@ -47,7 +47,10 @@ interface SessionStats {
   hard: number;
   good: number;
   easy: number;
+  requeuedCount: number;
 }
+
+const MAX_REQUEUES = 2;
 
 const RATING_BUTTONS = [
   { label: "Forgot", quality: 1, color: "#ef4444", key: "1" },
@@ -81,7 +84,7 @@ export function FlashcardDeck() {
   const [rated, setRated] = useState(false);
   const [topicProgress, setTopicProgress] = useState<Map<string, TopicProgress>>(new Map());
   const [sessionStats, setSessionStats] = useState<SessionStats>({
-    total: 0, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0,
+    total: 0, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0, requeuedCount: 0,
   });
   const [sessionComplete, setSessionComplete] = useState(false);
   const [srsEmpty, setSrsEmpty] = useState<"none" | "no-keyterms" | null>(null);
@@ -89,6 +92,8 @@ export function FlashcardDeck() {
   const [dueTopicCourses, setDueTopicCourses] = useState<{ id: string; name: string }[]>([]);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const topicProgressRef = useRef<Map<string, TopicProgress>>(new Map());
+  const requeuedIndicesRef = useRef<Set<number>>(new Set());
+  const requeueCountRef = useRef<Map<string, number>>(new Map());
 
   // Load courses
   useEffect(() => {
@@ -256,6 +261,8 @@ export function FlashcardDeck() {
     const card = cards[currentIndex];
     const topicId = card.topicId;
 
+    const isRequeued = requeuedIndicesRef.current.has(currentIndex);
+
     // Update session stats
     setSessionStats((prev) => {
       const next = { ...prev, reviewed: prev.reviewed + 1 };
@@ -266,18 +273,37 @@ export function FlashcardDeck() {
       return next;
     });
 
-    // Update topic progress via ref (always fresh, no closure staleness)
-    const tp = topicProgressRef.current.get(topicId);
-    if (tp) {
-      tp.ratedCards += 1;
-      tp.minQuality = Math.min(tp.minQuality, quality);
+    // Only first-time encounters count toward topic progress and SRS
+    if (!isRequeued) {
+      const tp = topicProgressRef.current.get(topicId);
+      if (tp) {
+        tp.ratedCards += 1;
+        tp.minQuality = Math.min(tp.minQuality, quality);
 
-      if (tp.ratedCards === tp.totalCards && !tp.reviewed) {
-        tp.reviewed = true;
-        postReview(topicId, tp.minQuality);
+        if (tp.ratedCards === tp.totalCards && !tp.reviewed) {
+          tp.reviewed = true;
+          postReview(topicId, tp.minQuality);
+        }
+      }
+      setTopicProgress(new Map(topicProgressRef.current));
+    }
+
+    // Re-queue missed cards (Forgot or Hard) for within-session reinforcement
+    if (quality <= 3) {
+      const cardKey = `${card.topicId}:${card.term}`;
+      const count = requeueCountRef.current.get(cardKey) ?? 0;
+      if (count < MAX_REQUEUES) {
+        requeueCountRef.current.set(cardKey, count + 1);
+        setCards((prev) => {
+          requeuedIndicesRef.current.add(prev.length);
+          return [...prev, { ...card }];
+        });
+        setSessionStats((prev) => ({
+          ...prev,
+          requeuedCount: prev.requeuedCount + 1,
+        }));
       }
     }
-    setTopicProgress(new Map(topicProgressRef.current));
 
     // Auto-advance after delay
     advanceTimerRef.current = setTimeout(() => {
@@ -379,6 +405,8 @@ export function FlashcardDeck() {
     setRated(false);
     setSessionComplete(false);
     setSrsEmpty(null);
+    requeuedIndicesRef.current = new Set();
+    requeueCountRef.current = new Map();
     if (newMode === "srs") {
       setSelectedCourseId("");
     }
@@ -392,7 +420,9 @@ export function FlashcardDeck() {
     setRated(false);
     topicProgressRef.current = new Map();
     setTopicProgress(new Map());
-    setSessionStats({ total: 0, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0 });
+    setSessionStats({ total: 0, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0, requeuedCount: 0 });
+    requeuedIndicesRef.current = new Set();
+    requeueCountRef.current = new Map();
     setSrsEmpty(null);
     // Trigger re-fetch by toggling a dependency
     setMode("browse");
@@ -588,6 +618,12 @@ export function FlashcardDeck() {
             <div className="text-left font-medium">{sessionStats.good}</div>
             <div className="text-right" style={{ color: "#3b82f6" }}>Easy:</div>
             <div className="text-left font-medium">{sessionStats.easy}</div>
+            {sessionStats.requeuedCount > 0 && (
+              <>
+                <div className="text-muted-foreground text-right">Cards re-studied:</div>
+                <div className="text-left font-medium">{sessionStats.requeuedCount}</div>
+              </>
+            )}
           </div>
           <Button onClick={handleNewSession} className="w-full sm:w-auto min-h-[44px]">
             Start New Session
