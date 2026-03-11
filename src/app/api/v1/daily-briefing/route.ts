@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
       select: {
         id: true,
         name: true,
+        description: true,
         dueDate: true,
         courseId: true,
       },
@@ -78,6 +79,7 @@ export async function GET(req: NextRequest) {
       select: {
         id: true,
         name: true,
+        description: true,
         date: true,
         courseId: true,
       },
@@ -112,6 +114,7 @@ export async function GET(req: NextRequest) {
       topics: Array<{ topicId: string; topicName: string; mastery: string }>;
       deadlines: Array<{
         name: string;
+        description: string | null;
         type: "assignment" | "exam";
         dueDate: string | null;
         daysLeft: number | null;
@@ -155,6 +158,7 @@ export async function GET(req: NextRequest) {
   for (const a of pendingAssignments) {
     ensureBucket(a.courseId).deadlines.push({
       name: a.name,
+      description: a.description ?? null,
       type: "assignment",
       dueDate: a.dueDate?.toISOString().slice(0, 10) ?? null,
       daysLeft: a.dueDate ? computeDaysLeft(a.dueDate, now) : null,
@@ -165,6 +169,7 @@ export async function GET(req: NextRequest) {
   for (const e of upcomingExams) {
     ensureBucket(e.courseId).deadlines.push({
       name: e.name,
+      description: e.description ?? null,
       type: "exam",
       dueDate: e.date?.toISOString().slice(0, 10) ?? null,
       daysLeft: e.date ? computeDaysLeft(e.date, now) : null,

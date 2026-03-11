@@ -308,6 +308,7 @@ const spec = {
                                   type: "object",
                                   properties: {
                                     name: { type: "string" },
+                                    description: { type: "string", nullable: true, description: "Additional context (e.g. what's covered on an exam)" },
                                     type: { type: "string", enum: ["assignment", "exam"] },
                                     dueDate: { type: "string", format: "date", nullable: true },
                                     daysLeft: { type: "integer", nullable: true },
