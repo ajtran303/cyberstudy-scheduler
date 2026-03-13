@@ -263,7 +263,7 @@ export function DailyBriefing() {
         return (
           <Card key={course.id}>
             <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
+              <CardTitle className="text-base flex items-center gap-2 min-w-0">
                 <div
                   className="h-2.5 w-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: color }}

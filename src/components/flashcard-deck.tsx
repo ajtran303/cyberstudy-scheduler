@@ -652,73 +652,77 @@ export function FlashcardDeck() {
             >
               {/* Front */}
               <div
-                className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border bg-card p-6 cyber-glow"
+                className="absolute inset-0 flex flex-col rounded-xl border bg-card p-6 pt-10 pb-10 cyber-glow"
                 style={{ backfaceVisibility: "hidden", transform: "rotateY(0deg)" }}
               >
                 {mode === "srs" ? (
                   <>
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                    <div className="absolute top-3 left-3 right-16 flex items-center gap-1.5">
                       <span
-                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
                         style={{ backgroundColor: card.courseColor }}
                       />
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs truncate">
                         {card.courseName}
                       </Badge>
                     </div>
                     <div className="absolute top-3 right-3">
                       <MasteryBadge mastery={card.mastery} size="sm" />
                     </div>
-                    <Badge variant="outline" className="absolute bottom-3 left-3 text-xs">
+                    <Badge variant="outline" className="absolute bottom-3 left-3 right-3 max-w-full w-fit text-xs truncate">
                       {card.topicName}
                     </Badge>
                   </>
                 ) : (
-                  <Badge variant="secondary" className="absolute top-3 left-3 text-xs">
+                  <Badge variant="secondary" className="absolute top-3 left-3 right-3 max-w-full w-fit text-xs truncate">
                     {card.topicName}
                   </Badge>
                 )}
-                <p className="text-xl font-semibold text-center">{card.term}</p>
-                <p className="text-xs text-muted-foreground mt-3">
-                  Tap to reveal
-                </p>
+                <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto">
+                  <p className="text-xl font-semibold text-center">{card.term}</p>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Tap to reveal
+                  </p>
+                </div>
               </div>
               {/* Back */}
               <div
-                className="absolute inset-0 flex flex-col items-center justify-center rounded-xl border bg-card p-6 cyber-glow"
+                className="absolute inset-0 flex flex-col rounded-xl border bg-card p-6 pt-10 pb-10 cyber-glow"
                 style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
               >
                 {mode === "srs" ? (
                   <>
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                    <div className="absolute top-3 left-3 right-16 flex items-center gap-1.5">
                       <span
-                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
                         style={{ backgroundColor: card.courseColor }}
                       />
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs truncate">
                         {card.courseName}
                       </Badge>
                     </div>
                     <div className="absolute top-3 right-3">
                       <MasteryBadge mastery={card.mastery} size="sm" />
                     </div>
-                    <Badge variant="outline" className="absolute bottom-3 left-3 text-xs">
+                    <Badge variant="outline" className="absolute bottom-3 left-3 right-3 max-w-full w-fit text-xs truncate">
                       {card.topicName}
                     </Badge>
                   </>
                 ) : (
-                  <Badge variant="secondary" className="absolute top-3 left-3 text-xs">
+                  <Badge variant="secondary" className="absolute top-3 left-3 right-3 max-w-full w-fit text-xs truncate">
                     {card.topicName}
                   </Badge>
                 )}
-                <p className="text-center text-sm leading-relaxed">
-                  {card.definition}
-                </p>
-                {mode !== "srs" && (
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Tap to flip back
+                <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto">
+                  <p className="text-center text-sm leading-relaxed">
+                    {card.definition}
                   </p>
-                )}
+                  {mode !== "srs" && (
+                    <p className="text-xs text-muted-foreground mt-3">
+                      Tap to flip back
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
