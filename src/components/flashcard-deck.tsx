@@ -91,6 +91,7 @@ export function FlashcardDeck() {
   const [dueTopicCount, setDueTopicCount] = useState(0);
   const [dueTopicCourses, setDueTopicCourses] = useState<{ id: string; name: string }[]>([]);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cardsLengthRef = useRef(0);
   const topicProgressRef = useRef<Map<string, TopicProgress>>(new Map());
   const requeuedIndicesRef = useRef<Set<number>>(new Set());
   const requeueCountRef = useRef<Map<string, number>>(new Map());
@@ -183,6 +184,7 @@ export function FlashcardDeck() {
       }
 
       setCards(shuffledDeck);
+      cardsLengthRef.current = shuffledDeck.length;
       topicProgressRef.current = progress;
       setTopicProgress(progress);
       setSessionStats({ total: shuffledDeck.length, reviewed: 0, forgot: 0, hard: 0, good: 0, easy: 0, requeuedCount: 0 });
@@ -291,13 +293,16 @@ export function FlashcardDeck() {
     }
 
     // Re-queue missed cards (Forgot or Hard) for within-session reinforcement
+    let didRequeue = false;
     if (quality <= 3) {
       const cardKey = `${card.topicId}:${card.term}`;
       const count = requeueCountRef.current.get(cardKey) ?? 0;
       if (count < MAX_REQUEUES) {
+        didRequeue = true;
         requeueCountRef.current.set(cardKey, count + 1);
         setCards((prev) => {
           requeuedIndicesRef.current.add(prev.length);
+          cardsLengthRef.current = prev.length + 1;
           return [...prev, { ...card }];
         });
         setSessionStats((prev) => ({
@@ -308,8 +313,9 @@ export function FlashcardDeck() {
     }
 
     // Auto-advance after delay
+    const requeued = didRequeue;
     advanceTimerRef.current = setTimeout(() => {
-      advanceToNext();
+      advanceToNext(requeued);
     }, 300);
   }
 
@@ -336,8 +342,9 @@ export function FlashcardDeck() {
     }
   }
 
-  function advanceToNext() {
-    if (currentIndex < cards.length - 1) {
+  function advanceToNext(justRequeued = false) {
+    const deckLength = justRequeued ? cardsLengthRef.current : cards.length;
+    if (currentIndex < deckLength - 1) {
       setCurrentIndex((i) => i + 1);
       setFlipped(false);
       setRated(false);
