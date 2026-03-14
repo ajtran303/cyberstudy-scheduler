@@ -83,45 +83,58 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
-  // Phase 2: per-exam topic queries (depends on upcomingExams)
-  const examPrep = await Promise.all(
-    upcomingExams.map(async (exam) => {
-      const topics = exam.date
-        ? await prisma.topic.findMany({
-            where: {
-              courseId: exam.courseId,
-              date: { lte: exam.date },
-              mastery: { not: "MASTERED" },
-            },
-            select: {
-              id: true,
-              name: true,
-              mastery: true,
-              nextReviewAt: true,
-            },
-            orderBy: { mastery: "asc" },
-          })
-        : [];
-
-      const topicsNeedingReview = topics.filter(
-        (t) =>
-          t.mastery === "NOT_STARTED" ||
-          ((t.mastery === "LEARNING" || t.mastery === "PROFICIENT") &&
-            (!t.nextReviewAt || new Date(t.nextReviewAt) <= now))
-      ).length;
-
-      return {
-        exam: {
-          id: exam.id,
-          name: exam.name,
-          date: exam.date,
-          course: exam.course,
+  // Phase 2: single batch query for all exam-related topics (fixes N+1)
+  const examCourseIds = [...new Set(upcomingExams.filter((e) => e.date).map((e) => e.courseId))];
+  const allExamTopics = examCourseIds.length > 0
+    ? await prisma.topic.findMany({
+        where: {
+          courseId: { in: examCourseIds },
+          mastery: { not: "MASTERED" },
         },
-        topics,
-        topicsNeedingReview,
-      };
-    })
-  );
+        select: {
+          id: true,
+          name: true,
+          mastery: true,
+          nextReviewAt: true,
+          courseId: true,
+          date: true,
+        },
+        orderBy: { mastery: "asc" },
+      })
+    : [];
+
+  // Group by courseId for fast lookup
+  const topicsByCourse = new Map<string, typeof allExamTopics>();
+  for (const t of allExamTopics) {
+    const list = topicsByCourse.get(t.courseId);
+    if (list) list.push(t);
+    else topicsByCourse.set(t.courseId, [t]);
+  }
+
+  const examPrep = upcomingExams.map((exam) => {
+    const courseTopics = topicsByCourse.get(exam.courseId) ?? [];
+    const topics = exam.date
+      ? courseTopics.filter((t) => !t.date || t.date <= exam.date!)
+      : [];
+
+    const topicsNeedingReview = topics.filter(
+      (t) =>
+        t.mastery === "NOT_STARTED" ||
+        ((t.mastery === "LEARNING" || t.mastery === "PROFICIENT") &&
+          (!t.nextReviewAt || new Date(t.nextReviewAt) <= now))
+    ).length;
+
+    return {
+      exam: {
+        id: exam.id,
+        name: exam.name,
+        date: exam.date,
+        course: exam.course,
+      },
+      topics: topics.map((t) => ({ id: t.id, name: t.name, mastery: t.mastery, nextReviewAt: t.nextReviewAt })),
+      topicsNeedingReview,
+    };
+  });
 
   // Group SRS topics by course
   const srsByCourse: Record<
