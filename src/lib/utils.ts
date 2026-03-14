@@ -10,14 +10,17 @@ export function toNoonUTC(dateStr: string): Date {
   return new Date(`${dateStr}T12:00:00Z`);
 }
 
-/** Format a Date (or ISO string) using UTC components so the displayed date is timezone-safe. */
+/** Format a Date (or ISO string) in America/New_York so displayed dates match ET. */
 export function formatDate(
   date: Date | string | null | undefined,
   options?: Intl.DateTimeFormatOptions,
 ): string {
   if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString(undefined, options);
+  return d.toLocaleDateString(undefined, {
+    timeZone: "America/New_York",
+    ...options,
+  });
 }
 
 export function daysLeft(date: Date | string | null | undefined): string {
