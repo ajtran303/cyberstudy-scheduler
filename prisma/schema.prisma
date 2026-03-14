@@ -69,6 +69,9 @@ model Topic {
   quizAttempts   QuizAttempt[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+
+  @@index([nextReviewAt])
+  @@index([courseId, mastery])
 }
 
 enum Mastery {
@@ -162,4 +165,6 @@ model StudySession {
   notes           String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([userId, startedAt])
 }

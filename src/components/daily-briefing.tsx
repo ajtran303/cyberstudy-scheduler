@@ -6,8 +6,10 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SrsDueBadge } from "@/components/srs-due-badge";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import {
   MASTERY_COLORS,
   MASTERY_LABELS,
@@ -94,22 +96,34 @@ export function DailyBriefing() {
   const [todayData, setTodayData] = useState<TodayData | null>(null);
   const [briefingData, setBriefingData] = useState<BriefingData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [updating, setUpdating] = useState<string | null>(null);
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
 
   async function load() {
     setLoading(true);
-    const [todayRes, briefingRes] = await Promise.all([
-      fetch("/api/v1/today-plan"),
-      fetch("/api/v1/daily-briefing"),
-    ]);
-    const [todayJson, briefingJson] = await Promise.all([
-      todayRes.json(),
-      briefingRes.json(),
-    ]);
-    setTodayData(todayJson.data);
-    setBriefingData(briefingJson.data);
-    setLoading(false);
+    setError(false);
+    try {
+      const [todayRes, briefingRes] = await Promise.all([
+        fetch("/api/v1/today-plan"),
+        fetch("/api/v1/daily-briefing"),
+      ]);
+      if (!todayRes.ok || !briefingRes.ok) {
+        setError(true);
+        setLoading(false);
+        return;
+      }
+      const [todayJson, briefingJson] = await Promise.all([
+        todayRes.json(),
+        briefingRes.json(),
+      ]);
+      setTodayData(todayJson.data);
+      setBriefingData(briefingJson.data);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -169,7 +183,18 @@ export function DailyBriefing() {
     );
   }
 
-  if (!todayData || !briefingData) return null;
+  if (error || !todayData || !briefingData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
+        <AlertTriangle className="h-8 w-8 text-destructive" />
+        <p className="text-sm text-muted-foreground">Failed to load today&apos;s plan</p>
+        <Button variant="outline" size="sm" onClick={load}>
+          <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   const statItems = [
     { label: "Study Time Today", value: `${todayData.stats.studyMinutesToday}m` },

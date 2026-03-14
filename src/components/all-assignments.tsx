@@ -1,20 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AlertTriangle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { AlertTriangle, Eye, EyeOff, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DaysLeftBadge } from "@/components/days-left-badge";
 import { formatDate } from "@/lib/utils";
-
-interface Course {
-  id: string;
-  name: string;
-  color: string | null;
-}
 
 type ItemKind = "assignment" | "exam";
 
@@ -31,85 +25,34 @@ interface DeadlineItem {
   courseColor: string | null;
 }
 
-interface RawAssignment {
-  id: string;
-  name: string;
-  dueDate: string | null;
-  status: "PENDING" | "DONE";
-  description: string | null;
-  daysLeft: string;
-}
-
-interface RawExam {
-  id: string;
-  name: string;
-  date: string | null;
-  status: "UPCOMING" | "COMPLETED";
-  description: string | null;
-  daysLeft: string;
-}
-
 export function AllDeadlines() {
   const router = useRouter();
   const [items, setItems] = useState<DeadlineItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [hideDone, setHideDone] = useState(false);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/v1/courses");
-        const json = await res.json();
-        const courses: Course[] = json.data || [];
-
-        const results = await Promise.all(
-          courses.map(async (c) => {
-            const [assignRes, examRes] = await Promise.all([
-              fetch(`/api/v1/courses/${c.id}/assignments`),
-              fetch(`/api/v1/courses/${c.id}/exams`),
-            ]);
-            const assignJson = await assignRes.json();
-            const examJson = await examRes.json();
-
-            const assignments: DeadlineItem[] = ((assignJson.data || []) as RawAssignment[]).map((a) => ({
-              id: a.id,
-              kind: "assignment" as const,
-              name: a.name,
-              dueDate: a.dueDate,
-              done: a.status === "DONE",
-              description: a.description,
-              daysLeft: a.daysLeft,
-              courseId: c.id,
-              courseName: c.name,
-              courseColor: c.color,
-            }));
-
-            const exams: DeadlineItem[] = ((examJson.data || []) as RawExam[]).map((e) => ({
-              id: e.id,
-              kind: "exam" as const,
-              name: e.name,
-              dueDate: e.date,
-              done: e.status === "COMPLETED",
-              description: e.description,
-              daysLeft: e.daysLeft,
-              courseId: c.id,
-              courseName: c.name,
-              courseColor: c.color,
-            }));
-
-            return [...assignments, ...exams];
-          })
-        );
-
-        setItems(results.flat());
-      } catch {
-        // silently fail — empty list
-      } finally {
-        setLoading(false);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await fetch("/api/v1/deadlines");
+      if (!res.ok) {
+        setError(true);
+        return;
       }
+      const json = await res.json();
+      setItems(json.data || []);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const displayed = items
     .filter((a) => !hideDone || !a.done)
@@ -170,7 +113,7 @@ export function AllDeadlines() {
       });
     } catch {
       setItems(oldItems);
-      toast.error("Network error");
+      toast.error("Could not update status");
     }
   }
 
@@ -178,6 +121,19 @@ export function AllDeadlines() {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-3">
+        <AlertTriangle className="h-8 w-8 text-destructive" />
+        <p className="text-sm text-muted-foreground">Failed to load deadlines</p>
+        <Button variant="outline" size="sm" onClick={load}>
+          <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+          Retry
+        </Button>
       </div>
     );
   }
