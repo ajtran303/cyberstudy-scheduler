@@ -26,6 +26,11 @@ export default async function DashboardLayout({
             </span>
           </Link>
           <div className="flex items-center gap-3">
+            {session.user.email === "demo@example.com" && (
+              <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-medium text-amber-400 ring-1 ring-amber-500/25">
+                Demo Mode
+              </span>
+            )}
             <span className="hidden text-sm text-muted-foreground truncate sm:inline">
               {session.user.name}
             </span>

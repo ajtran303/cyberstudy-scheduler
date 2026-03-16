@@ -12,6 +12,9 @@ export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+
+  const anyLoading = loading || demoLoading;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,6 +36,34 @@ export default function LoginPage() {
     } else {
       router.push("/dashboard");
       router.refresh();
+    }
+  }
+
+  async function handleDemoLogin() {
+    setError("");
+    setDemoLoading(true);
+
+    try {
+      const result = await signIn("credentials", {
+        email: "demo@example.com",
+        password: "password123",
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError("Demo account unavailable");
+        setDemoLoading(false);
+        return;
+      }
+
+      // Reset demo data to a clean state
+      await fetch("/api/v1/demo/reset", { method: "POST" });
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setError("Demo login failed");
+      setDemoLoading(false);
     }
   }
 
@@ -70,10 +101,28 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={anyLoading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">or</span>
+            </div>
+          </div>
+
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled={anyLoading}
+            onClick={handleDemoLogin}
+          >
+            {demoLoading ? "Loading demo..." : "Try Demo"}
+          </Button>
         </CardContent>
       </Card>
     </div>
