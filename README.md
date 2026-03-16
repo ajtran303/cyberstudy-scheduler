@@ -95,7 +95,29 @@ curl http://localhost:3000/api/v1/courses \
 
 ## Agent Integration
 
-An autonomous AI agent integrates with the API to automate quiz generation, grading, and study tracking. All calls use JWT auth via `POST /auth/login`. Tokens are not cached between sessions.
+An autonomous AI study agent ("Hex") runs on a cron schedule and integrates with both Obsidian (for note content) and this API (for study performance). The system has a clean data contract: I write to Obsidian, Hex reads from Obsidian. Hex writes to the Scheduler, I read from the Scheduler.
+
+### The Loop
+
+```
+Obsidian (notes) → Hex (automation) → Scheduler API (ground truth) → Dashboard (review)
+     ↑                                                                        |
+     └────────────────────── I study and take notes ──────────────────────────┘
+```
+
+1. **I take notes** in Obsidian during lectures — that's the only manual input.
+2. **Hex scans notes nightly**, cross-references against syllabuses to flag gaps.
+3. **Hex generates quizzes** (weekdays at 5:30 PM, weekly review on Saturdays) weighted toward missed topics via `GET /topics/performance-summary`.
+4. **Hex grades submissions** and logs results via `POST /quiz-attempts/bulk`.
+5. **Hex runs Teach It Back** sessions — I explain a concept, Hex grades using the Socratic method, logs outcomes via `POST /topics/:id/teach-it-back`.
+6. **Hex syncs key terms** from Obsidian notes into flashcards via `PATCH /topics/:id`.
+7. **I review in the dashboard** — SRS flashcard reviews, mastery promotions, and daily briefings are all driven from the Scheduler.
+
+Wrong answers compound through two independent feedback loops: Hex weights future quizzes toward missed topics, and SM-2 surfaces those same topics at shorter review intervals.
+
+### API Details
+
+All agent calls use JWT auth via `POST /auth/login`. Tokens are not cached between sessions.
 
 ### Read operations
 
