@@ -1,27 +1,22 @@
-import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import {
-  getAuthUser,
-  successResponse,
-  errorResponse,
-  unauthorizedResponse,
-} from "@/lib/api-helpers";
+import { successResponse, errorResponse } from "@/lib/api-helpers";
 import { seedDemoUser } from "@/lib/demo-seed";
 
-export async function POST(req: NextRequest) {
-  const user = await getAuthUser(req);
-  if (!user) return unauthorizedResponse();
-
-  if (user.email !== "demo@example.com") {
-    return errorResponse("FORBIDDEN", "This endpoint is only available for the demo account", 403);
-  }
-
+export async function POST() {
   try {
-    // Delete study sessions first (SetNull on course FK means they won't cascade)
-    await prisma.studySession.deleteMany({ where: { userId: user.id } });
-    // Delete courses — cascades to topics, assignments, exams, teach-it-backs, quiz attempts
-    await prisma.course.deleteMany({ where: { userId: user.id } });
-    // Re-seed demo data
+    // Find (or let seedDemoUser upsert) the demo user
+    const demoUser = await prisma.user.findUnique({
+      where: { email: "demo@example.com" },
+    });
+
+    if (demoUser) {
+      // Delete study sessions first (SetNull on course FK means they won't cascade)
+      await prisma.studySession.deleteMany({ where: { userId: demoUser.id } });
+      // Delete courses — cascades to topics, assignments, exams, teach-it-backs, quiz attempts
+      await prisma.course.deleteMany({ where: { userId: demoUser.id } });
+    }
+
+    // Re-seed (upserts the user if it doesn't exist yet)
     await seedDemoUser(prisma);
 
     return successResponse({ message: "Demo data reset" });
