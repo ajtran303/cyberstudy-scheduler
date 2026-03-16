@@ -44,6 +44,14 @@ export default function LoginPage() {
     setDemoLoading(true);
 
     try {
+      // Reset (and create if needed) demo data before signing in
+      const resetRes = await fetch("/api/v1/demo/reset", { method: "POST" });
+      if (!resetRes.ok) {
+        setError("Demo setup failed");
+        setDemoLoading(false);
+        return;
+      }
+
       const result = await signIn("credentials", {
         email: "demo@example.com",
         password: "password123",
@@ -55,9 +63,6 @@ export default function LoginPage() {
         setDemoLoading(false);
         return;
       }
-
-      // Reset demo data to a clean state
-      await fetch("/api/v1/demo/reset", { method: "POST" });
 
       router.push("/dashboard");
       router.refresh();
