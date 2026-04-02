@@ -14,8 +14,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { MasteryBadge } from "@/components/mastery-badge";
 import { MASTERY_COLORS, formatDate } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 interface Course {
   id: string;
@@ -73,7 +79,8 @@ export function FlashcardDeck() {
   const [mode, setMode] = useState<"srs" | "browse">("srs");
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
-  const [selectedTopicId, setSelectedTopicId] = useState<string>("");
+  const [selectedTopicIds, setSelectedTopicIds] = useState<Set<string>>(new Set());
+  const [topicPopoverOpen, setTopicPopoverOpen] = useState(false);
   const [topicOptions, setTopicOptions] = useState<{ id: string; name: string }[]>([]);
   const [allBrowseCards, setAllBrowseCards] = useState<FlashcardItem[]>([]);
   const [cards, setCards] = useState<FlashcardItem[]>([]);
@@ -203,12 +210,12 @@ export function FlashcardDeck() {
       setCards([]);
       setAllBrowseCards([]);
       setTopicOptions([]);
-      setSelectedTopicId("");
+      setSelectedTopicIds(new Set());
       return;
     }
     async function loadTopics() {
       setCardsLoading(true);
-      setSelectedTopicId("");
+      setSelectedTopicIds(new Set());
       const res = await fetch(`/api/v1/courses/${selectedCourseId}/topics`);
       const json = await res.json();
       const topics = json.data ?? [];
@@ -246,17 +253,17 @@ export function FlashcardDeck() {
     loadTopics();
   }, [mode, selectedCourseId]);
 
-  // Filter browse cards by selected topic
+  // Filter browse cards by selected topics
   useEffect(() => {
     if (mode !== "browse" || allBrowseCards.length === 0) return;
-    if (selectedTopicId) {
-      setCards(allBrowseCards.filter((c) => c.topicId === selectedTopicId));
+    if (selectedTopicIds.size > 0) {
+      setCards(allBrowseCards.filter((c) => selectedTopicIds.has(c.topicId)));
     } else {
       setCards(allBrowseCards);
     }
     setCurrentIndex(0);
     setFlipped(false);
-  }, [selectedTopicId, mode, allBrowseCards]);
+  }, [selectedTopicIds, mode, allBrowseCards]);
 
   async function handleRate(quality: number) {
     if (rated || mode !== "srs" || !cards.length) return;
@@ -408,7 +415,7 @@ export function FlashcardDeck() {
     setCards([]);
     setAllBrowseCards([]);
     setTopicOptions([]);
-    setSelectedTopicId("");
+    setSelectedTopicIds(new Set());
     setCurrentIndex(0);
     setFlipped(false);
     setRated(false);
@@ -501,22 +508,63 @@ export function FlashcardDeck() {
             </div>
             {topicOptions.length > 0 && (
               <div className="flex-1">
-                <Select
-                  value={selectedTopicId || "all"}
-                  onValueChange={(v) => setSelectedTopicId(v === "all" ? "" : v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Topics" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Topics</SelectItem>
-                    {topicOptions.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={topicPopoverOpen} onOpenChange={setTopicPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span className="truncate text-left">
+                        {selectedTopicIds.size === 0
+                          ? "All Topics"
+                          : selectedTopicIds.size === 1
+                            ? topicOptions.find((t) => selectedTopicIds.has(t.id))?.name ?? "1 topic"
+                            : `${selectedTopicIds.size} topics`}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <div className="max-h-60 overflow-y-auto p-1">
+                      <button
+                        className="flex w-full items-center gap-2 rounded-sm px-2 py-2 text-sm hover:bg-accent min-h-[44px]"
+                        onClick={() => {
+                          setSelectedTopicIds(new Set());
+                          setTopicPopoverOpen(false);
+                        }}
+                      >
+                        <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border ${selectedTopicIds.size === 0 ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground"}`}>
+                          {selectedTopicIds.size === 0 && <Check className="h-3 w-3" />}
+                        </span>
+                        All Topics
+                      </button>
+                      {topicOptions.map((t) => {
+                        const isSelected = selectedTopicIds.has(t.id);
+                        return (
+                          <button
+                            key={t.id}
+                            className="flex w-full items-center gap-2 rounded-sm px-2 py-2 text-sm hover:bg-accent min-h-[44px]"
+                            onClick={() => {
+                              setSelectedTopicIds((prev) => {
+                                const next = new Set(prev);
+                                if (isSelected) {
+                                  next.delete(t.id);
+                                } else {
+                                  next.add(t.id);
+                                }
+                                return next;
+                              });
+                            }}
+                          >
+                            <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border ${isSelected ? "border-primary bg-primary text-primary-foreground" : "border-muted-foreground"}`}>
+                              {isSelected && <Check className="h-3 w-3" />}
+                            </span>
+                            {t.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
           </>
